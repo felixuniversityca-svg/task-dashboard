@@ -1,6 +1,13 @@
 {
   "emails": [
     {
+      "subject": "[Netlify] Action needed: Felix is out of credits — Your projects have been suspended, top up to restore service",
+      "from": "Netlify",
+      "epoch": 1780177500,
+      "unread": true,
+      "snippet": "Your projects have been suspended Your credit usage on team Felix has exceeded your 300 credit allowance in the current billing cycle from May 30 to June 29. Yo"
+    },
+    {
       "subject": "[Netlify] You've used 75% of your credits on Felix",
       "from": "Netlify",
       "epoch": 1780176910,
@@ -59,7 +66,7 @@
       "color": "#0071e3",
       "contact": "",
       "sent_date": "2026-05-29",
-      "days_ago": "1",
+      "days_ago": "2",
       "desc": "V.1 drafted 2026-05-29, pending review"
     },
     {
@@ -69,7 +76,7 @@
       "color": "#0071e3",
       "contact": "",
       "sent_date": "2026-05-29",
-      "days_ago": "1",
+      "days_ago": "2",
       "desc": "V.1 drafted 2026-05-29, pending review"
     },
     {
@@ -79,7 +86,7 @@
       "color": "#0071e3",
       "contact": "",
       "sent_date": "2026-05-29",
-      "days_ago": "1",
+      "days_ago": "2",
       "desc": "V.1 drafted 2026-05-29, pending review"
     },
     {
@@ -89,7 +96,7 @@
       "color": "#ff9500",
       "contact": "Jean-Philippe Mathieu",
       "sent_date": "2026-05-27",
-      "days_ago": "3",
+      "days_ago": "4",
       "desc": "V.1 sent to Jean-Philippe Mathieu for feedback (2026-05-27); awaiting reply"
     },
     {
@@ -99,7 +106,7 @@
       "color": "#ff9500",
       "contact": "Gilles Koestel",
       "sent_date": "2026-05-27",
-      "days_ago": "3",
+      "days_ago": "4",
       "desc": "V.2 sent to Gilles Koestel for feedback (2026-05-27); awaiting reply. Title: \"vingt-cinq ans aux côt"
     },
     {
@@ -109,7 +116,7 @@
       "color": "#ff9500",
       "contact": "Pierre",
       "sent_date": "2026-05-29",
-      "days_ago": "1",
+      "days_ago": "2",
       "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud as true partner beyon"
     },
     {
@@ -119,7 +126,7 @@
       "color": "#34c759",
       "contact": "",
       "sent_date": "2026-05-29",
-      "days_ago": "1",
+      "days_ago": "2",
       "desc": "V.5 final 2026-05-29, all Stéphane annotations applied, sent ✅"
     }
   ],
@@ -128,32 +135,36 @@
       "item": "Myocene",
       "waiting_on": "Jean-Philippe Mathieu",
       "since": "2026-05-27",
-      "days": "3",
-      "label": "3d",
+      "days": "4",
+      "label": "4d",
       "desc": "V.1 sent to Jean-Philippe Mathieu for feedback (2026-05-27); awaiting reply"
     },
     {
       "item": "Colona",
       "waiting_on": "Gilles Koestel",
       "since": "2026-05-27",
-      "days": "3",
-      "label": "3d",
+      "days": "4",
+      "label": "4d",
       "desc": "V.2 sent to Gilles Koestel for feedback (2026-05-27); awaiting reply. Title: \"vi"
     },
     {
       "item": "ATB",
       "waiting_on": "Pierre",
       "since": "2026-05-29",
-      "days": "1",
-      "label": "1d",
+      "days": "2",
+      "label": "2d",
       "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud a"
     }
   ],
   "agenda": [
     {
-      "title": "Paint two chairs: first coat done, second coat tonight, last coat tomorrow morning",
-      "time": ""
+      "title": "Depart Charleville-Mezieres for Paris (TGV INOUI 2754, e-ticket BL2LBK)",
+      "time": "15:46"
+    },
+    {
+      "title": "Envoyer tous les docs InvestSud restants (TrustUp V.1, Sunrise V.1, Broptimize V.1)",
+      "time": "20:00"
     }
   ],
-  "fetched_at": "2026-05-30 23:41"
+  "fetched_at": "2026-05-31 01:28"
 }
