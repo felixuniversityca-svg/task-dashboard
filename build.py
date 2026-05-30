@@ -399,6 +399,20 @@ def build_html(active, blocked, completed, live_data):
     # Weekly stats for progress bar
     done_last_wk = sum(1 for c in completed if c["date"] and 7 < (today-c["date"]).days <= 14)
     done_today   = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
+    # Session status bar
+    fetched_at = live_data.get("fetched_at", "")
+    try:
+        sync_dt     = datetime.strptime(fetched_at, "%Y-%m-%d %H:%M")
+        minutes_ago = max(int((datetime.now() - sync_dt).total_seconds() / 60), 0)
+    except Exception:
+        minutes_ago = 0
+    if minutes_ago < 15:
+        sb_label = "Session active"; sb_color = "#34c759"
+    elif minutes_ago < 45:
+        sb_label = f"Session cooling · {minutes_ago}m ago"; sb_color = "#ff9500"
+    else:
+        sb_label = f"Session idle · {minutes_ago // 60}h {minutes_ago % 60}m ago"; sb_color = "#aeaeb2"
+    sb_pct = max(100 - int(minutes_ago * 1.2), 4)  # battery-style: drains over ~80 min
     panels     = build_panels(active, blocked, completed, live_data,
                               spark_data, legend, event_map)
     panels_js  = json.dumps(panels, ensure_ascii=False)
@@ -892,6 +906,8 @@ def build_html(active, blocked, completed, live_data):
       .wrap{{max-width:100%}}
       .top-row{{grid-template-columns:1fr 1fr}}
       .cal-grid{{grid-template-columns:1fr}}
+      .tri-row{{grid-template-columns:1fr 1fr}}
+      .pipeline-grid{{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
     }}
 
     /* Large phone / small iPad (480–640px) */
@@ -901,7 +917,9 @@ def build_html(active, blocked, completed, live_data):
       .kpi-val{{font-size:24px}}
       .top-row{{grid-template-columns:1fr}}
       .main-row{{grid-template-columns:1fr}}
+      .tri-row{{grid-template-columns:1fr}}
       .cal-grid{{grid-template-columns:1fr 1fr}}
+      .sb-mid{{display:none}}
     }}
 
     /* iPhone (max 480px) */
@@ -915,17 +933,33 @@ def build_html(active, blocked, completed, live_data):
       [data-tip]::after{{display:none}}
     }}
 
+    /* ─ Status bar ─ */
+    .sb-row{{display:flex;justify-content:space-between;align-items:center;
+             padding:6px 2px;margin-bottom:3px;flex-wrap:wrap;gap:6px}}
+    .sb-left{{display:flex;align-items:center;gap:7px}}
+    .sb-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+    .sb-label{{font-size:12px;font-weight:600;color:var(--text)}}
+    .sb-mid{{font-size:11px;color:var(--muted)}}
+    .sb-right{{font-size:11px;color:var(--muted)}}
+    .sb-track{{height:2px;background:var(--border);border-radius:1px;
+               margin-bottom:20px;overflow:hidden}}
+    .sb-fill{{height:100%;border-radius:1px;
+              transition:width 1.2s cubic-bezier(.16,1,.3,1)}}
+
     /* ─ Article pipeline ─ */
-    .pipeline-strip{{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;
-                     scrollbar-width:none}}
-    .pipeline-strip::-webkit-scrollbar{{display:none}}
-    .pipe-card{{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);
-               border-radius:var(--r);padding:12px 14px;min-width:130px;max-width:160px;
-               box-shadow:var(--shadow)}}
+    .pipeline-grid{{display:grid;
+                    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+                    gap:10px}}
+    .pipe-card{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);
+               display:flex;flex-direction:column;gap:6px}}
     .pipe-name{{font-size:13px;font-weight:600;color:var(--text);
-               overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:5px}}
-    .pipe-badge{{font-size:11px;font-weight:600;overflow:hidden;
+               overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+    .pipe-badge{{font-size:10px;font-weight:700;overflow:hidden;
                 text-overflow:ellipsis;white-space:nowrap}}
+
+    /* ─ Three-column main row ─ */
+    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}}
 
     /* ─ Agenda ─ */
     .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -1031,6 +1065,17 @@ def build_html(active, blocked, completed, live_data):
     <div class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></div>
   </div>
 
+  <!-- Status bar -->
+  <div class="sb-row">
+    <div class="sb-left">
+      <span class="sb-dot" style="background:{sb_color}"></span>
+      <span class="sb-label">{sb_label}</span>
+    </div>
+    <div class="sb-mid">{t_active} active &nbsp;·&nbsp; {t_block} blocked &nbsp;·&nbsp; {t_done} done &nbsp;·&nbsp; {done_wk} this week</div>
+    <div class="sb-right">CEST &nbsp;·&nbsp; {updated}</div>
+  </div>
+  <div class="sb-track"><div class="sb-fill" id="sb-fill" data-pct="{sb_pct}" style="width:0%;background:{sb_color}"></div></div>
+
   <div class="kpi-strip">{kpi_html}</div>
 
   <div class="top-row">
@@ -1055,10 +1100,20 @@ def build_html(active, blocked, completed, live_data):
 
   <div class="sec">
     <div class="sec-lbl">Article Pipeline</div>
-    <div class="pipeline-strip">{pipeline_html}</div>
+    <div class="pipeline-grid">{pipeline_html}</div>
   </div>
 
-  <div class="main-row">
+  <div class="tri-row">
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Active Tasks</div>
+        {active_cards}
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Blocked</div>
+        <div class="card">{blocked_rows}</div>
+      </div>
+    </div>
     <div>
       <div class="sec">
         <div class="sec-lbl">Today's Agenda</div>
@@ -1071,24 +1126,9 @@ def build_html(active, blocked, completed, live_data):
     </div>
     <div>
       <div class="sec">
-        <div class="sec-lbl">Active Tasks</div>
-        {active_cards}
-      </div>
-      <div class="sec">
-        <div class="sec-lbl">Blocked</div>
-        <div class="card">{blocked_rows}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="main-row">
-    <div>
-      <div class="sec">
         <div class="sec-lbl">Upcoming</div>
         <div class="card">{deadline_rows}</div>
       </div>
-    </div>
-    <div>
       <div class="sec">
         <div class="sec-lbl">Recent Emails</div>
         <div class="card">{email_rows}</div>
@@ -1203,16 +1243,17 @@ let startY = 0;
 drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; }}, {{passive:true}});
 drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
 
-// ── Progress bars ───────────────────────────────────────────────────────────
+// ── Status bar + progress bars ───────────────────────────────────────────────
 (function() {{
-  function animateBar(id) {{
+  function animateBar(id, delay) {{
     const el = document.getElementById(id);
     if (!el) return;
     const pct = parseInt(el.dataset.pct || '0', 10);
-    setTimeout(() => {{ el.style.width = pct + '%'; }}, 600);
+    setTimeout(() => {{ el.style.width = pct + '%'; }}, delay || 400);
   }}
-  animateBar('bar-week');
-  animateBar('bar-last');
+  animateBar('sb-fill',   200);
+  animateBar('bar-week',  700);
+  animateBar('bar-last',  800);
 }})();
 
 // ── Live clock ──────────────────────────────────────────────────────────────
