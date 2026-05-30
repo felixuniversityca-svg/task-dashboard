@@ -1,18 +1,18 @@
 {
   "emails": [
     {
-      "subject": "[Netlify] Your new Credits Free team felixuniversityca-svg\u2019s team is ready",
+      "subject": "[Netlify] Your new Credits Free team felixuniversityca-svg’s team is ready",
       "from": "Netlify",
       "epoch": 1780160946,
       "unread": true,
       "snippet": "Welcome to Netlify Free! Your new team felixuniversityca-svg&#39;s team is ready! Welcome to Netlify Free! You now have access to powerful tools to deploy and m"
     },
     {
-      "subject": "Marriott International, Inc is hiring for Busser + 8 new busser jobs in montr\u00e9al, qc",
+      "subject": "Marriott International, Inc is hiring for Busser + 8 new busser jobs in montréal, qc",
       "from": "Indeed",
       "epoch": 1780102144,
       "unread": true,
-      "snippet": "Marriott International, Inc, larrys, and 9146-2564 QUEBEC INC have new jobs. \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c"
+      "snippet": "Marriott International, Inc, larrys, and 9146-2564 QUEBEC INC have new jobs. ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌"
     },
     {
       "subject": "FW: Angles TrustUp & Sunrise",
@@ -44,5 +44,109 @@
       "title": "Capital Croissance first day (19A rue du Rocher, Paris)"
     }
   ],
-  "fetched_at": "2026-05-30 19:40"
+  "pipeline": [
+    {
+      "name": "TrustUp",
+      "stage": "draft_ready",
+      "label": "Draft ready",
+      "color": "#0071e3",
+      "contact": "",
+      "sent_date": "2026-05-29",
+      "days_ago": "1",
+      "desc": "V.1 drafted 2026-05-29, pending review"
+    },
+    {
+      "name": "Sunrise",
+      "stage": "draft_ready",
+      "label": "Draft ready",
+      "color": "#0071e3",
+      "contact": "",
+      "sent_date": "2026-05-29",
+      "days_ago": "1",
+      "desc": "V.1 drafted 2026-05-29, pending review"
+    },
+    {
+      "name": "Broptimize",
+      "stage": "draft_ready",
+      "label": "Draft ready",
+      "color": "#0071e3",
+      "contact": "",
+      "sent_date": "2026-05-29",
+      "days_ago": "1",
+      "desc": "V.1 drafted 2026-05-29, pending review"
+    },
+    {
+      "name": "Myocene",
+      "stage": "awaiting",
+      "label": "Awaiting reply",
+      "color": "#ff9500",
+      "contact": "Jean-Philippe Mathieu",
+      "sent_date": "2026-05-27",
+      "days_ago": "3",
+      "desc": "V.1 sent to Jean-Philippe Mathieu for feedback (2026-05-27); awaiting reply"
+    },
+    {
+      "name": "Colona",
+      "stage": "awaiting",
+      "label": "Awaiting reply",
+      "color": "#ff9500",
+      "contact": "Gilles Koestel",
+      "sent_date": "2026-05-27",
+      "days_ago": "3",
+      "desc": "V.2 sent to Gilles Koestel for feedback (2026-05-27); awaiting reply. Title: \"vingt-cinq ans aux côt"
+    },
+    {
+      "name": "ATB",
+      "stage": "awaiting",
+      "label": "Awaiting reply",
+      "color": "#ff9500",
+      "contact": "Pierre",
+      "sent_date": "2026-05-29",
+      "days_ago": "1",
+      "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud as true partner beyon"
+    },
+    {
+      "name": "Superplastic",
+      "stage": "published",
+      "label": "Published",
+      "color": "#34c759",
+      "contact": "",
+      "sent_date": "2026-05-29",
+      "days_ago": "1",
+      "desc": "V.5 final 2026-05-29, all Stéphane annotations applied, sent ✅"
+    }
+  ],
+  "replies": [
+    {
+      "item": "Myocene",
+      "waiting_on": "Jean-Philippe Mathieu",
+      "since": "2026-05-27",
+      "days": "3",
+      "label": "3d",
+      "desc": "V.1 sent to Jean-Philippe Mathieu for feedback (2026-05-27); awaiting reply"
+    },
+    {
+      "item": "Colona",
+      "waiting_on": "Gilles Koestel",
+      "since": "2026-05-27",
+      "days": "3",
+      "label": "3d",
+      "desc": "V.2 sent to Gilles Koestel for feedback (2026-05-27); awaiting reply. Title: \"vi"
+    },
+    {
+      "item": "ATB",
+      "waiting_on": "Pierre",
+      "since": "2026-05-29",
+      "days": "1",
+      "label": "1d",
+      "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud a"
+    }
+  ],
+  "agenda": [
+    {
+      "title": "Paint two chairs: first coat done, second coat tonight, last coat tomorrow morning",
+      "time": ""
+    }
+  ],
+  "fetched_at": "2026-05-30 22:52"
 }
