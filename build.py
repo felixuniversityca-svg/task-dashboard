@@ -391,8 +391,14 @@ def build_html(active, blocked, completed, live_data):
     donut_svg, legend   = donut_chart(active)
     deadlines  = live_data.get("deadlines", [])
     emails     = live_data.get("emails", [])
+    pipeline   = live_data.get("pipeline", [])
+    replies    = live_data.get("replies", [])
+    agenda     = live_data.get("agenda", [])
     cal_html, event_map = mini_calendar(deadlines, active, completed, months=2)
     updated    = datetime.now().strftime("%b %-d at %H:%M")
+    # Weekly stats for progress bar
+    done_last_wk = sum(1 for c in completed if c["date"] and 7 < (today-c["date"]).days <= 14)
+    done_today   = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
     panels     = build_panels(active, blocked, completed, live_data,
                               spark_data, legend, event_map)
     panels_js  = json.dumps(panels, ensure_ascii=False)
@@ -497,6 +503,91 @@ def build_html(active, blocked, completed, live_data):
         f'</div>'
         for l in legend
     ) or '<p class="empty-p" style="font-size:12px">No active projects</p>'
+
+    # Article pipeline widget
+    pipeline_html = ""
+    for i,a in enumerate(pipeline):
+        days_str = f" · {a['days_ago']}d" if a.get("days_ago") else ""
+        contact_str = f" · {a['contact']}" if a.get("contact") else ""
+        pd_key = f"pipeline-{i}"
+        panels[pd_key] = {
+            "t": a["name"], "sub": a["label"], "color": a["color"],
+            "rows": [
+                {"k": "Stage",   "v": a["label"]},
+                {"k": "Contact", "v": a["contact"]} if a.get("contact") else None,
+                {"k": "Sent",    "v": a["sent_date"] + days_str} if a.get("sent_date") else None,
+                {"k": "Status",  "v": a["desc"][:80]}
+            ]
+        }
+        pipeline_html += (
+            f'<div class="pipe-card interactive" data-key="{pd_key}" '
+            f'style="border-top:3px solid {a["color"]}">'
+            f'<div class="pipe-name">{escape(a["name"])}</div>'
+            f'<div class="pipe-badge" style="color:{a["color"]}">{escape(a["label"])}{escape(contact_str)}{escape(days_str)}</div>'
+            f'</div>'
+        )
+    if not pipeline_html:
+        pipeline_html = '<p class="empty-p">No articles tracked.</p>'
+
+    # Pending replies widget
+    replies_html = ""
+    for i,r in enumerate(replies):
+        days = int(r["days"]) if r.get("days") else 0
+        hl   = "red" if days >= 7 else ("orange" if days >= 3 else "")
+        pill_cls = "pill-red" if days>=7 else ("pill-orange" if days>=3 else "pill-gray")
+        pd_key = f"reply-{i}"
+        panels[pd_key] = {
+            "t": r["item"], "sub": f"Waiting on {r['waiting_on']}",
+            "color": "#ff9500",
+            "rows": [
+                {"k": "Item",        "v": r["item"]},
+                {"k": "Waiting on",  "v": r["waiting_on"]},
+                {"k": "Since",       "v": r["since"]} if r.get("since") else None,
+                {"k": "Days waiting","v": f"{days} days", "hl": hl} if days else None,
+                {"k": "Context",     "v": r.get("desc","")[:80]}
+            ]
+        }
+        replies_html += (
+            f'<div class="list-row interactive" data-key="{pd_key}">'
+            f'<span class="dot dot-orange"></span>'
+            f'<div class="list-main">'
+            f'<div class="list-text">{escape(r["item"])}</div>'
+            f'<div class="list-meta">Waiting on {escape(r["waiting_on"])}</div>'
+            f'</div>'
+            f'<span class="pill {pill_cls}">{r.get("label","")}</span>'
+            f'<span class="chevron">›</span></div>'
+        )
+    if not replies_html:
+        replies_html = '<p class="empty-p">No pending replies.</p>'
+
+    # Today's agenda widget
+    agenda_html = ""
+    for i,ev in enumerate(agenda):
+        t = ev.get("time","")
+        time_html = f'<span class="ag-time">{escape(t)}</span>' if t else '<span class="ag-time ag-allday">all day</span>'
+        pd_key = f"agenda-{i}"
+        panels[pd_key] = {
+            "t": ev["title"], "sub": f"Today{' at ' + t if t else ''}",
+            "color": "#0071e3",
+            "rows": [{"k": "Time", "v": t if t else "All day"}, {"k": "Date", "v": str(today)}]
+        }
+        agenda_html += (
+            f'<div class="list-row interactive" data-key="{pd_key}">'
+            f'{time_html}'
+            f'<span class="list-text">{escape(ev["title"])}</span>'
+            f'<span class="chevron">›</span></div>'
+        )
+    if not agenda_html:
+        agenda_html = '<p class="empty-p">Nothing scheduled today.</p>'
+
+    # Weekly progress bar
+    wk_max   = max(done_wk, done_last_wk, 5)
+    wk_pct   = min(int(done_wk / wk_max * 100), 100)
+    lw_pct   = min(int(done_last_wk / wk_max * 100), 100)
+    wk_color = "#34c759" if done_wk >= done_last_wk else "#ff9500"
+
+    # Rebuild panels_js with new entries
+    panels_js = json.dumps(panels, ensure_ascii=False)
 
     # Completed
     done_rows = ""
@@ -824,6 +915,40 @@ def build_html(active, blocked, completed, live_data):
       [data-tip]::after{{display:none}}
     }}
 
+    /* ─ Article pipeline ─ */
+    .pipeline-strip{{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;
+                     scrollbar-width:none}}
+    .pipeline-strip::-webkit-scrollbar{{display:none}}
+    .pipe-card{{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:12px 14px;min-width:130px;max-width:160px;
+               box-shadow:var(--shadow)}}
+    .pipe-name{{font-size:13px;font-weight:600;color:var(--text);
+               overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:5px}}
+    .pipe-badge{{font-size:11px;font-weight:600;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap}}
+
+    /* ─ Agenda ─ */
+    .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
+              flex-shrink:0;background:var(--blue-bg);border-radius:5px;
+              padding:2px 6px;text-align:center}}
+    .ag-allday{{color:var(--muted);background:#f2f2f7}}
+
+    /* ─ Progress bar ─ */
+    .progress-wrap{{background:var(--surface);border:1px solid var(--border);
+                   border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}}
+    .progress-header{{display:flex;justify-content:space-between;align-items:baseline;
+                      margin-bottom:12px}}
+    .progress-title{{font-size:10px;font-weight:700;text-transform:uppercase;
+                     letter-spacing:.9px;color:var(--muted)}}
+    .progress-stats{{font-size:12px;color:var(--muted)}}
+    .progress-bar-row{{display:flex;flex-direction:column;gap:6px}}
+    .bar-label{{font-size:11px;color:var(--muted);display:flex;
+               justify-content:space-between;margin-bottom:2px}}
+    .bar-track{{height:8px;background:#f2f2f7;border-radius:4px;overflow:hidden}}
+    .bar-fill{{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1)}}
+    .bar-fill-week{{background:var(--green)}}
+    .bar-fill-last{{background:#e5e5ea}}
+
     /* ─ Animations ─ */
     @keyframes fadeUp{{
       from{{opacity:0;transform:translateY(10px)}}
@@ -928,7 +1053,22 @@ def build_html(active, blocked, completed, live_data):
     </div>
   </div>
 
+  <div class="sec">
+    <div class="sec-lbl">Article Pipeline</div>
+    <div class="pipeline-strip">{pipeline_html}</div>
+  </div>
+
   <div class="main-row">
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Today's Agenda</div>
+        <div class="card">{agenda_html}</div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Pending Replies</div>
+        <div class="card">{replies_html}</div>
+      </div>
+    </div>
     <div>
       <div class="sec">
         <div class="sec-lbl">Active Tasks</div>
@@ -939,14 +1079,38 @@ def build_html(active, blocked, completed, live_data):
         <div class="card">{blocked_rows}</div>
       </div>
     </div>
+  </div>
+
+  <div class="main-row">
     <div>
       <div class="sec">
         <div class="sec-lbl">Upcoming</div>
         <div class="card">{deadline_rows}</div>
       </div>
+    </div>
+    <div>
       <div class="sec">
         <div class="sec-lbl">Recent Emails</div>
         <div class="card">{email_rows}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-title">Weekly Progress</span>
+        <span class="progress-stats">{done_wk} this week &nbsp;·&nbsp; {done_last_wk} last week &nbsp;·&nbsp; {done_today} today</span>
+      </div>
+      <div class="progress-bar-row">
+        <div>
+          <div class="bar-label"><span>This week</span><span>{done_wk} tasks</span></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-week" id="bar-week" style="width:0%;background:{wk_color}" data-pct="{wk_pct}"></div></div>
+        </div>
+        <div>
+          <div class="bar-label"><span>Last week</span><span>{done_last_wk} tasks</span></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-last" id="bar-last" data-pct="{lw_pct}"></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1038,6 +1202,18 @@ document.addEventListener('click', e => {{
 let startY = 0;
 drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; }}, {{passive:true}});
 drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
+
+// ── Progress bars ───────────────────────────────────────────────────────────
+(function() {{
+  function animateBar(id) {{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const pct = parseInt(el.dataset.pct || '0', 10);
+    setTimeout(() => {{ el.style.width = pct + '%'; }}, 600);
+  }}
+  animateBar('bar-week');
+  animateBar('bar-last');
+}})();
 
 // ── Live clock ──────────────────────────────────────────────────────────────
 (function() {{

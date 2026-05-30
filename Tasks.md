@@ -22,7 +22,7 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 - [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
 
 ### Personal
-- [ ] Paint chairs — second coat tonight, last coat tomorrow morning before train <!-- due: 2026-05-31 -->
+- [ ] Paint chairs — second coat in progress, last coat tomorrow morning before train <!-- due: 2026-05-31 -->
 
 ---
 
