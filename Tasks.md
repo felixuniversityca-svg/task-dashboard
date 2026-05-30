@@ -14,15 +14,15 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 ## Active
 
 ### InvestSud Articles
-- [ ] Send TrustUp article to partner for review
-- [ ] Send Sunrise article to partner for review
-- [ ] Send Broptimize article to partner for review
+- [ ] Send TrustUp article to partner for review <!-- due: 2026-05-31 -->
+- [ ] Send Sunrise article to partner for review <!-- due: 2026-05-31 -->
+- [ ] Send Broptimize article to partner for review <!-- due: 2026-05-31 -->
 
 ### Capital Croissance
-- [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4
+- [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
 
 ### Personal
-- [ ] Paint chairs — second coat tonight, last coat tomorrow morning before train
+- [ ] Paint chairs — second coat tonight, last coat tomorrow morning before train <!-- due: 2026-05-31 -->
 
 ---
 
