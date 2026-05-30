@@ -22,6 +22,7 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 - [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
 
 ### Personal
+- [ ] Train to Paris — TGV INOUI 2754, Charleville-Mézières <!-- due: 2026-05-31 --> <!-- time: 15:46 -->
 - [ ] Paint chairs — second coat in progress, last coat tomorrow morning before train <!-- due: 2026-05-31 -->
 
 ---
