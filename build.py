@@ -213,17 +213,20 @@ def hourly_calendar_html(agenda, deadlines, active, today):
     START_H, END_H, SLOT_H = 8, 22, 44
     total_px = (END_H - START_H) * SLOT_H
 
-    # ── Tasks due today / overdue ─────────────────────────────────────────────
+    # ── All-day tasks: overdue, due today (no time), or due tomorrow (no time) ─
+    tomorrow = today + timedelta(days=1)
     due_items = []
     for sec in (active or []):
         for t in sec.get("tasks", []):
-            if t.get("due") and t["due"] <= today:
-                overdue = t["due"] < today
-                due_items.append({
-                    "text":  t["text"],
-                    "label": "overdue" if overdue else "due today",
-                    "color": "#ff3b30" if overdue else "#0071e3"
-                })
+            due = t.get("due")
+            if not due: continue
+            if t.get("time") and due in (today, tomorrow): continue  # timed → goes on grid
+            if due < today:
+                due_items.append({"text": t["text"], "label": "overdue", "color": "#ff3b30"})
+            elif due == today:
+                due_items.append({"text": t["text"], "label": "today", "color": "#0071e3"})
+            elif due == tomorrow:
+                due_items.append({"text": t["text"], "label": "tomorrow", "color": "#34c759"})
 
     # ── Timed events: calendar, deadlines, tasks ─────────────────────────────
     events = []
@@ -242,14 +245,17 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                 if START_H <= h < END_H:
                     events.append({"title": dl["title"], "h": h, "mn": mn,
                                   "color": "#ff3b30", "bg": "var(--red-bg)"})
+    tomorrow = today + timedelta(days=1)
     for sec in (active or []):
         for t in sec.get("tasks", []):
-            if t.get("due") == today and t.get("time"):
+            due = t.get("due")
+            if due in (today, tomorrow) and t.get("time"):
                 mt = re.match(r"(\d{1,2}):(\d{2})", t["time"])
                 if mt:
                     h, mn = int(mt.group(1)), int(mt.group(2))
                     if START_H <= h < END_H:
-                        events.append({"title": t["text"], "h": h, "mn": mn,
+                        tag = " · tmr" if due == tomorrow else ""
+                        events.append({"title": t["text"] + tag, "h": h, "mn": mn,
                                       "color": "#34c759", "bg": "var(--green-bg)"})
 
     # ── All-day section ───────────────────────────────────────────────────────
