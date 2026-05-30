@@ -1,6 +1,13 @@
 {
   "emails": [
     {
+      "subject": "[Netlify] You've used 75% of your credits on Felix",
+      "from": "Netlify",
+      "epoch": 1780176910,
+      "unread": true,
+      "snippet": "You&#39;re using your credits! Your credit usage on team Felix has reached 75% of your 300 credit allowance in the current billing cycle from May 30 to June 29."
+    },
+    {
       "subject": "Your receipt from Anthropic, PBC #2401-9719-7480",
       "from": "Anthropic, PBC",
       "epoch": 1780175317,
@@ -20,13 +27,6 @@
       "epoch": 1780160946,
       "unread": true,
       "snippet": "Welcome to Netlify Free! Your new team felixuniversityca-svg&#39;s team is ready! Welcome to Netlify Free! You now have access to powerful tools to deploy and m"
-    },
-    {
-      "subject": "Marriott International, Inc is hiring for Busser + 8 new busser jobs in montréal, qc",
-      "from": "Indeed",
-      "epoch": 1780102144,
-      "unread": true,
-      "snippet": "Marriott International, Inc, larrys, and 9146-2564 QUEBEC INC have new jobs. ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌"
     }
   ],
   "deadlines": [
@@ -155,5 +155,5 @@
       "time": ""
     }
   ],
-  "fetched_at": "2026-05-30 23:34"
+  "fetched_at": "2026-05-30 23:35"
 }
