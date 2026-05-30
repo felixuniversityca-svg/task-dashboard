@@ -1,6 +1,20 @@
 {
   "emails": [
     {
+      "subject": "Your receipt from Anthropic, PBC #2401-9719-7480",
+      "from": "Anthropic, PBC",
+      "epoch": 1780175317,
+      "unread": true,
+      "snippet": "Your receipt from Anthropic, PBC #2401-9719-7480 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
+    },
+    {
+      "subject": "[Netlify] You've used 50% of your credits on Felix",
+      "from": "Netlify",
+      "epoch": 1780174728,
+      "unread": true,
+      "snippet": "You&#39;re using your credits! Your credit usage on team Felix has reached 50% of your 300 credit allowance in the current billing cycle from May 30 to June 29."
+    },
+    {
       "subject": "[Netlify] Your new Credits Free team felixuniversityca-svg’s team is ready",
       "from": "Netlify",
       "epoch": 1780160946,
@@ -13,13 +27,6 @@
       "epoch": 1780102144,
       "unread": true,
       "snippet": "Marriott International, Inc, larrys, and 9146-2564 QUEBEC INC have new jobs. ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌"
-    },
-    {
-      "subject": "FW: Angles TrustUp & Sunrise",
-      "from": "Felix Janssen",
-      "epoch": 1780037785,
-      "unread": true,
-      "snippet": "From: Jean-Philippe Mathieu &lt;jean-philippe.mathieu@investsud.be&gt; Sent: Friday, 29 May 2026 08:56:15 (UTC+01:00) Brussels, Copenhagen, Madrid, Paris To: Fe"
     }
   ],
   "deadlines": [
@@ -148,5 +155,5 @@
       "time": ""
     }
   ],
-  "fetched_at": "2026-05-30 22:52"
+  "fetched_at": "2026-05-30 23:31"
 }
