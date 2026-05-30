@@ -79,3 +79,4 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 - [[Broptimize Research Doc]] — mentionné dans le fichier
 - [[TrustUp_Research_Document_initial]] — mentionné dans le fichier
 - [[Dashboard]] — mentionné dans le fichier
+- [[Phone Second Brain Setup]] — mentionné dans le fichier
