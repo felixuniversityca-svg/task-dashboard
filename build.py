@@ -85,11 +85,14 @@ def parse_tasks(content):
             flush(); sub=strip_wikilink(s[4:].strip()); tasks=[]; continue
         if sec == "active" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
-            due = None
-            m = re.search(r"<!--\s*due:\s*(\d{4}-\d{2}-\d{2})\s*-->", raw)
-            if m: due=parse_date(m.group(1)); raw=raw[:m.start()].strip()
+            due = None; time_val = None
+            m_due  = re.search(r"<!--\s*due:\s*(\d{4}-\d{2}-\d{2})\s*-->", raw)
+            m_time = re.search(r"<!--\s*time:\s*(\d{1,2}:\d{2})\s*-->", raw)
+            if m_due:  due = parse_date(m_due.group(1))
+            if m_time: time_val = m_time.group(1)
+            raw = re.sub(r"<!--[^>]+-->", "", raw).strip()
             if sub is None: sub="Other"; tasks=[]
-            tasks.append({"text": strip_wikilink(raw), "due": due}); continue
+            tasks.append({"text": strip_wikilink(raw), "due": due, "time": time_val}); continue
         if sec == "blocked" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
             waiting=since=""
@@ -222,7 +225,7 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                     "color": "#ff3b30" if overdue else "#0071e3"
                 })
 
-    # ── Timed calendar events ─────────────────────────────────────────────────
+    # ── Timed events: calendar, deadlines, tasks ─────────────────────────────
     events = []
     for ev in (agenda or []):
         mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
@@ -239,6 +242,15 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                 if START_H <= h < END_H:
                     events.append({"title": dl["title"], "h": h, "mn": mn,
                                   "color": "#ff3b30", "bg": "var(--red-bg)"})
+    for sec in (active or []):
+        for t in sec.get("tasks", []):
+            if t.get("due") == today and t.get("time"):
+                mt = re.match(r"(\d{1,2}):(\d{2})", t["time"])
+                if mt:
+                    h, mn = int(mt.group(1)), int(mt.group(2))
+                    if START_H <= h < END_H:
+                        events.append({"title": t["text"], "h": h, "mn": mn,
+                                      "color": "#34c759", "bg": "var(--green-bg)"})
 
     # ── All-day section ───────────────────────────────────────────────────────
     allday_html = ""
