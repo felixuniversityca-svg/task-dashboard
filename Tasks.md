@@ -13,43 +13,44 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ## Active
 
-### Second Brain Build Queue
-- [ ] VS Code sidebar: pin Markdown Preview panel to sidebar showing Dashboard.md (manual -- open Dashboard.md, press Cmd+Shift+V, drag preview to secondary sidebar)
+### InvestSud Articles
+- [ ] Send TrustUp article to partner for review
+- [ ] Send Sunrise article to partner for review
+- [ ] Send Broptimize article to partner for review
 
-### [[CC_AI_Mandate|Capital Croissance]]
-<!-- Tasks will be added as Felix describes his work from June 1 -->
+### Capital Croissance
+- [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4
 
-### Summer Plans
-- [ ] Peindre deux chaises — 12h00 aujourd'hui (30 mai)
+### Personal
+- [ ] Paint chairs — second coat tonight, last coat tomorrow morning before train
 
 ---
 
 ## Blocked
 
-- [ ] ATB Therapeutics V.1 draft -- waiting: Pierre Detrixhe confirms angle -- since 2026-05-29
-- [ ] Phone Second Brain setup -- waiting: ANTHROPIC_API_KEY -- since 2026-05-28
+- [ ] Write ATB article V.1 -- waiting: Pierre Detrixhe to confirm the angle -- since 2026-05-29
+- [ ] Set up phone access to second brain -- waiting: ANTHROPIC_API_KEY -- since 2026-05-28
 
 ---
 
 ## Completed
 
-- [x] /task-breakdown skill: define re-run diff logic + full skill ✅ 2026-05-30
-- [x] PostToolUse hook: auto-regenerate Dashboard.md from Tasks.md ✅ 2026-05-30
-- [x] Status line: add BLOCKED:N field ✅ 2026-05-30
-- [x] SessionStart hook: surface blocked count at session open ✅ 2026-05-30
-- [x] Create Work & Projects/Projects/ folder + CC_AI_Mandate.md ✅ 2026-05-30
-- [x] Update Tasks.md section headers to links to project files ✅ 2026-05-30
-- [x] Relire et envoyer Superplastic V.5 à Stéphane ✅ 2026-05-29
-- [x] Rédiger article TrustUp V.1 ✅ 2026-05-29
-- [x] Rédiger article Sunrise V.1 ✅ 2026-05-29
-- [x] Rédiger article Broptimize V.1 ✅ 2026-05-29
-- [x] Préparer et réaliser interview ATB Therapeutics (Pierre Detrixhe) ✅ 2026-05-29
-- [x] Nap 15h30-18h00 — ✅ 2026-05-28
-- [x] Appel Alya — arrangements séjour Paris juin ✅ 2026-05-28
-- [x] Appel Teams JP Mathieu (Sunrise & TrustUp) — ✅ 2026-05-28, email angles envoyé
-- [x] Dîner chez Victor — ✅ 2026-05-28
-- [x] Remercier Philippe sur WhatsApp pour son cadeau et ses mots — ✅ 2026-05-28
-- [x] Inscription Minerva — Fall 2026 + Winter 2027 fully registered ✅ 2026-05-28
+- [x] Live task dashboard at felix-claude-tasks.netlify.app ✅ 2026-05-30
+- [x] Drive sync rewritten to use Google API directly (no more sign-out failures) ✅ 2026-05-30
+- [x] Task breakdown skill built with diff mode ✅ 2026-05-30
+- [x] Dashboard auto-regenerates when tasks change ✅ 2026-05-30
+- [x] Status line shows blocked task count ✅ 2026-05-30
+- [x] Session start flags blocked tasks automatically ✅ 2026-05-30
+- [x] Capital Croissance project folder and mandate file created ✅ 2026-05-30
+- [x] Superplastic article V.5 sent to Stephane ✅ 2026-05-29
+- [x] TrustUp article V.1 drafted ✅ 2026-05-29
+- [x] Sunrise article V.1 drafted ✅ 2026-05-29
+- [x] Broptimize article V.1 drafted ✅ 2026-05-29
+- [x] ATB Therapeutics interview done with Pierre Detrixhe ✅ 2026-05-29
+- [x] Called Alya about Paris accommodation for June ✅ 2026-05-28
+- [x] Teams call with JP Mathieu on Sunrise and TrustUp angles ✅ 2026-05-28
+- [x] Dinner at Victor's ✅ 2026-05-28
+- [x] McGill fall and winter courses registered ✅ 2026-05-28
 
 <!-- Marked [x] when done; check off in Apple Reminders too -->
 
