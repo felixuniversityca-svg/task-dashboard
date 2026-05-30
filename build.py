@@ -204,6 +204,62 @@ def mini_calendar(deadlines, active_all, completed_all, months=2):
     html += '</div>'
     return html, event_map
 
+
+def hourly_calendar_html(agenda, deadlines, today):
+    """Hour-by-hour day view. Falls back to timestamped list if <2 timed events."""
+    START_H, END_H, SLOT_H = 8, 22, 44
+    total_px = (END_H - START_H) * SLOT_H
+
+    events = []
+    for ev in (agenda or []):
+        mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
+        if mt:
+            h, mn = int(mt.group(1)), int(mt.group(2))
+            if START_H <= h < END_H:
+                events.append({"title": ev["title"], "h": h, "mn": mn,
+                               "color": "#0071e3", "bg": "var(--blue-bg)"})
+    for dl in (deadlines or []):
+        if dl.get("time") and parse_date(dl.get("date", "")) == today:
+            mt = re.match(r"(\d{1,2}):(\d{2})", dl["time"])
+            if mt:
+                h, mn = int(mt.group(1)), int(mt.group(2))
+                if START_H <= h < END_H:
+                    events.append({"title": dl["title"], "h": h, "mn": mn,
+                                  "color": "#ff3b30", "bg": "var(--red-bg)"})
+
+    # ── Fallback: simple list ─────────────────────────────────────────────────
+    if len(events) < 2:
+        if not events:
+            body = '<p class="empty-p" style="text-align:center;padding:28px 0">No timed events today.<br>Add events in Apple Calendar to see them here.</p>'
+        else:
+            ev = events[0]
+            body = (f'<div class="list-row">'
+                    f'<span class="ag-time">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
+                    f'<span class="list-text">{escape(ev["title"])}</span></div>')
+        return f'<div>{body}</div>'
+
+    # ── Full grid ─────────────────────────────────────────────────────────────
+    rows_h = ""
+    for h in range(START_H, END_H + 1):
+        top = (h - START_H) * SLOT_H
+        lbl = f"{h%12 or 12}{'am' if h<12 else 'pm'}"
+        rows_h += (f'<div class="dc-hrow" style="top:{top}px">'
+                   f'<span class="dc-hlbl">{lbl}</span>'
+                   f'<div class="dc-hline"></div></div>')
+    ev_h = ""
+    for ev in events:
+        top = (ev["h"] - START_H + ev["mn"]/60) * SLOT_H
+        ev_h += (f'<div class="dc-ev" style="top:{top:.1f}px;'
+                 f'border-left-color:{ev["color"]};background:{ev["bg"]}">'
+                 f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
+                 f'<span class="dc-ev-n">{escape(ev["title"][:38])}</span></div>')
+    return (f'<div class="dc-outer" id="dc-outer">'
+            f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
+            f'{rows_h}'
+            f'<div style="position:absolute;left:44px;right:0;top:0;bottom:0">'
+            f'<div class="dc-now" id="dc-now"></div>{ev_h}</div></div></div>')
+
+
 # ── Panel Data ────────────────────────────────────────────────────────────────
 
 def build_panels(active, blocked, completed, live_data, spark_data, legend, event_map):
@@ -396,6 +452,30 @@ def build_html(active, blocked, completed, live_data):
     agenda     = live_data.get("agenda", [])
     cal_html, event_map = mini_calendar(deadlines, active, completed, months=2)
     updated    = datetime.now().strftime("%b %-d at %H:%M")
+    build_epoch = int(datetime.now().timestamp())
+    hourly_cal  = hourly_calendar_html(agenda, deadlines, today)
+    # Velocity stats (done_today also used later by weekly progress bar)
+    done_today  = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
+    done_2wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days <= 14)
+    daily_avg   = round(done_2wk / 14, 1)
+    unread_count= sum(1 for e in emails if e.get("unread"))
+    # Pipeline pills
+    stage_seen  = {}
+    for a in pipeline:
+        s = a.get("stage","")
+        if s not in stage_seen:
+            stage_seen[s] = {"count": 0, "color": a["color"], "label": a["label"]}
+        stage_seen[s]["count"] += 1
+    pipeline_pills = "".join(
+        f'<span class="act-pill" style="background:{v["color"]}22;color:{v["color"]}">'
+        f'{v["count"]} {v["label"]}</span>'
+        for v in stage_seen.values()
+    ) if stage_seen else '<span style="font-size:12px;color:var(--muted)">No articles</span>'
+    # Velocity delta label
+    vel_color  = "vel-green" if done_today >= daily_avg else "vel-muted"
+    vel_delta  = done_today - daily_avg
+    vel_sign   = "+" if vel_delta >= 0 else ""
+    vel_trend  = f"{vel_sign}{vel_delta:.1f} vs avg"
     # Weekly stats for progress bar
     done_last_wk = sum(1 for c in completed if c["date"] and 7 < (today-c["date"]).days <= 14)
     done_today   = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
@@ -1052,6 +1132,49 @@ def build_html(active, blocked, completed, live_data):
 
     /* Count-up flash */
     .kpi-val.popped{{animation:countPulse .4s ease}}
+
+    /* ─ Extra row (day cal + velocity) ─ */
+    .extra-row{{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:16px}}
+    .extra-row>*{{min-width:0}}
+
+    /* ─ Day calendar ─ */
+    .dc-outer{{max-height:360px;overflow-y:auto;scrollbar-width:thin;
+               scrollbar-color:var(--border2) transparent}}
+    .dc-outer::-webkit-scrollbar{{width:4px}}
+    .dc-outer::-webkit-scrollbar-thumb{{background:var(--border2);border-radius:2px}}
+    .dc-hrow{{position:absolute;left:0;right:0;display:flex;align-items:flex-start}}
+    .dc-hlbl{{font-size:10px;color:var(--subtle);width:36px;text-align:right;
+              padding-right:7px;margin-top:-6px;flex-shrink:0}}
+    .dc-hline{{flex:1;height:1px;background:var(--border)}}
+    .dc-ev{{position:absolute;left:4px;right:4px;min-height:22px;
+            border-left:3px solid;padding:3px 7px;border-radius:0 5px 5px 0;
+            display:flex;align-items:center;gap:6px}}
+    .dc-ev-t{{font-size:10px;color:var(--muted);flex-shrink:0}}
+    .dc-ev-n{{font-size:12px;font-weight:500;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
+    .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none}}
+    .dc-now::before{{content:'';position:absolute;left:-3px;top:-3px;
+                     width:8px;height:8px;border-radius:50%;background:var(--red)}}
+
+    /* ─ Velocity card ─ */
+    .vel-grid{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}}
+    .vel-stat{{background:#f9f9fb;border:1px solid var(--border);border-radius:10px;
+               padding:10px 11px;text-align:center}}
+    .vel-val{{font-size:22px;font-weight:700;letter-spacing:-1px;line-height:1;
+              display:block;margin-bottom:3px}}
+    .vel-lbl{{font-size:10px;color:var(--muted);font-weight:500;line-height:1.3;display:block}}
+    .vel-green{{color:var(--green)}}.vel-blue{{color:var(--blue)}}
+    .vel-orange{{color:var(--orange)}}.vel-red{{color:var(--red)}}.vel-muted{{color:var(--subtle)}}
+    .vel-delta{{display:flex;align-items:center;justify-content:space-between;
+                font-size:11px;color:var(--muted);padding:8px 0;
+                border-top:1px solid var(--border);margin-top:6px}}
+    .vel-trend{{font-weight:600}}
+    .act-pill{{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;
+               display:inline-block;margin:2px}}
+
+    @media(max-width:900px){{
+      .extra-row{{grid-template-columns:1fr}}
+    }}
     }}
   </style>
 </head>
@@ -1142,6 +1265,42 @@ def build_html(active, blocked, completed, live_data):
     </div>
   </div>
 
+  <div class="extra-row">
+    <div class="panel">
+      <div class="p-lbl">Today &nbsp;·&nbsp; {today.strftime("%A %b %-d")}</div>
+      {hourly_cal}
+    </div>
+    <div class="panel">
+      <div class="p-lbl">Today's Velocity</div>
+      <div class="vel-grid">
+        <div class="vel-stat">
+          <span class="vel-val {vel_color}">{done_today}</span>
+          <span class="vel-lbl">done today</span>
+        </div>
+        <div class="vel-stat">
+          <span class="vel-val vel-muted">{daily_avg}</span>
+          <span class="vel-lbl">daily avg (14d)</span>
+        </div>
+        <div class="vel-stat">
+          <span class="vel-val vel-blue">{t_active}</span>
+          <span class="vel-lbl">active tasks</span>
+        </div>
+        <div class="vel-stat">
+          <span class="vel-val {'vel-orange' if t_block else 'vel-muted'}">{t_block}</span>
+          <span class="vel-lbl">blocked</span>
+        </div>
+      </div>
+      <div class="vel-delta">
+        <span>Emails unread: <b>{unread_count}</b></span>
+        <span class="vel-trend {'vel-green' if vel_delta >= 0 else 'vel-muted'}">{vel_trend}</span>
+      </div>
+      <div style="margin-top:12px">
+        <div class="sec-lbl" style="margin-bottom:7px">Articles</div>
+        <div>{pipeline_pills}</div>
+      </div>
+    </div>
+  </div>
+
   <div class="sec">
     <div class="progress-wrap">
       <div class="progress-header">
@@ -1170,7 +1329,7 @@ def build_html(active, blocked, completed, live_data):
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Last synced {updated}</span>
+    <span class="ft-time">Last synced <span id="sync-ago" data-ts="{build_epoch}">{updated}</span></span>
   </footer>
 
 </div>
@@ -1293,6 +1452,41 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   // Small delay so animation starts after card fade-in
   setTimeout(() => requestAnimationFrame(frame), 350);
 }});
+
+// ── Relative "last synced" time ─────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('sync-ago');
+  if (!el) return;
+  const epoch = parseInt(el.dataset.ts, 10);
+  function update() {{
+    const diff = Math.floor(Date.now() / 1000 - epoch);
+    if (diff < 60)       el.textContent = 'just now';
+    else if (diff < 3600) el.textContent = Math.floor(diff/60) + 'm ago';
+    else                  el.textContent = Math.floor(diff/3600) + 'h ' + Math.floor((diff%3600)/60) + 'm ago';
+  }}
+  update();
+  setInterval(update, 30000);
+}})();
+
+// ── Day calendar: current-time line + auto-scroll ───────────────────────────
+(function() {{
+  const nowEl = document.getElementById('dc-now');
+  const outer = document.getElementById('dc-outer');
+  if (!nowEl || !outer) return;
+  const START_H = 8, END_H = 22, SLOT_H = 44;
+  function placeLine() {{
+    const n = new Date();
+    const top = (n.getHours() - START_H + n.getMinutes()/60) * SLOT_H;
+    if (top < 0 || top > (END_H - START_H) * SLOT_H) {{ nowEl.style.display = 'none'; return; }}
+    nowEl.style.top = top.toFixed(1) + 'px';
+    nowEl.style.display = 'block';
+  }}
+  placeLine();
+  setInterval(placeLine, 60000);
+  // Scroll so current time is near top of visible area
+  const n = new Date();
+  outer.scrollTop = Math.max(0, (n.getHours() - START_H - 0.5) * SLOT_H);
+}})();
 </script>
 </body>
 </html>"""
