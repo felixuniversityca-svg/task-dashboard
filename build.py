@@ -934,16 +934,19 @@ def build_html(active, blocked, completed, live_data):
     }}
 
     /* ─ Status bar ─ */
+    .sb-wrap{{background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--r);padding:11px 16px;box-shadow:var(--shadow);
+              margin-bottom:16px}}
     .sb-row{{display:flex;justify-content:space-between;align-items:center;
-             padding:6px 2px;margin-bottom:3px;flex-wrap:wrap;gap:6px}}
-    .sb-left{{display:flex;align-items:center;gap:7px}}
-    .sb-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+             flex-wrap:wrap;gap:6px}}
+    .sb-left{{display:flex;align-items:center;gap:8px}}
+    .sb-dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0}}
     .sb-label{{font-size:12px;font-weight:600;color:var(--text)}}
     .sb-mid{{font-size:11px;color:var(--muted)}}
     .sb-right{{font-size:11px;color:var(--muted)}}
-    .sb-track{{height:2px;background:var(--border);border-radius:1px;
-               margin-bottom:20px;overflow:hidden}}
-    .sb-fill{{height:100%;border-radius:1px;
+    .sb-track{{height:6px;background:#f2f2f7;border-radius:3px;
+               margin-top:10px;overflow:hidden}}
+    .sb-fill{{height:100%;border-radius:3px;
               transition:width 1.2s cubic-bezier(.16,1,.3,1)}}
 
     /* ─ Article pipeline ─ */
@@ -960,6 +963,7 @@ def build_html(active, blocked, completed, live_data):
 
     /* ─ Three-column main row ─ */
     .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}}
+    .tri-row>*,.top-row>*{{min-width:0}}
 
     /* ─ Agenda ─ */
     .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -1066,15 +1070,17 @@ def build_html(active, blocked, completed, live_data):
   </div>
 
   <!-- Status bar -->
-  <div class="sb-row">
-    <div class="sb-left">
-      <span class="sb-dot" style="background:{sb_color}"></span>
-      <span class="sb-label">{sb_label}</span>
+  <div class="sb-wrap">
+    <div class="sb-row">
+      <div class="sb-left">
+        <span class="sb-dot" style="background:{sb_color}"></span>
+        <span class="sb-label">{sb_label}</span>
+      </div>
+      <div class="sb-mid">{t_active} active &nbsp;·&nbsp; {t_block} blocked &nbsp;·&nbsp; {t_done} done &nbsp;·&nbsp; {done_wk} this week</div>
+      <div class="sb-right">CEST &nbsp;·&nbsp; {updated}</div>
     </div>
-    <div class="sb-mid">{t_active} active &nbsp;·&nbsp; {t_block} blocked &nbsp;·&nbsp; {t_done} done &nbsp;·&nbsp; {done_wk} this week</div>
-    <div class="sb-right">CEST &nbsp;·&nbsp; {updated}</div>
+    <div class="sb-track"><div class="sb-fill" id="sb-fill" data-pct="{sb_pct}" style="width:0%;background:{sb_color}"></div></div>
   </div>
-  <div class="sb-track"><div class="sb-fill" id="sb-fill" data-pct="{sb_pct}" style="width:0%;background:{sb_color}"></div></div>
 
   <div class="kpi-strip">{kpi_html}</div>
 
