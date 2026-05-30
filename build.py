@@ -128,8 +128,9 @@ def sparkline(completed, days=14):
         v = len(tasks)
         bh = max(3, int(v/mx*H))
         fill = "#34c759" if v else "#e5e5ea"
-        bars += (f'<rect data-key="spark-{i}" x="{i*(bw+gap):.1f}" y="{H-bh}" '
-                 f'width="{bw:.1f}" height="{bh}" rx="2" fill="{fill}" style="cursor:pointer"/>')
+        bars += (f'<rect data-key="spark-{i}" class="spark-bar" '
+                 f'x="{i*(bw+gap):.1f}" y="{H-bh}" width="{bw:.1f}" height="{bh}" rx="2" '
+                 f'fill="{fill}" style="cursor:pointer;animation-delay:{i*28}ms"/>')
     svg = (f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" '
            f'style="width:100%;display:block">{bars}</svg>')
     return svg, sum(len(t) for _,t in data), data
@@ -397,17 +398,18 @@ def build_html(active, blocked, completed, live_data):
     panels_js  = json.dumps(panels, ensure_ascii=False)
 
     # KPI
-    def kpi(val, lbl, cls, key, tip):
+    def kpi(val, lbl, cls, key, tip, countup=None):
+        cu = f' data-countup="{countup}"' if countup is not None else ""
         return (f'<div class="kpi-card {cls} interactive" data-key="{key}" '
                 f'data-tip="{escape(tip)}">'
-                f'<div class="kpi-val">{val}</div>'
+                f'<div class="kpi-val"{cu}>{val}</div>'
                 f'<div class="kpi-lbl">{escape(lbl)}</div></div>')
     kpi_html = (
-        kpi(t_active, "Active",          "kpi-blue",                                "kpi-active",  "Tap for breakdown") +
-        kpi(t_block,  "Blocked",         "kpi-orange" if t_block else "",           "kpi-blocked", "Tap for details") +
-        kpi(done_wk,  "Done this week",  "kpi-green",                              "kpi-week",    "Tap to see tasks") +
+        kpi(t_active, "Active",         "kpi-blue",                              "kpi-active",  "Tap for breakdown", t_active) +
+        kpi(t_block,  "Blocked",        "kpi-orange" if t_block else "",         "kpi-blocked", "Tap for details",   t_block) +
+        kpi(done_wk,  "Done this week", "kpi-green",                             "kpi-week",    "Tap to see tasks",  done_wk) +
         kpi(f"{oldest}d" if oldest else "None", "Oldest block",
-            "kpi-red" if oldest>=14 else ("kpi-orange" if oldest>=3 else ""),      "kpi-oldest",  "Tap for details")
+            "kpi-red" if oldest>=14 else ("kpi-orange" if oldest>=3 else ""),    "kpi-oldest",  "Tap for details")
     )
 
     # Deadlines
@@ -530,7 +532,11 @@ def build_html(active, blocked, completed, live_data):
     }}
     html{{background:var(--bg)}}
     body{{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-          background:var(--bg);color:var(--text);min-height:100vh;
+          background:
+            radial-gradient(ellipse 55% 28% at 15% 0%,rgba(0,113,227,0.07) 0%,transparent 65%),
+            radial-gradient(ellipse 45% 22% at 85% 0%,rgba(52,199,89,0.06) 0%,transparent 65%),
+            var(--bg);
+          color:var(--text);min-height:100vh;
           padding:28px 20px 80px;-webkit-font-smoothing:antialiased}}
     .wrap{{max-width:1140px;margin:0 auto}}
 
@@ -817,6 +823,73 @@ def build_html(active, blocked, completed, live_data):
       .cal-grid{{grid-template-columns:1fr}}
       [data-tip]::after{{display:none}}
     }}
+
+    /* ─ Animations ─ */
+    @keyframes fadeUp{{
+      from{{opacity:0;transform:translateY(10px)}}
+      to  {{opacity:1;transform:translateY(0)}}
+    }}
+    @keyframes fadeIn{{
+      from{{opacity:0}} to{{opacity:1}}
+    }}
+    @keyframes growBar{{
+      from{{transform:scaleY(0);opacity:0}}
+      to  {{transform:scaleY(1);opacity:1}}
+    }}
+    @keyframes countPulse{{
+      0%{{transform:scale(1)}} 40%{{transform:scale(1.08)}} 100%{{transform:scale(1)}}
+    }}
+
+    /* Header */
+    .header{{animation:fadeUp .45s cubic-bezier(.16,1,.3,1) both}}
+
+    /* KPI stagger */
+    .kpi-card{{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}}
+    .kpi-strip>:nth-child(1){{animation-delay:60ms}}
+    .kpi-strip>:nth-child(2){{animation-delay:120ms}}
+    .kpi-strip>:nth-child(3){{animation-delay:180ms}}
+    .kpi-strip>:nth-child(4){{animation-delay:240ms}}
+
+    /* Top row */
+    .top-row>:nth-child(1){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 300ms both}}
+    .top-row>:nth-child(2){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 360ms both}}
+    .top-row>:nth-child(3){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 420ms both}}
+
+    /* Main columns */
+    .main-row>:nth-child(1){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 480ms both}}
+    .main-row>:nth-child(2){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 540ms both}}
+
+    /* Completed section */
+    .sec:last-of-type{{animation:fadeIn .5s ease 600ms both}}
+
+    /* Sparkline bar grow */
+    .spark-bar{{transform-origin:center bottom;animation:growBar .5s cubic-bezier(.16,1,.3,1) backwards}}
+
+    /* Hover lift -- cards and panels */
+    .kpi-card,.panel,.proj-card{{
+      transition:transform .22s cubic-bezier(.16,1,.3,1),
+                 box-shadow .22s ease,
+                 border-color .15s ease
+    }}
+    .kpi-card:hover,.panel:hover,.proj-card:hover{{
+      transform:translateY(-2px);
+      box-shadow:0 6px 28px rgba(0,0,0,0.10)
+    }}
+    .card{{transition:box-shadow .22s ease}}
+    .card:hover{{box-shadow:0 4px 20px rgba(0,0,0,0.09)}}
+
+    /* Live clock pulse dot */
+    .live-dot{{display:inline-block;width:6px;height:6px;border-radius:50%;
+               background:var(--green);margin-right:5px;vertical-align:middle;
+               animation:pulse 2.4s ease-in-out infinite}}
+    @keyframes pulse{{
+      0%,100%{{opacity:1;transform:scale(1)}}
+      50%{{opacity:.5;transform:scale(.85)}}
+    }}
+
+    /* Count-up flash */
+    .kpi-val.popped{{animation:countPulse .4s ease}}
+    }}
   </style>
 </head>
 <body>
@@ -830,7 +903,7 @@ def build_html(active, blocked, completed, live_data):
         <div class="hd-sub">Second Brain</div>
       </div>
     </div>
-    <div class="hd-time">Updated {updated}</div>
+    <div class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></div>
   </div>
 
   <div class="kpi-strip">{kpi_html}</div>
@@ -886,8 +959,8 @@ def build_html(active, blocked, completed, live_data):
   </div>
 
   <footer>
-    <span class="ft-name">felix.janssen</span>
-    <span class="ft-time">Updated {updated}</span>
+    <span class="ft-name">felix.janssen · second brain</span>
+    <span class="ft-time">Last synced {updated}</span>
   </footer>
 
 </div>
@@ -965,6 +1038,38 @@ document.addEventListener('click', e => {{
 let startY = 0;
 drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; }}, {{passive:true}});
 drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
+
+// ── Live clock ──────────────────────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  function tick() {{
+    const n = new Date();
+    const h = String(n.getHours()).padStart(2,'0');
+    const m = String(n.getMinutes()).padStart(2,'0');
+    const s = String(n.getSeconds()).padStart(2,'0');
+    el.textContent = `${{h}}:${{m}}:${{s}}`;
+  }}
+  tick();
+  setInterval(tick, 1000);
+}})();
+
+// ── KPI count-up ────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-countup]').forEach(el => {{
+  const target = parseInt(el.dataset.countup, 10);
+  if (isNaN(target) || target === 0) return;
+  const duration = 700;
+  const start    = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3); // ease-out cubic
+  function frame(now) {{
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(ease(p) * target);
+    if (p < 1) requestAnimationFrame(frame);
+    else {{ el.textContent = target; el.classList.add('popped'); }}
+  }}
+  // Small delay so animation starts after card fade-in
+  setTimeout(() => requestAnimationFrame(frame), 350);
+}});
 </script>
 </body>
 </html>"""
