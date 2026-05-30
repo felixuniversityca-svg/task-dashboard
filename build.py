@@ -205,11 +205,24 @@ def mini_calendar(deadlines, active_all, completed_all, months=2):
     return html, event_map
 
 
-def hourly_calendar_html(agenda, deadlines, today):
-    """Hour-by-hour day view. Falls back to timestamped list if <2 timed events."""
+def hourly_calendar_html(agenda, deadlines, active, today):
+    """Hour-by-hour day view with tasks-due-today section above the grid."""
     START_H, END_H, SLOT_H = 8, 22, 44
     total_px = (END_H - START_H) * SLOT_H
 
+    # ── Tasks due today / overdue ─────────────────────────────────────────────
+    due_items = []
+    for sec in (active or []):
+        for t in sec.get("tasks", []):
+            if t.get("due") and t["due"] <= today:
+                overdue = t["due"] < today
+                due_items.append({
+                    "text":  t["text"],
+                    "label": "overdue" if overdue else "due today",
+                    "color": "#ff3b30" if overdue else "#0071e3"
+                })
+
+    # ── Timed calendar events ─────────────────────────────────────────────────
     events = []
     for ev in (agenda or []):
         mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
@@ -227,7 +240,22 @@ def hourly_calendar_html(agenda, deadlines, today):
                     events.append({"title": dl["title"], "h": h, "mn": mn,
                                   "color": "#ff3b30", "bg": "var(--red-bg)"})
 
-    # ── Full grid (always — blank grid is cleaner than a message) ────────────
+    # ── All-day section ───────────────────────────────────────────────────────
+    allday_html = ""
+    if due_items:
+        items_h = "".join(
+            f'<div class="dc-allday-item">'
+            f'<span class="dc-alldot" style="background:{it["color"]}"></span>'
+            f'<span class="dc-alltext">{escape(it["text"][:44])}</span>'
+            f'<span class="dc-alllbl" style="color:{it["color"]}">{it["label"]}</span>'
+            f'</div>'
+            for it in due_items[:6]
+        )
+        allday_html = (f'<div class="dc-allday">'
+                       f'<div class="dc-allday-hd">Tasks</div>'
+                       f'{items_h}</div>')
+
+    # ── Hour grid ─────────────────────────────────────────────────────────────
     rows_h = ""
     for h in range(START_H, END_H + 1):
         top = (h - START_H) * SLOT_H
@@ -242,7 +270,8 @@ def hourly_calendar_html(agenda, deadlines, today):
                  f'border-left-color:{ev["color"]};background:{ev["bg"]}">'
                  f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
                  f'<span class="dc-ev-n">{escape(ev["title"][:38])}</span></div>')
-    return (f'<div class="dc-outer" id="dc-outer">'
+    return (f'{allday_html}'
+            f'<div class="dc-outer" id="dc-outer">'
             f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
             f'{rows_h}'
             f'<div style="position:absolute;left:44px;right:0;top:0;bottom:0">'
@@ -442,7 +471,7 @@ def build_html(active, blocked, completed, live_data):
     cal_html, event_map = mini_calendar(deadlines, active, completed, months=2)
     updated    = datetime.now().strftime("%b %-d at %H:%M")
     build_epoch = int(datetime.now().timestamp())
-    hourly_cal  = hourly_calendar_html(agenda, deadlines, today)
+    hourly_cal  = hourly_calendar_html(agenda, deadlines, active, today)
     # Velocity stats (done_today also used later by weekly progress bar)
     done_today  = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
     done_2wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days <= 14)
@@ -1144,6 +1173,15 @@ def build_html(active, blocked, completed, live_data):
     .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none}}
     .dc-now::before{{content:'';position:absolute;left:-3px;top:-3px;
                      width:8px;height:8px;border-radius:50%;background:var(--red)}}
+    .dc-allday{{padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:6px}}
+    .dc-allday-hd{{font-size:9px;font-weight:700;text-transform:uppercase;
+                   letter-spacing:.7px;color:var(--subtle);margin-bottom:5px}}
+    .dc-allday-item{{display:flex;align-items:center;gap:7px;
+                     padding:3px 0;min-height:24px}}
+    .dc-alldot{{width:6px;height:6px;border-radius:50%;flex-shrink:0}}
+    .dc-alltext{{font-size:12px;flex:1;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
+    .dc-alllbl{{font-size:10px;font-weight:600;flex-shrink:0}}
 
     /* ─ Velocity card ─ */
     .vel-grid{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}}
