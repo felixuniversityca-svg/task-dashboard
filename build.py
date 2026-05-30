@@ -36,16 +36,9 @@ def days_ago(d):
 
 
 def parse_tasks(content):
-    """
-    Returns:
-      active    = [{'section': str, 'tasks': [{'text': str, 'created': date|None}]}]
-      blocked   = [{'task': str, 'waiting': str, 'since': str, 'since_date': date|None, 'days_blocked': int|None}]
-      completed = [{'task': str, 'date': str}]
-    """
     active = []
     blocked = []
     completed = []
-
     current_section = None
     current_subsection = None
     current_subsection_tasks = []
@@ -56,84 +49,50 @@ def parse_tasks(content):
 
     for line in content.splitlines():
         stripped = line.strip()
-
         if stripped == "## Active":
-            current_section = "active"
-            current_subsection = None
-            current_subsection_tasks = []
-            continue
+            current_section = "active"; current_subsection = None; current_subsection_tasks = []; continue
         if stripped == "## Blocked":
-            flush_subsection()
-            current_subsection = None
-            current_section = "blocked"
-            continue
+            flush_subsection(); current_subsection = None; current_section = "blocked"; continue
         if stripped == "## Completed":
-            flush_subsection()
-            current_subsection = None
-            current_section = "completed"
-            continue
+            flush_subsection(); current_subsection = None; current_section = "completed"; continue
         if stripped.startswith("## "):
-            flush_subsection()
-            current_section = None
-            continue
-
+            flush_subsection(); current_section = None; continue
         if stripped.startswith("<!--") or stripped == "---" or not stripped:
             continue
-
         if current_section == "active" and stripped.startswith("### "):
             flush_subsection()
             current_subsection = strip_wikilink(stripped[4:].strip())
-            current_subsection_tasks = []
-            continue
-
+            current_subsection_tasks = []; continue
         if current_section == "active" and "- [ ]" in line:
             task_text = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
             created = None
             m = re.search(r"<!--\s*created:\s*(\d{4}-\d{2}-\d{2})\s*-->", task_text)
             if m:
-                created = parse_date(m.group(1))
-                task_text = task_text[:m.start()].strip()
+                created = parse_date(m.group(1)); task_text = task_text[:m.start()].strip()
             task_text = strip_wikilink(task_text)
             if current_subsection is None:
-                current_subsection = "Other"
-                current_subsection_tasks = []
-            current_subsection_tasks.append({"text": task_text, "created": created})
-            continue
-
+                current_subsection = "Other"; current_subsection_tasks = []
+            current_subsection_tasks.append({"text": task_text, "created": created}); continue
         if current_section == "blocked" and "- [ ]" in line:
             task_text = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
-            waiting = ""
-            since = ""
+            waiting = ""; since = ""
             m = re.match(r"^(.+?)\s+--\s+waiting:\s+(.+?)\s+--\s+since\s+(.+)$", task_text)
             if m:
-                task_text = m.group(1).strip()
-                waiting = m.group(2).strip()
-                since = m.group(3).strip()
+                task_text = m.group(1).strip(); waiting = m.group(2).strip(); since = m.group(3).strip()
             else:
                 m2 = re.match(r"^(.+?)\s+--\s+waiting:\s+(.+)$", task_text)
                 if m2:
-                    task_text = m2.group(1).strip()
-                    waiting = m2.group(2).strip()
+                    task_text = m2.group(1).strip(); waiting = m2.group(2).strip()
             since_date = parse_date(since)
             days = days_ago(since_date)
-            blocked.append({
-                "task": strip_wikilink(task_text),
-                "waiting": waiting,
-                "since": since,
-                "since_date": since_date,
-                "days_blocked": days,
-            })
-            continue
-
+            blocked.append({"task": strip_wikilink(task_text), "waiting": waiting, "since": since, "since_date": since_date, "days_blocked": days}); continue
         if current_section == "completed" and re.match(r"^[\s-]+\[[xX]\]", line):
             task_text = re.sub(r"^[\s-]+\[[xX]\]\s*", "", line).strip()
             date_str = ""
             m = re.search(r"✅\s*(\d{4}-\d{2}-\d{2})", task_text)
             if m:
-                date_str = m.group(1)
-                task_text = task_text[:m.start()].strip()
-            completed.append({"task": strip_wikilink(task_text), "date": date_str})
-            continue
+                date_str = m.group(1); task_text = task_text[:m.start()].strip()
+            completed.append({"task": strip_wikilink(task_text), "date": date_str}); continue
 
     flush_subsection()
     return active, blocked, completed
@@ -143,83 +102,78 @@ def build_html(active, blocked, completed):
     total_active = sum(len(s["tasks"]) for s in active)
     total_blocked = len(blocked)
     total_done = len(completed)
-    updated = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = datetime.now()
+    updated_time = now.strftime("%H:%M")
+    updated_date = now.strftime("%b %-d")
 
-    # Active section cards
+    # Active cards
     active_html = ""
     for section in active:
         if not section["tasks"]:
             continue
         count = len(section["tasks"])
         tasks_html = "".join(
-            f'<li class="task-item">'
-            f'<span class="task-dot active-dot"></span>'
+            f'<li class="task-row">'
+            f'<span class="task-pip"></span>'
             f'<span class="task-text">{escape(t["text"])}</span>'
-            f"</li>"
+            f'</li>'
             for t in section["tasks"]
         )
         active_html += (
-            f'<div class="section-card active-card">'
-            f'<div class="card-header">'
-            f'<h3 class="section-title">{escape(section["section"])}</h3>'
-            f'<span class="count-badge">{count}</span>'
-            f"</div>"
+            f'<div class="card active-card">'
+            f'<div class="card-head">'
+            f'<span class="card-title">{escape(section["section"])}</span>'
+            f'<span class="pill pill-count">{count}</span>'
+            f'</div>'
             f'<ul class="task-list">{tasks_html}</ul>'
-            f"</div>"
+            f'</div>'
         )
     if not active_html:
-        active_html = '<p class="empty-state">No active tasks. Clear runway.</p>'
+        active_html = '<p class="empty">Nothing active. Clear runway.</p>'
 
     # Blocked cards -- oldest first
     blocked_sorted = sorted(blocked, key=lambda x: x["days_blocked"] or 0, reverse=True)
     blocked_html = ""
     for item in blocked_sorted:
         days = item["days_blocked"]
-        age_cls = ""
-        age_badge = ""
+        pill = ""
+        extra_cls = ""
         if days is not None and days >= 14:
-            age_cls = "age-critical"
-            age_badge = f'<span class="age-badge critical">{days}d blocked</span>'
+            pill = f'<span class="pill pill-crit">{days}d</span>'
+            extra_cls = "card-crit"
         elif days is not None and days >= 3:
-            age_cls = "age-warn"
-            age_badge = f'<span class="age-badge warn">{days}d blocked</span>'
-        elif days is not None:
-            age_badge = f'<span class="age-badge neutral">{days}d</span>'
+            pill = f'<span class="pill pill-warn">{days}d</span>'
+            extra_cls = "card-warn"
+        elif days is not None and days > 0:
+            pill = f'<span class="pill pill-neutral">{days}d</span>'
 
-        waiting_line = (
-            f'<div class="waiting-line">Waiting on: <strong>{escape(item["waiting"])}</strong></div>'
+        waiting_html = (
+            f'<div class="waiting">Waiting on {escape(item["waiting"])}</div>'
             if item["waiting"] else ""
         )
         blocked_html += (
-            f'<div class="section-card blocked-card {age_cls}">'
-            f'<div class="task-item blocked-task">'
-            f'<span class="task-dot blocked-dot"></span>'
-            f"<div style='flex:1'>"
-            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-            f'<span class="task-text">{escape(item["task"])}</span>'
-            f"{age_badge}"
-            f"</div>"
-            f"{waiting_line}"
-            f"</div>"
-            f"</div>"
-            f"</div>"
+            f'<div class="card blocked-card {extra_cls}">'
+            f'<div class="card-head">'
+            f'<span class="blocked-pip"></span>'
+            f'<span class="task-text" style="flex:1">{escape(item["task"])}</span>'
+            f'{pill}'
+            f'</div>'
+            f'{waiting_html}'
+            f'</div>'
         )
     if not blocked_html:
-        blocked_html = '<p class="empty-state">Nothing blocked.</p>'
+        blocked_html = '<p class="empty">Nothing blocked.</p>'
 
-    # Completed list (most recent first)
+    # Completed
     completed_html = ""
     for item in reversed(completed):
-        date_badge = (
-            f'<span class="date-badge">{escape(item["date"])}</span>'
-            if item["date"] else ""
-        )
+        date_html = f'<span class="done-date">{escape(item["date"])}</span>' if item["date"] else ""
         completed_html += (
-            f'<li class="task-item done-item">'
-            f'<span class="checkmark">&#10003;</span>'
-            f'<span class="task-text done-text">{escape(item["task"])}</span>'
-            f"{date_badge}"
-            f"</li>"
+            f'<li class="done-row">'
+            f'<span class="check">&#10003;</span>'
+            f'<span class="done-text">{escape(item["task"])}</span>'
+            f'{date_html}'
+            f'</li>'
         )
 
     return f"""<!DOCTYPE html>
@@ -227,88 +181,257 @@ def build_html(active, blocked, completed):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Felix -- Tasks</title>
+  <title>Felix — Tasks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
     :root {{
-      --bg: #0f1117; --surface: #1a1d27; --surface2: #222535;
-      --border: #2d3147; --text: #e2e8f0; --text-muted: #8892a4;
-      --active: #4ade80; --blocked: #fb923c; --blocked-crit: #ef4444; --done: #64748b;
+      --bg:        #0d1117;
+      --bg2:       #13182a;
+      --surface:   #161d2f;
+      --surface2:  #1c2540;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #e8edf5;
+      --muted:     #6b7a99;
+      --subtle:    #3d4d6e;
+      --green:     #34d399;
+      --green-bg:  rgba(52,211,153,0.10);
+      --green-bdr: rgba(52,211,153,0.25);
+      --amber:     #fbbf24;
+      --amber-bg:  rgba(251,191,36,0.10);
+      --amber-bdr: rgba(251,191,36,0.25);
+      --red:       #f87171;
+      --red-bg:    rgba(248,113,113,0.10);
+      --red-bdr:   rgba(248,113,113,0.25);
+      --done-col:  #3d4d6e;
+      --radius:    14px;
+      --radius-sm: 8px;
     }}
-    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 28px 16px; }}
-    .container {{ max-width: 700px; margin: 0 auto; }}
-    header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; gap: 12px; flex-wrap: wrap; }}
-    h1 {{ font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }}
-    .subtitle {{ font-size: 12px; color: var(--text-muted); margin-top: 3px; }}
-    .stats-row {{ display: flex; gap: 8px; flex-wrap: wrap; }}
-    .stat-chip {{ display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); }}
-    .stat-chip.s-active {{ border-color: var(--active); color: var(--active); }}
-    .stat-chip.s-blocked {{ border-color: var(--blocked); color: var(--blocked); }}
-    .stat-chip.s-done {{ color: var(--done); }}
-    .stat-dot {{ width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }}
-    .dot-a {{ background: var(--active); }} .dot-b {{ background: var(--blocked); }} .dot-d {{ background: var(--done); }}
-    section {{ margin-bottom: 28px; }}
-    .section-label {{ font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }}
-    .section-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; }}
-    .active-card {{ border-left: 3px solid var(--active); }}
-    .blocked-card {{ border-left: 3px solid var(--blocked); background: rgba(251,146,60,0.06); }}
-    .blocked-card.age-critical {{ border-left-color: var(--blocked-crit); background: rgba(239,68,68,0.08); }}
-    .card-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }}
-    .section-title {{ font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }}
-    .count-badge {{ font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px; }}
-    .task-list {{ list-style: none; display: flex; flex-direction: column; gap: 8px; }}
-    .task-item {{ display: flex; align-items: flex-start; gap: 10px; }}
-    .task-dot {{ width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }}
-    .active-dot {{ background: var(--active); }} .blocked-dot {{ background: var(--blocked); }}
-    .task-text {{ font-size: 14px; line-height: 1.5; }}
-    .waiting-line {{ font-size: 12px; color: var(--blocked); margin-top: 4px; }}
-    .blocked-task {{ align-items: flex-start; }}
-    .age-badge {{ display: inline-block; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 1px 6px; flex-shrink: 0; }}
-    .age-badge.warn {{ background: rgba(251,146,60,0.18); color: var(--blocked); border: 1px solid rgba(251,146,60,0.35); }}
-    .age-badge.critical {{ background: rgba(239,68,68,0.18); color: var(--blocked-crit); border: 1px solid rgba(239,68,68,0.35); }}
-    .age-badge.neutral {{ background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }}
-    .date-badge {{ margin-left: auto; font-size: 11px; color: var(--done); white-space: nowrap; padding-left: 10px; flex-shrink: 0; }}
-    details {{ }} summary {{ cursor: pointer; user-select: none; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; list-style: none; display: flex; align-items: center; gap: 6px; }}
+
+    html {{ background: var(--bg); }}
+
+    body {{
+      font-family: 'Inter', -apple-system, sans-serif;
+      background:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.12) 0%, transparent 70%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 36px 20px 60px;
+      -webkit-font-smoothing: antialiased;
+    }}
+
+    .container {{ max-width: 680px; margin: 0 auto; }}
+
+    /* Header */
+    .header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 36px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }}
+    .header-left {{ display: flex; align-items: center; gap: 14px; }}
+    .avatar {{
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 4px 12px rgba(99,102,241,0.3);
+    }}
+    .header-title {{ font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }}
+    .header-sub {{ font-size: 12px; color: var(--muted); margin-top: 2px; }}
+
+    /* Stat chips */
+    .stats {{ display: flex; gap: 8px; flex-wrap: wrap; }}
+    .chip {{
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      background: var(--surface); border: 1px solid var(--border2);
+      letter-spacing: 0.1px;
+    }}
+    .chip-dot {{ width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }}
+    .chip-active {{ color: var(--green); border-color: var(--green-bdr); background: var(--green-bg); }}
+    .chip-active .chip-dot {{ background: var(--green); box-shadow: 0 0 6px var(--green); }}
+    .chip-blocked {{ color: var(--amber); border-color: var(--amber-bdr); background: var(--amber-bg); }}
+    .chip-blocked .chip-dot {{ background: var(--amber); }}
+    .chip-done {{ color: var(--muted); }}
+    .chip-done .chip-dot {{ background: var(--done-col); }}
+
+    /* Section label */
+    .section-label {{
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--subtle);
+      margin-bottom: 12px; padding-left: 2px;
+    }}
+
+    section {{ margin-bottom: 32px; }}
+
+    /* Cards */
+    .card {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }}
+    .card:hover {{ border-color: var(--border2); }}
+
+    .active-card {{ border-left: 2px solid var(--green); }}
+    .blocked-card {{ border-left: 2px solid var(--amber); background: rgba(251,191,36,0.03); }}
+    .card-warn {{ border-left-color: var(--amber); }}
+    .card-crit {{ border-left: 2px solid var(--red); background: var(--red-bg); }}
+
+    .card-head {{
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }}
+    .card-head:last-child {{ margin-bottom: 0; }}
+
+    .card-title {{
+      font-size: 12px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.6px; flex: 1;
+    }}
+
+    /* Pills */
+    .pill {{
+      font-size: 11px; font-weight: 700;
+      border-radius: 6px; padding: 2px 8px;
+      flex-shrink: 0;
+    }}
+    .pill-count {{ background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }}
+    .pill-neutral {{ background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }}
+    .pill-warn {{ background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bdr); }}
+    .pill-crit {{ background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bdr); }}
+
+    /* Task rows */
+    .task-list {{ list-style: none; display: flex; flex-direction: column; gap: 10px; }}
+    .task-row {{ display: flex; align-items: flex-start; gap: 12px; }}
+    .task-pip {{
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); margin-top: 7px; flex-shrink: 0;
+      box-shadow: 0 0 5px rgba(52,211,153,0.4);
+    }}
+    .task-text {{ font-size: 14px; line-height: 1.55; color: var(--text); }}
+
+    /* Blocked pip */
+    .blocked-pip {{
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--amber); flex-shrink: 0; margin-top: 2px;
+    }}
+    .card-crit .blocked-pip {{ background: var(--red); }}
+
+    .waiting {{
+      font-size: 12px; color: var(--muted);
+      margin-top: 8px; padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }}
+    .waiting strong {{ color: var(--amber); font-weight: 600; }}
+    .card-crit .waiting strong {{ color: var(--red); }}
+
+    /* Completed */
+    details {{ }}
+    summary {{
+      cursor: pointer; user-select: none; list-style: none;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--subtle);
+      margin-bottom: 12px; padding-left: 2px;
+    }}
     summary::-webkit-details-marker {{ display: none; }}
-    summary::before {{ content: '\\25B6'; font-size: 8px; transition: transform 0.15s; display: inline-block; }}
-    details[open] summary::before {{ transform: rotate(90deg); }}
-    .completed-list {{ list-style: none; display: flex; flex-direction: column; gap: 5px; }}
-    .done-item {{ padding: 7px 10px; background: var(--surface); border-radius: 7px; border: 1px solid var(--border); justify-content: space-between; align-items: center; }}
-    .checkmark {{ color: var(--done); font-size: 11px; flex-shrink: 0; }}
-    .done-text {{ color: var(--done); text-decoration: line-through; font-size: 13px; }}
-    .empty-state {{ font-size: 13px; color: var(--text-muted); font-style: italic; }}
-    footer {{ text-align: right; font-size: 11px; color: var(--done); margin-top: 32px; border-top: 1px solid var(--border); padding-top: 12px; }}
-    @media (max-width: 480px) {{ body {{ padding: 16px 12px; }} h1 {{ font-size: 18px; }} .task-text {{ font-size: 13px; }} }}
+    summary::after {{
+      content: ''; display: inline-block;
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--subtle);
+      transition: transform 0.15s;
+    }}
+    details[open] summary::after {{ transform: rotate(180deg); }}
+
+    .done-list {{ list-style: none; display: flex; flex-direction: column; gap: 6px; }}
+    .done-row {{
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }}
+    .check {{ color: var(--done-col); font-size: 12px; flex-shrink: 0; }}
+    .done-text {{ font-size: 13px; color: var(--done-col); text-decoration: line-through; flex: 1; }}
+    .done-date {{ font-size: 11px; color: var(--subtle); white-space: nowrap; flex-shrink: 0; }}
+
+    .empty {{ font-size: 13px; color: var(--muted); font-style: italic; padding: 4px 2px; }}
+
+    /* Footer */
+    footer {{
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }}
+    .footer-name {{ font-size: 12px; font-weight: 600; color: var(--subtle); }}
+    .footer-time {{ font-size: 11px; color: var(--subtle); }}
+
+    @media (max-width: 480px) {{
+      body {{ padding: 24px 16px 48px; }}
+      .header-title {{ font-size: 16px; }}
+      .task-text {{ font-size: 13px; }}
+      .chip {{ padding: 5px 11px; font-size: 11px; }}
+    }}
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <div>
-        <h1>Felix -- Tasks</h1>
-        <div class="subtitle">Updated {updated}</div>
+
+    <div class="header">
+      <div class="header-left">
+        <div class="avatar">F</div>
+        <div>
+          <div class="header-title">Felix — Tasks</div>
+          <div class="header-sub">Second Brain</div>
+        </div>
       </div>
-      <div class="stats-row">
-        <div class="stat-chip s-active"><span class="stat-dot dot-a"></span>{total_active} active</div>
-        <div class="stat-chip s-blocked"><span class="stat-dot dot-b"></span>{total_blocked} blocked</div>
-        <div class="stat-chip s-done"><span class="stat-dot dot-d"></span>{total_done} done</div>
+      <div class="stats">
+        <div class="chip chip-active"><span class="chip-dot"></span>{total_active} active</div>
+        <div class="chip chip-blocked"><span class="chip-dot"></span>{total_blocked} blocked</div>
+        <div class="chip chip-done"><span class="chip-dot"></span>{total_done} done</div>
       </div>
-    </header>
+    </div>
+
     <section>
       <div class="section-label">Active</div>
       {active_html}
     </section>
+
     <section>
-      <div class="section-label">Blocked / Awaiting</div>
+      <div class="section-label">Blocked</div>
       {blocked_html}
     </section>
+
     <section>
       <details>
-        <summary>Completed ({total_done})</summary>
-        <ul class="completed-list">{completed_html}</ul>
+        <summary>Completed &nbsp;({total_done})</summary>
+        <ul class="done-list">{completed_html}</ul>
       </details>
     </section>
-    <footer>felix.janssen -- second brain</footer>
+
+    <footer>
+      <span class="footer-name">felix.janssen</span>
+      <span class="footer-time">Updated {updated_date} at {updated_time}</span>
+    </footer>
+
   </div>
 </body>
 </html>"""
