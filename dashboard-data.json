@@ -1,0 +1,45 @@
+{
+  "emails": [
+    {
+      "subject": "[Netlify] Your new Credits Free team felixuniversityca-svg\u2019s team is ready",
+      "from": "Netlify",
+      "epoch": 1780160946,
+      "unread": true
+    },
+    {
+      "subject": "Marriott International, Inc is hiring for Busser + 8 new busser jobs in montr\u00e9al, qc",
+      "from": "Indeed",
+      "epoch": 1780102144,
+      "unread": true
+    },
+    {
+      "subject": "FW: Angles TrustUp & Sunrise",
+      "from": "Felix Janssen",
+      "epoch": 1780037785,
+      "unread": true
+    }
+  ],
+  "deadlines": [
+    {
+      "date": "2026-05-30",
+      "time": "",
+      "title": "Paint two chairs: first coat done, second coat tonight, last coat tomorrow morning"
+    },
+    {
+      "date": "2026-05-31",
+      "time": "20:00",
+      "title": "Envoyer tous les docs InvestSud restants (TrustUp V.1, Sunrise V.1, Broptimize V.1)"
+    },
+    {
+      "date": "2026-05-31",
+      "time": "15:46",
+      "title": "Depart Charleville-Mezieres for Paris (TGV INOUI 2754, e-ticket BL2LBK)"
+    },
+    {
+      "date": "2026-06-01",
+      "time": "09:15",
+      "title": "Capital Croissance first day (19A rue du Rocher, Paris)"
+    }
+  ],
+  "fetched_at": "2026-05-30 19:31"
+}
