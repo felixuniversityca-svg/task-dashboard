@@ -227,18 +227,7 @@ def hourly_calendar_html(agenda, deadlines, today):
                     events.append({"title": dl["title"], "h": h, "mn": mn,
                                   "color": "#ff3b30", "bg": "var(--red-bg)"})
 
-    # ── Fallback: simple list ─────────────────────────────────────────────────
-    if len(events) < 2:
-        if not events:
-            body = '<p class="empty-p" style="text-align:center;padding:28px 0">No timed events today.<br>Add events in Apple Calendar to see them here.</p>'
-        else:
-            ev = events[0]
-            body = (f'<div class="list-row">'
-                    f'<span class="ag-time">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
-                    f'<span class="list-text">{escape(ev["title"])}</span></div>')
-        return f'<div>{body}</div>'
-
-    # ── Full grid ─────────────────────────────────────────────────────────────
+    # ── Full grid (always — blank grid is cleaner than a message) ────────────
     rows_h = ""
     for h in range(START_H, END_H + 1):
         top = (h - START_H) * SLOT_H
