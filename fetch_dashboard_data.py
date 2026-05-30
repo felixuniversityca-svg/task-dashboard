@@ -57,11 +57,13 @@ def fetch_inbox_emails(max_results=10):
                 sender = from_raw.split("@")[0].replace(".", " ").title()
 
             is_unread = "UNREAD" in msg.get("labelIds", [])
+            snippet = msg.get("snippet", "")[:160]
             results.append({
                 "subject": subject,
                 "from": sender,
                 "epoch": ts,
-                "unread": is_unread
+                "unread": is_unread,
+                "snippet": snippet
             })
             if len(results) >= 5:
                 break

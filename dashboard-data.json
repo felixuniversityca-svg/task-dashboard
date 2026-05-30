@@ -4,19 +4,22 @@
       "subject": "[Netlify] Your new Credits Free team felixuniversityca-svg\u2019s team is ready",
       "from": "Netlify",
       "epoch": 1780160946,
-      "unread": true
+      "unread": true,
+      "snippet": "Welcome to Netlify Free! Your new team felixuniversityca-svg&#39;s team is ready! Welcome to Netlify Free! You now have access to powerful tools to deploy and m"
     },
     {
       "subject": "Marriott International, Inc is hiring for Busser + 8 new busser jobs in montr\u00e9al, qc",
       "from": "Indeed",
       "epoch": 1780102144,
-      "unread": true
+      "unread": true,
+      "snippet": "Marriott International, Inc, larrys, and 9146-2564 QUEBEC INC have new jobs. \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c \u200c"
     },
     {
       "subject": "FW: Angles TrustUp & Sunrise",
       "from": "Felix Janssen",
       "epoch": 1780037785,
-      "unread": true
+      "unread": true,
+      "snippet": "From: Jean-Philippe Mathieu &lt;jean-philippe.mathieu@investsud.be&gt; Sent: Friday, 29 May 2026 08:56:15 (UTC+01:00) Brussels, Copenhagen, Madrid, Paris To: Fe"
     }
   ],
   "deadlines": [
@@ -41,5 +44,5 @@
       "title": "Capital Croissance first day (19A rue du Rocher, Paris)"
     }
   ],
-  "fetched_at": "2026-05-30 19:35"
+  "fetched_at": "2026-05-30 19:40"
 }
