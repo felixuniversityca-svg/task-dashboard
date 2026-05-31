@@ -137,12 +137,7 @@
       "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud a"
     }
   ],
-  "agenda": [
-    {
-      "title": "Capital Croissance Day 1 — arrive 9h15, 19A rue du Rocher",
-      "time": "09:15"
-    }
-  ],
+  "agenda": [],
   "claude_usage": {
     "five_hour_pct": 16,
     "resets_at": 1780273200,
