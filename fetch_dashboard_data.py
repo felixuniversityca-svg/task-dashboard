@@ -211,6 +211,17 @@ end tell
     return sorted(events, key=lambda x: x.get("time", ""))
 
 
+# ── Claude usage ─────────────────────────────────────────────────────────────
+
+def read_claude_usage():
+    p = Path.home() / ".claude/data/claude_usage.json"
+    if not p.exists(): return {}
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return {}
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -224,14 +235,17 @@ def main():
     replies   = parse_pending_replies()
     print("  fetching today's agenda...",  file=sys.stderr)
     agenda    = fetch_today_agenda()
+    print("  reading claude usage...",     file=sys.stderr)
+    claude_usage = read_claude_usage()
 
     data = {
-        "emails":    emails,
-        "deadlines": deadlines,
-        "pipeline":  pipeline,
-        "replies":   replies,
-        "agenda":    agenda,
-        "fetched_at": datetime.now().strftime("%Y-%m-%d %H:%M")
+        "emails":       emails,
+        "deadlines":    deadlines,
+        "pipeline":     pipeline,
+        "replies":      replies,
+        "agenda":       agenda,
+        "claude_usage": claude_usage,
+        "fetched_at":   datetime.now().strftime("%Y-%m-%d %H:%M")
     }
     OUTPUT.write_text(json.dumps(data, indent=2, ensure_ascii=False))
     print(f"  done: {len(emails)} emails, {len(pipeline)} articles, "

@@ -548,24 +548,37 @@ def build_html(active, blocked, completed, live_data):
     else:
         sb_label = f"Session idle · {minutes_ago // 60}h {minutes_ago % 60}m ago"; sb_color = "#aeaeb2"
     sb_pct = max(100 - int(minutes_ago * 1.2), 4)  # battery-style: drains over ~80 min
-    # Circular session arc widget
+    # Circular session arc widget — uses real 5-hour rate limit data
     _circ = 238.76  # 2*pi*38
-    _fill = sb_pct / 100 * _circ
+    claude_usage = live_data.get("claude_usage", {})
+    five_pct  = claude_usage.get("five_hour_pct")
+    resets_at = int(claude_usage.get("resets_at") or 0)
+    if five_pct is not None:
+        arc_pct   = int(float(five_pct))
+        arc_color = "#34c759" if arc_pct < 50 else ("#ff9500" if arc_pct < 75 else "#ff3b30")
+        arc_text  = f"{arc_pct}%"
+        arc_sub   = "used"
+    else:
+        arc_pct   = 0
+        arc_color = "#aeaeb2"
+        arc_text  = "--"
+        arc_sub   = "no data"
+    _fill = arc_pct / 100 * _circ
     session_arc_html = (
         f'<div class="sec">'
-        f'<div class="sec-lbl">Session</div>'
-        f'<div class="card" id="session-arc-wrap" data-epoch="{build_epoch}" '
+        f'<div class="sec-lbl">Claude Session</div>'
+        f'<div class="card" id="session-arc-wrap" data-resetsat="{resets_at}" '
         f'style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px">'
         f'<svg viewBox="0 0 100 100" width="108" height="108" style="display:block">'
         f'<circle cx="50" cy="50" r="38" fill="none" stroke="#f2f2f7" stroke-width="9"/>'
-        f'<circle id="session-arc-fill" cx="50" cy="50" r="38" fill="none" stroke="{sb_color}" stroke-width="9" '
+        f'<circle id="session-arc-fill" cx="50" cy="50" r="38" fill="none" stroke="{arc_color}" stroke-width="9" '
         f'stroke-dasharray="{_fill:.1f} {_circ:.1f}" stroke-linecap="round" transform="rotate(-90 50 50)"/>'
-        f'<text id="session-pct-text" x="50" y="46" text-anchor="middle" dominant-baseline="middle" '
-        f'font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">{sb_pct}%</text>'
-        f'<text x="50" y="64" text-anchor="middle" '
-        f'font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">session</text>'
+        f'<text id="session-pct-text" x="50" y="44" text-anchor="middle" dominant-baseline="middle" '
+        f'font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">{arc_text}</text>'
+        f'<text x="50" y="60" text-anchor="middle" '
+        f'font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">{arc_sub}</text>'
         f'</svg>'
-        f'<div id="session-status-lbl" style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">{escape(sb_label)}</div>'
+        f'<div id="session-status-lbl" style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">...</div>'
         f'</div></div>'
     )
     panels     = build_panels(active, blocked, completed, live_data,
@@ -1580,28 +1593,22 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   setInterval(update, 30000);
 }})();
 
-// ── Session arc: live drain ─────────────────────────────────────────────────
+// ── Session arc: live reset countdown ───────────────────────────────────────
 (function() {{
   const wrap = document.getElementById('session-arc-wrap');
-  const arc  = document.getElementById('session-arc-fill');
-  const txt  = document.getElementById('session-pct-text');
   const lbl  = document.getElementById('session-status-lbl');
-  if (!wrap || !arc || !txt || !lbl) return;
-  const epoch = parseInt(wrap.dataset.epoch, 10);
-  const CIRC  = 238.76;
+  if (!wrap || !lbl) return;
+  const resetsAt = parseInt(wrap.dataset.resetsat || '0', 10);
   function update() {{
-    const diffMin = Math.floor((Date.now() / 1000 - epoch) / 60);
-    const pct     = Math.max(100 - Math.floor(diffMin * 1.2), 4);
-    const color   = pct >= 67 ? '#34c759' : (pct >= 33 ? '#ff9500' : '#aeaeb2');
-    arc.style.stroke = color;
-    arc.setAttribute('stroke-dasharray', (pct / 100 * CIRC).toFixed(1) + ' ' + CIRC.toFixed(1));
-    txt.textContent = pct + '%';
-    if (diffMin < 15)      lbl.textContent = 'Session active';
-    else if (diffMin < 45) lbl.textContent = 'Cooling · ' + diffMin + 'm ago';
-    else                   lbl.textContent = 'Idle · ' + Math.floor(diffMin/60) + 'h ' + (diffMin%60) + 'm ago';
+    if (!resetsAt) {{ lbl.textContent = 'Open claude.ai to sync'; return; }}
+    const secsLeft = resetsAt - Math.floor(Date.now() / 1000);
+    if (secsLeft <= 0) {{ lbl.textContent = 'Resetting now'; return; }}
+    const h = Math.floor(secsLeft / 3600);
+    const m = Math.floor((secsLeft % 3600) / 60);
+    lbl.textContent = 'Resets in ' + (h > 0 ? h + 'h ' + m + 'm' : m + 'm');
   }}
   update();
-  setInterval(update, 60000);
+  setInterval(update, 30000);
 }})();
 
 // ── Day calendar: current-time line + auto-scroll ───────────────────────────
