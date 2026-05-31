@@ -371,7 +371,7 @@
     .tri-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
               margin-bottom:0;align-items:start}
     .tri-row>*,.top-row>*{min-width:0}
-    #graph-canvas{display:block;min-height:180px}
+    #graph-canvas{display:block;flex:1;min-height:180px}
 
     /* ─ Agenda ─ */
     .ag-time{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -516,12 +516,10 @@
     }
 
     /* ─ Vault graph ─ */
-    .graph-wrap{background:#0d0d10;border:1px solid rgba(255,255,255,0.08);
+    .graph-wrap{background:var(--surface);border:1px solid var(--border);
                 border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
-                position:relative}
-    .graph-stats{font-size:10px;color:rgba(255,255,255,0.35);
-                  padding:8px 12px 0;pointer-events:none}
-    #graph-canvas{width:100%;height:260px;display:block}
+                display:flex;flex-direction:column}
+    .graph-stats{font-size:10px;color:var(--muted);padding:8px 12px 4px;flex-shrink:0}
     }
   </style>
 </head>
@@ -538,7 +536,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#ff9500"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780242369">May 31 at 17:46</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780242537">May 31 at 17:48</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -639,7 +637,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 17:46</span>
+    <span class="ft-time">Built May 31 at 17:48</span>
   </footer>
 
 </div>
@@ -797,18 +795,24 @@ document.querySelectorAll('[data-countup]').forEach(el => {
       const last = secs[secs.length - 1];
       const graphWrap = last.querySelector(':scope > .graph-wrap');
       if (graphWrap) {
-        // Graph column: stretch to fill remaining space
         last.style.flex = '1';
         last.style.display = 'flex';
         last.style.flexDirection = 'column';
         graphWrap.style.flex = '1';
+        graphWrap.style.display = 'flex';
+        graphWrap.style.flexDirection = 'column';
       }
       // Other columns: content stays natural, whitespace below
     });
-    // Resize 3D graph to its new container height
+    // Resize 3D graph: available = wrap height minus stats bar
     if (window._vaultGraph) {
-      const c = document.getElementById('graph-canvas');
-      if (c && c.offsetHeight > 50) window._vaultGraph.height(c.offsetHeight);
+      const wrap = document.querySelector('.graph-wrap');
+      const stats = document.getElementById('graph-stats');
+      if (wrap) {
+        void wrap.offsetHeight;
+        const availH = wrap.offsetHeight - (stats ? stats.offsetHeight : 0);
+        if (availH > 50) window._vaultGraph.height(availH).width(wrap.offsetWidth);
+      }
     }
   }
   setTimeout(run, 100);   // after initial paint
@@ -873,18 +877,18 @@ document.querySelectorAll('[data-countup]').forEach(el => {
   const Graph = ForceGraph3D({ controlType: 'orbit', rendererConfig: { antialias: true, alpha: true } })(el)
     .width(el.parentElement.offsetWidth)
     .height(el.offsetHeight || 260)
-    .backgroundColor('#0d0d10')
+    .backgroundColor('#f5f5f7')
     .graphData(gData)
     .nodeColor(n => n.color || '#aeaeb2')
     .nodeVal(n => Math.max(1, (deg[n.id] || 0) * 0.5 + 1))
-    .nodeLabel(n => '<span style="font-size:12px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px">' + n.name + '</span>')
+    .nodeLabel(n => '<span style="font-size:12px;background:rgba(255,255,255,0.92);color:#1d1d1f;padding:2px 7px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,0.15)">' + n.name + '</span>')
     .nodeResolution(10)
     .nodeRelSize(3)
-    .linkColor(() => 'rgba(255,255,255,0.45)')
+    .linkColor(() => 'rgba(0,0,0,0.15)')
     .linkWidth(0.8)
     .linkDirectionalParticles(1)
     .linkDirectionalParticleWidth(1.5)
-    .linkDirectionalParticleColor(() => 'rgba(255,255,255,0.7)')
+    .linkDirectionalParticleColor(() => 'rgba(0,113,227,0.7)')
     .onNodeHover(n => { el.style.cursor = n ? 'pointer' : 'default'; })
     .onNodeClick(n => {
       Graph.cameraPosition({ x: n.x * 1.8, y: n.y * 1.8, z: n.z * 1.8 }, n, 800);
