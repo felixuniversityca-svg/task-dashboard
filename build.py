@@ -1610,6 +1610,40 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   setInterval(update, 30000);
 }})();
 
+// ── Equalise tri-row column heights ─────────────────────────────────────────
+(function() {{
+  function run() {{
+    const cols = Array.from(document.querySelectorAll('.tri-row > div'));
+    if (!cols.length) return;
+    // Reset to natural height, force reflow, measure
+    cols.forEach(c => {{ c.style.height = ''; c.style.display = 'block'; }});
+    void cols[0].offsetHeight;
+    const maxH = Math.max(...cols.map(c => c.scrollHeight));
+    // Apply equal height + flex so last widget stretches
+    cols.forEach(col => {{
+      col.style.height = maxH + 'px';
+      col.style.display = 'flex';
+      col.style.flexDirection = 'column';
+      const secs = Array.from(col.querySelectorAll(':scope > .sec'));
+      if (!secs.length) return;
+      const last = secs[secs.length - 1];
+      last.style.flex = '1';
+      last.style.display = 'flex';
+      last.style.flexDirection = 'column';
+      const inner = last.querySelector(':scope > .card, :scope > .graph-wrap, :scope > .progress-wrap');
+      if (inner) inner.style.flex = '1';
+    }});
+    // Resize 3D graph to its new container height
+    if (window._vaultGraph) {{
+      const c = document.getElementById('graph-canvas');
+      if (c && c.offsetHeight > 50) window._vaultGraph.height(c.offsetHeight);
+    }}
+  }}
+  setTimeout(run, 100);   // after initial paint
+  setTimeout(run, 1200);  // after 3D graph settles
+  window.addEventListener('resize', () => setTimeout(run, 100));
+}})();
+
 // ── Session arc: fetch live usage.json on load ──────────────────────────────
 (function() {{
   const arc = document.getElementById('session-arc-fill');
@@ -1684,6 +1718,7 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
       Graph.cameraPosition({{ x: n.x * 1.8, y: n.y * 1.8, z: n.z * 1.8 }}, n, 800);
     }});
 
+  window._vaultGraph = Graph;
   Graph.d3Force('charge').strength(-50);
   Graph.d3Force('link').distance(35);
 
