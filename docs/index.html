@@ -520,11 +520,20 @@
     /* ─ CC Primer ─ */
     .cc-primer{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .cc-block{background:var(--surface);border:1px solid var(--border);
+               border-top:3px solid var(--border);
                border-radius:var(--r);padding:14px 15px;box-shadow:var(--shadow)}
     .cc-block-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
-                   color:var(--blue);margin-bottom:8px}
+                   margin-bottom:8px}
     .cc-detail{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:3px}
     .cc-detail strong{font-weight:600}
+    .cc-green{background:var(--green-bg);border-color:var(--green-bdr);border-top-color:var(--green)}
+    .cc-green .cc-block-lbl{color:var(--green)}
+    .cc-blue{background:var(--blue-bg);border-color:var(--blue-bdr);border-top-color:var(--blue)}
+    .cc-blue .cc-block-lbl{color:var(--blue)}
+    .cc-orange{background:var(--orange-bg);border-color:var(--orange-bdr);border-top-color:var(--orange)}
+    .cc-orange .cc-block-lbl{color:var(--orange)}
+    .cc-purple{background:#f5edff;border-color:rgba(191,90,242,0.20);border-top-color:#bf5af2}
+    .cc-purple .cc-block-lbl{color:#bf5af2}
     @media(max-width:900px){.cc-primer{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:640px){.cc-primer{grid-template-columns:1fr}}
     }
@@ -543,7 +552,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#aeaeb2"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780261445">May 31 at 23:04</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780261694">May 31 at 23:08</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -574,27 +583,27 @@
   <div class="sec">
     <div class="sec-lbl">Capital Croissance</div>
     <div class="cc-primer">
-      <div class="cc-block">
+      <div class="cc-block cc-green">
         <div class="cc-block-lbl">Arrival</div>
         <div class="cc-detail"><strong>June 1 at 9h15</strong></div>
         <div class="cc-detail">19A rue du Rocher, Paris 75008</div>
         <div class="cc-detail">Code: <strong>7508</strong> · push gate · building at back of courtyard</div>
         <div class="cc-detail">Bring laptop, nothing else required</div>
       </div>
-      <div class="cc-block">
+      <div class="cc-block cc-blue">
         <div class="cc-block-lbl">Key Contacts</div>
         <div class="cc-detail"><strong>Adeline Wattiau</strong> · supervisor · tu, warm</div>
         <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · relationship-driven</div>
         <div class="cc-detail"><strong>Arnaud Tardan</strong> · team · your intro connection</div>
       </div>
-      <div class="cc-block">
+      <div class="cc-block cc-orange">
         <div class="cc-block-lbl">AI Mandate Focus</div>
         <div class="cc-detail">1. LP reporting automation</div>
         <div class="cc-detail">2. News monitoring + sentiment</div>
         <div class="cc-detail">3. IR content and comms drafting</div>
         <div class="cc-detail">Week 4 target: tool map for PE + IR</div>
       </div>
-      <div class="cc-block">
+      <div class="cc-block cc-purple">
         <div class="cc-block-lbl">Day 1 Questions</div>
         <div class="cc-detail">What tools does the team already use?</div>
         <div class="cc-detail">Who is my day-to-day manager?</div>
@@ -665,7 +674,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 23:04</span>
+    <span class="ft-time">Built May 31 at 23:08</span>
   </footer>
 
 </div>
