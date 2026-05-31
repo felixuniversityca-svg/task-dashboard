@@ -52,7 +52,7 @@ git add Tasks.md docs/index.html
 if ! git diff --cached --quiet; then
     git commit -m "sync $(date '+%Y-%m-%d %H:%M')" && \
         git push && \
-        date +%s > "$COOLDOWN_FILE" && \
+        mkdir -p "$(dirname "$COOLDOWN_FILE")" && date +%s > "$COOLDOWN_FILE" && \
         log "pushed" || log "push failed -- check remote"
 else
     log "no changes"
