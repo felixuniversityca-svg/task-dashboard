@@ -1465,6 +1465,7 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Blocked</div>
         <div class="card">{blocked_rows}</div>
       </div>
+      {session_arc_html}
     </div>
     <div>
       <div class="sec">
@@ -1485,7 +1486,6 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Recent Emails</div>
         <div class="card">{email_rows}</div>
       </div>
-      {session_arc_html}
       <div class="sec">
         <div class="progress-wrap">
           <div class="progress-header">
