@@ -254,9 +254,11 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                 if mt:
                     h, mn = int(mt.group(1)), int(mt.group(2))
                     if START_H <= h < END_H:
-                        tag = " · tmr" if due == tomorrow else ""
-                        events.append({"title": t["text"] + tag, "h": h, "mn": mn,
-                                      "color": "#34c759", "bg": "var(--green-bg)"})
+                        is_tmr = due == tomorrow
+                        events.append({"title": t["text"], "h": h, "mn": mn,
+                                      "color": "#ff9500" if is_tmr else "#34c759",
+                                      "bg": "var(--orange-bg)" if is_tmr else "var(--green-bg)",
+                                      "tag": "TMR" if is_tmr else ""})
 
     # ── All-day section ───────────────────────────────────────────────────────
     allday_html = ""
@@ -284,10 +286,13 @@ def hourly_calendar_html(agenda, deadlines, active, today):
     ev_h = ""
     for ev in events:
         top = (ev["h"] - START_H + ev["mn"]/60) * SLOT_H
+        tag_html = (f'<span class="dc-ev-tag" style="color:{ev["color"]}">{ev["tag"]}</span>'
+                    if ev.get("tag") else "")
         ev_h += (f'<div class="dc-ev" style="top:{top:.1f}px;'
                  f'border-left-color:{ev["color"]};background:{ev["bg"]}">'
                  f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
-                 f'<span class="dc-ev-n">{escape(ev["title"][:38])}</span></div>')
+                 f'<span class="dc-ev-n">{escape(ev["title"][:32])}</span>'
+                 f'{tag_html}</div>')
     return (f'{allday_html}'
             f'<div class="dc-outer" id="dc-outer">'
             f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
@@ -1188,6 +1193,8 @@ def build_html(active, blocked, completed, live_data):
     .dc-ev-t{{font-size:10px;color:var(--muted);flex-shrink:0}}
     .dc-ev-n{{font-size:12px;font-weight:500;overflow:hidden;
               text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
+    .dc-ev-tag{{font-size:9px;font-weight:700;letter-spacing:.4px;
+                flex-shrink:0;opacity:.85}}
     .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none}}
     .dc-now::before{{content:'';position:absolute;left:-3px;top:-3px;
                      width:8px;height:8px;border-radius:50%;background:var(--red)}}
@@ -1312,7 +1319,7 @@ def build_html(active, blocked, completed, live_data):
 
   <div class="extra-row">
     <div class="panel">
-      <div class="p-lbl">Today &nbsp;·&nbsp; {today.strftime("%A %b %-d")}</div>
+      <div class="p-lbl">Today &amp; Tomorrow &nbsp;·&nbsp; {today.strftime("%b %-d")} – {(today + timedelta(days=1)).strftime("%b %-d")}</div>
       {hourly_cal}
     </div>
     <div class="panel">
