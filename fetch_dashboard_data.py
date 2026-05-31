@@ -211,6 +211,71 @@ end tell
     return sorted(events, key=lambda x: x.get("time", ""))
 
 
+# ── Vault graph ──────────────────────────────────────────────────────────────
+
+FOLDER_COLORS = {
+    "Identity":         "#af52de",
+    "Knowledge":        "#34c759",
+    "Work & Projects":  "#0071e3",
+    "People":           "#ff9500",
+    "Career & Identity":"#ff9500",
+    "Communications":   "#32ade6",
+    "Memory":           "#aeaeb2",
+    "Archive":          "#636366",
+    "Resources":        "#636366",
+    ".claude":          "#636366",
+}
+
+def parse_vault_graph():
+    md_files = list(VAULT.rglob("*.md"))
+    # Build name → file mapping (case-insensitive, stem only)
+    name_map = {}
+    for f in md_files:
+        name_map[f.stem.lower()] = f
+
+    nodes, links = [], []
+    node_ids = {}  # path → index
+
+    for f in md_files:
+        rel = f.relative_to(VAULT)
+        folder = rel.parts[0] if len(rel.parts) > 1 else "root"
+        color = FOLDER_COLORS.get(folder, "#aeaeb2")
+        nid = str(rel)
+        if nid not in node_ids:
+            node_ids[nid] = len(nodes)
+            nodes.append({"id": nid, "name": f.stem, "folder": folder, "color": color})
+
+    for f in md_files:
+        src_id = str(f.relative_to(VAULT))
+        try:
+            text = f.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+        for raw in re.findall(r"\[\[([^\]|#]+?)(?:\|[^\]]+)?\]\]", text):
+            target_key = raw.strip().lower()
+            # Try exact stem match
+            target_file = name_map.get(target_key)
+            if not target_file:
+                # Try matching just the last part (e.g. "Folder/Note" → "Note")
+                target_file = name_map.get(target_key.split("/")[-1])
+            if target_file:
+                tgt_id = str(target_file.relative_to(VAULT))
+                if src_id != tgt_id and src_id in node_ids and tgt_id in node_ids:
+                    links.append({"source": src_id, "target": tgt_id})
+
+    # Deduplicate links
+    seen = set()
+    unique_links = []
+    for l in links:
+        key = (l["source"], l["target"])
+        rev = (l["target"], l["source"])
+        if key not in seen and rev not in seen:
+            seen.add(key)
+            unique_links.append(l)
+
+    return {"nodes": nodes, "links": unique_links}
+
+
 # ── Claude usage ─────────────────────────────────────────────────────────────
 
 def read_claude_usage():
@@ -237,6 +302,8 @@ def main():
     agenda    = fetch_today_agenda()
     print("  reading claude usage...",     file=sys.stderr)
     claude_usage = read_claude_usage()
+    print("  parsing vault graph...",      file=sys.stderr)
+    vault_graph  = parse_vault_graph()
 
     data = {
         "emails":       emails,
@@ -245,6 +312,7 @@ def main():
         "replies":      replies,
         "agenda":       agenda,
         "claude_usage": claude_usage,
+        "vault_graph":  vault_graph,
         "fetched_at":   datetime.now().strftime("%Y-%m-%d %H:%M")
     }
     OUTPUT.write_text(json.dumps(data, indent=2, ensure_ascii=False))

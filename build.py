@@ -769,6 +769,7 @@ def build_html(active, blocked, completed, live_data):
 
     # Rebuild panels_js with new entries
     panels_js = json.dumps(panels, ensure_ascii=False)
+    graph_data_js = json.dumps(live_data.get("vault_graph", {"nodes": [], "links": []}), ensure_ascii=False)
 
     # Priority card — highest urgency item
     priority = None
@@ -838,6 +839,7 @@ def build_html(active, blocked, completed, live_data):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/3d-force-graph@1.73.0/dist/3d-force-graph.min.js"></script>
   <style>
     *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
     :root{{
@@ -1342,6 +1344,21 @@ def build_html(active, blocked, completed, live_data):
     @media(max-width:900px){{
       .extra-row{{grid-template-columns:1fr}}
     }}
+
+    /* ─ Vault graph ─ */
+    .graph-wrap{{background:#0d0d10;border:1px solid rgba(255,255,255,0.08);
+                border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+                margin-bottom:16px;position:relative}}
+    .graph-header{{position:absolute;top:14px;left:18px;z-index:10;pointer-events:none}}
+    .graph-title{{font-size:10px;font-weight:700;text-transform:uppercase;
+                  letter-spacing:.9px;color:rgba(255,255,255,0.5)}}
+    .graph-stats{{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}}
+    .graph-legend{{position:absolute;bottom:14px;left:18px;z-index:10;
+                   display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}}
+    .graph-leg-item{{display:flex;align-items:center;gap:5px}}
+    .graph-leg-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+    .graph-leg-lbl{{font-size:10px;color:rgba(255,255,255,0.4)}}
+    #graph-canvas{{width:100%;height:420px;display:block}}
     }}
   </style>
 </head>
@@ -1448,6 +1465,22 @@ def build_html(active, blocked, completed, live_data):
       <div class="p-lbl">Today &nbsp;·&nbsp; {today.strftime("%b %-d")}</div>
       {hourly_cal}
     </div>
+  </div>
+
+  <div class="graph-wrap">
+    <div class="graph-header">
+      <div class="graph-title">Second Brain — Knowledge Graph</div>
+      <div class="graph-stats" id="graph-stats">Loading…</div>
+    </div>
+    <div class="graph-legend">
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#0071e3"></span><span class="graph-leg-lbl">Work &amp; Projects</span></div>
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#34c759"></span><span class="graph-leg-lbl">Knowledge</span></div>
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#af52de"></span><span class="graph-leg-lbl">Identity</span></div>
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#ff9500"></span><span class="graph-leg-lbl">People</span></div>
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#aeaeb2"></span><span class="graph-leg-lbl">Memory</span></div>
+      <div class="graph-leg-item"><span class="graph-leg-dot" style="background:#636366"></span><span class="graph-leg-lbl">Archive</span></div>
+    </div>
+    <div id="graph-canvas"></div>
   </div>
 
   <footer>
@@ -1607,6 +1640,49 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   }}
   update();
   setInterval(update, 30000);
+}})();
+
+// ── Vault 3D graph ───────────────────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('graph-canvas');
+  const statsEl = document.getElementById('graph-stats');
+  if (!el || typeof ForceGraph3D === 'undefined') return;
+
+  const gData = {graph_data_js};
+  if (statsEl) statsEl.textContent = gData.nodes.length + ' notes · ' + gData.links.length + ' connections';
+
+  const Graph = ForceGraph3D({{ controlType: 'orbit' }})(el)
+    .width(el.parentElement.offsetWidth)
+    .height(420)
+    .backgroundColor('#0d0d10')
+    .graphData(gData)
+    .nodeColor(n => n.color || '#aeaeb2')
+    .nodeVal(n => {{
+      const deg = gData.links.filter(l => l.source === n.id || l.target === n.id || l.source?.id === n.id || l.target?.id === n.id).length;
+      return Math.max(1, deg * 0.6 + 1);
+    }})
+    .nodeLabel(n => n.name)
+    .nodeResolution(8)
+    .linkColor(() => 'rgba(255,255,255,0.08)')
+    .linkWidth(0.4)
+    .linkDirectionalParticles(1)
+    .linkDirectionalParticleWidth(0.8)
+    .linkDirectionalParticleColor(() => 'rgba(255,255,255,0.3)')
+    .onNodeHover(node => {{ el.style.cursor = node ? 'pointer' : 'default'; }})
+    .onNodeClick(node => {{
+      Graph.cameraPosition(
+        {{ x: node.x * 1.5, y: node.y * 1.5, z: node.z * 1.5 }},
+        node, 800
+      );
+    }});
+
+  // Soften forces for Obsidian-like spread
+  Graph.d3Force('charge').strength(-60);
+  Graph.d3Force('link').distance(30);
+
+  window.addEventListener('resize', () => {{
+    Graph.width(el.parentElement.offsetWidth);
+  }});
 }})();
 
 // ── Day calendar: current-time line + auto-scroll ───────────────────────────
