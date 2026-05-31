@@ -13,10 +13,6 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ## Active
 
-### InvestSud Articles
-- [ ] Send TrustUp article to partner for review <!-- due: 2026-05-31 -->
-- [ ] Send Sunrise article to partner for review <!-- due: 2026-05-31 -->
-- [ ] Send Broptimize article to partner for review <!-- due: 2026-05-31 -->
 
 ### Capital Croissance
 - [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
@@ -39,6 +35,9 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ## Completed
 
+- [x] Send TrustUp article to JP Mathieu for review ✅ 2026-05-31
+- [x] Send Sunrise article to JP Mathieu for review ✅ 2026-05-31
+- [x] Send Broptimize article to JP Mathieu for review ✅ 2026-05-31
 - [x] Send WhatsApp to Arnaud — pre-arrival message ✅ 2026-05-31
 - [x] Send WhatsApp to Mamie et Papy — thank you for hosting ✅ 2026-05-31
 - [x] Paint chairs — all coats done ✅ 2026-05-31
