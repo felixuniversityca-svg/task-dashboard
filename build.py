@@ -535,6 +535,18 @@ def build_html(active, blocked, completed, live_data):
     # Weekly stats for progress bar
     done_last_wk = sum(1 for c in completed if c["date"] and 7 < (today-c["date"]).days <= 14)
     done_today   = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
+    # Today's progress widget
+    tp_done_tasks = [c for c in completed if c.get("date") == today]
+    tp_due_tasks  = [{"text": t["text"], "section": sec["section"]}
+                     for sec in active for t in sec.get("tasks", []) if t.get("due") == today]
+    tp_done  = len(tp_done_tasks)
+    tp_rem   = len(tp_due_tasks)
+    tp_total = tp_done + tp_rem
+    tp_pct   = min(round(tp_done / tp_total * 100) if tp_total > 0 else 0, 100)
+    tp_color = "#34c759" if tp_pct == 100 else ("#ff9500" if tp_pct >= 50 else "#0071e3")
+    tp_rem_lbl = ("All done today" if tp_rem == 0 and tp_total > 0
+                  else "No tasks due today" if tp_total == 0
+                  else f"{tp_rem} task{'s' if tp_rem != 1 else ''} remaining")
     # Session status bar
     fetched_at = live_data.get("fetched_at", "")
     try:
@@ -787,6 +799,16 @@ def build_html(active, blocked, completed, live_data):
     lw_pct   = min(int(done_last_wk / wk_max * 100), 100)
     wk_color = "#34c759" if done_wk >= done_last_wk else "#ff9500"
 
+    # Today's progress drawer data
+    tp_rows = ([{"k": "Done today", "v": f"{tp_done} task{'s' if tp_done!=1 else ''}", "hl": "green"}]
+               + [{"k": f"  {i+1}.", "v": c["task"][:50], "hl": ""} for i,c in enumerate(tp_done_tasks[:6])]
+               + ([{"k": "Remaining", "v": f"{tp_rem} task{'s' if tp_rem!=1 else ''}", "hl": "orange"}]
+                  + [{"k": f"  {i+1}.", "v": t["text"][:50], "hl": ""} for i,t in enumerate(tp_due_tasks[:6])]
+                  if tp_rem else []))
+    panels["today-progress"] = {"t": "Today's Progress",
+        "sub": f"{tp_pct}% complete · {today.strftime('%b %-d')}",
+        "color": tp_color, "rows": tp_rows,
+        "note": "All done today — great work." if tp_pct == 100 else ""}
     # Rebuild panels_js with new entries
     panels_js = json.dumps(panels, ensure_ascii=False)
     graph_data_js = json.dumps(live_data.get("vault_graph", {"nodes": [], "links": []}), ensure_ascii=False)
@@ -1220,6 +1242,20 @@ def build_html(active, blocked, completed, live_data):
     .pipe-badge{{font-size:10px;font-weight:700;overflow:hidden;
                 text-overflow:ellipsis;white-space:nowrap}}
 
+    /* ─ Today's Progress ─ */
+    .tp-card{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:18px 18px 14px;box-shadow:var(--shadow)}}
+    .tp-header{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}}
+    .tp-big{{font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:var(--text)}}
+    .tp-of{{font-size:14px;font-weight:500;color:var(--muted);margin-left:5px}}
+    .tp-pct{{font-size:22px;font-weight:700;letter-spacing:-.5px}}
+    .tp-track{{height:12px;background:#f2f2f7;border-radius:6px;overflow:hidden;margin-bottom:12px}}
+    .tp-fill{{height:100%;border-radius:6px;width:0%;
+               transition:width 1.4s cubic-bezier(.16,1,.3,1)}}
+    .tp-footer{{display:flex;justify-content:space-between;align-items:center;
+                 font-size:11px;color:var(--muted)}}
+    .tp-done-lbl{{font-weight:600}}
+
     /* ─ Three-column main row ─ */
     .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
               margin-bottom:0;align-items:start}}
@@ -1488,6 +1524,24 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Pending Replies</div>
         <div class="card">{replies_html}</div>
       </div>
+      <div class="sec">
+        <div class="tp-card interactive" data-key="today-progress">
+          <div class="tp-header">
+            <div>
+              <span class="tp-big">{tp_done}</span>
+              <span class="tp-of">/ {tp_total}</span>
+            </div>
+            <span class="tp-pct" style="color:{tp_color}">{tp_pct}%</span>
+          </div>
+          <div class="tp-track">
+            <div class="tp-fill" id="tp-fill" data-pct="{tp_pct}" style="background:{tp_color}"></div>
+          </div>
+          <div class="tp-footer">
+            <span class="tp-done-lbl">{tp_rem_lbl}</span>
+            <span class="chevron">&#8250;</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div>
       <div class="sec">
@@ -1616,6 +1670,7 @@ drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - 
     setTimeout(() => {{ el.style.width = pct + '%'; }}, delay || 400);
   }}
   animateBar('sb-fill',   200);
+  animateBar('tp-fill',   500);
   animateBar('bar-week',  700);
   animateBar('bar-last',  800);
 }})();
