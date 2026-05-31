@@ -839,7 +839,7 @@ def build_html(active, blocked, completed, live_data):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/force-graph@1.43.5/dist/force-graph.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph@1.73.0/dist/3d-force-graph.min.js"></script>
   <style>
     *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
     :root{{
@@ -1421,7 +1421,6 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Pending Replies</div>
         <div class="card">{replies_html}</div>
       </div>
-      {session_arc_html}
       <div class="sec">
         <div class="sec-lbl">Knowledge Graph</div>
         <div class="graph-wrap">
@@ -1439,6 +1438,7 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Recent Emails</div>
         <div class="card">{email_rows}</div>
       </div>
+      {session_arc_html}
       <div class="sec">
         <div class="progress-wrap">
           <div class="progress-header">
@@ -1647,24 +1647,22 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   setInterval(update, 30000);
 }})();
 
-// ── Vault 2D graph ───────────────────────────────────────────────────────────
+// ── Vault 3D graph ───────────────────────────────────────────────────────────
 (function() {{
   const el = document.getElementById('graph-canvas');
   const statsEl = document.getElementById('graph-stats');
-  if (!el || typeof ForceGraph === 'undefined') return;
+  if (!el || typeof ForceGraph3D === 'undefined') return;
 
   const gData = {graph_data_js};
   if (statsEl) statsEl.textContent = gData.nodes.length + ' notes · ' + gData.links.length + ' links';
 
-  // Precompute degree for node sizing
   const deg = {{}};
   gData.links.forEach(l => {{
-    const s = l.source, t = l.target;
-    deg[s] = (deg[s] || 0) + 1;
-    deg[t] = (deg[t] || 0) + 1;
+    deg[l.source] = (deg[l.source] || 0) + 1;
+    deg[l.target] = (deg[l.target] || 0) + 1;
   }});
 
-  const Graph = ForceGraph()(el)
+  const Graph = ForceGraph3D({{ controlType: 'orbit', rendererConfig: {{ antialias: true }} }})(el)
     .width(el.parentElement.offsetWidth)
     .height(260)
     .backgroundColor('#0d0d10')
@@ -1672,24 +1670,26 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
     .nodeColor(n => n.color || '#aeaeb2')
     .nodeVal(n => Math.max(1, (deg[n.id] || 0) * 0.5 + 1))
     .nodeLabel(n => n.name)
+    .nodeResolution(8)
     .nodeRelSize(3)
-    .linkColor(() => 'rgba(255,255,255,0.30)')
-    .linkWidth(0.7)
+    .linkColor(() => 'rgba(255,255,255,0.45)')
+    .linkWidth(0.8)
     .linkDirectionalParticles(1)
-    .linkDirectionalParticleWidth(1.5)
-    .linkDirectionalParticleColor(() => 'rgba(255,255,255,0.6)')
-    .onNodeHover(node => {{ el.style.cursor = node ? 'pointer' : 'default'; }})
-    .onNodeClick(node => {{
-      Graph.centerAt(node.x, node.y, 600);
-      Graph.zoom(4, 600);
+    .linkDirectionalParticleWidth(1.2)
+    .linkDirectionalParticleColor(() => 'rgba(255,255,255,0.7)')
+    .onNodeHover(n => {{ el.style.cursor = n ? 'pointer' : 'default'; }})
+    .onNodeClick(n => {{
+      Graph.cameraPosition(
+        {{ x: n.x * 1.8, y: n.y * 1.8, z: n.z * 1.8 }}, n, 800
+      );
     }});
 
-  Graph.d3Force('charge').strength(-80);
-  Graph.d3Force('link').distance(25);
+  // Spread nodes wide, then pull camera back for full overview
+  Graph.d3Force('charge').strength(-50);
+  Graph.d3Force('link').distance(35);
+  setTimeout(() => Graph.cameraPosition({{ x: 0, y: 0, z: 520 }}), 600);
 
-  window.addEventListener('resize', () => {{
-    Graph.width(el.parentElement.offsetWidth);
-  }});
+  window.addEventListener('resize', () => Graph.width(el.parentElement.offsetWidth));
 }})();
 
 // ── Day calendar: current-time line + auto-scroll ───────────────────────────
