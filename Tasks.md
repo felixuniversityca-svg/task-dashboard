@@ -22,8 +22,9 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 - [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
 
 ### Personal
-- [ ] Train to Paris — TGV INOUI 2754, Charleville-Mézières <!-- due: 2026-05-31 --> <!-- time: 15:46 -->
-- [ ] Paint chairs — second coat in progress, last coat tomorrow morning before train <!-- due: 2026-05-31 -->
+- [ ] Train to Paris — TGV INOUI 2754, Charleville-Mézières → Paris Est <!-- due: 2026-05-31 --> <!-- time: 15:46 --> <!-- duration: 1h30 -->
+- [ ] Send WhatsApp to Mamie et Papy — thank you for hosting <!-- due: 2026-05-31 -->
+- [ ] Send WhatsApp to Arnaud — pre-arrival message <!-- due: 2026-05-31 -->
 
 ---
 
@@ -35,6 +36,9 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 ---
 
 ## Completed
+
+- [x] Paint chairs — all coats done ✅ 2026-05-31
+- [x] Train to Paris — TGV INOUI 2754 ✅ 2026-05-31
 
 - [x] Live task dashboard at felix-claude-tasks.netlify.app ✅ 2026-05-30
 - [x] Drive sync rewritten to use Google API directly (no more sign-out failures) ✅ 2026-05-30
