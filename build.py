@@ -13,6 +13,7 @@ TASKS_FILE  = Path(__file__).parent / "Tasks.md"
 DATA_FILE   = Path(__file__).parent / "dashboard-data.json"
 OUTPUT_DIR  = Path(__file__).parent / "docs"
 OUTPUT_FILE = OUTPUT_DIR / "index.html"
+PUBLIC_FILE = Path(__file__).parent / "public" / "index.html"
 
 # ── Utilities ────────────────────────────────────────────────────────────────
 
@@ -1737,9 +1738,12 @@ def main():
     content   = TASKS_FILE.read_text(encoding="utf-8")
     live_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
     active, blocked, completed = parse_tasks(content)
+    html = build_html(active, blocked, completed, live_data)
     OUTPUT_DIR.mkdir(exist_ok=True)
-    OUTPUT_FILE.write_text(build_html(active, blocked, completed, live_data))
-    print(f"Built: {OUTPUT_FILE}")
+    OUTPUT_FILE.write_text(html)
+    PUBLIC_FILE.parent.mkdir(exist_ok=True)
+    PUBLIC_FILE.write_text(html)
+    print(f"Built: {OUTPUT_FILE} + {PUBLIC_FILE.parent.name}/index.html")
     print(f"  {sum(len(s['tasks']) for s in active)} active  |  {len(blocked)} blocked  |  {len(completed)} done")
 
 
