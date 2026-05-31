@@ -21,11 +21,6 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 ### Capital Croissance
 - [ ] Start AI tools mandate — map relevant tools for PE and IR by week 4 <!-- due: 2026-06-07 -->
 
-### Personal
-- [ ] Train to Paris — TGV INOUI 2754, Charleville-Mézières → Paris Est <!-- due: 2026-05-31 --> <!-- time: 15:46 --> <!-- duration: 1h45 -->
-- [ ] Send WhatsApp to Mamie et Papy — thank you for hosting <!-- due: 2026-05-31 -->
-- [ ] Send WhatsApp to Arnaud — pre-arrival message <!-- due: 2026-05-31 -->
-
 ---
 
 ## Blocked
@@ -37,6 +32,8 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ## Completed
 
+- [x] Send WhatsApp to Arnaud — pre-arrival message ✅ 2026-05-31
+- [x] Send WhatsApp to Mamie et Papy — thank you for hosting ✅ 2026-05-31
 - [x] Paint chairs — all coats done ✅ 2026-05-31
 - [x] Train to Paris — TGV INOUI 2754 ✅ 2026-05-31
 
