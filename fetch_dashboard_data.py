@@ -49,7 +49,7 @@ def fetch_inbox_emails(max_results=10):
                 "unread": "UNREAD" in msg.get("labelIds", []),
                 "snippet": msg.get("snippet", "")[:160]
             })
-            if len(results) >= 5: break
+            if len(results) >= 3: break
     except Exception as e:
         print(f"  inbox error: {e}", file=sys.stderr)
     return results
