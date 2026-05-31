@@ -369,7 +369,8 @@
 
     /* ─ Three-column main row ─ */
     .tri-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
-              margin-bottom:0;align-items:start}
+              margin-bottom:0;align-items:stretch}
+    .tri-row>div{display:flex;flex-direction:column}
     .tri-row>*,.top-row>*{min-width:0}
     #graph-canvas{display:block;width:100%;height:100%}
 
@@ -518,8 +519,9 @@
     /* ─ Vault graph ─ */
     .graph-wrap{background:var(--surface);border:1px solid var(--border);
                 border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
-                height:220px;flex-shrink:0}
-    .graph-stats{font-size:10px;color:var(--muted);padding:8px 12px 4px 12px}
+                min-height:180px;display:flex;flex-direction:column}
+    .graph-stats{font-size:10px;color:var(--muted);padding:8px 12px 4px 12px;flex-shrink:0}
+    #graph-canvas{flex:1}
     }
   </style>
 </head>
@@ -536,7 +538,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#aeaeb2"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780248403">May 31 at 19:26</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780248739">May 31 at 19:32</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -590,7 +592,7 @@
         <div class="card"><div class="list-row interactive" data-key="reply-0"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Myocene</div><div class="list-meta">Waiting on Jean-Philippe Mathieu</div></div><span class="pill pill-orange">4d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="reply-1"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Colona</div><div class="list-meta">Waiting on Gilles Koestel</div></div><span class="pill pill-orange">4d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="reply-2"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">ATB</div><div class="list-meta">Waiting on Pierre</div></div><span class="pill pill-gray">2d</span><span class="chevron">›</span></div></div>
       </div>
       <div class="sec">
-        <div class="sec-lbl">Knowledge Graph</div>
+        <div class="sec-lbl">Second Brain Map</div>
         <div class="graph-wrap">
           <div class="graph-stats" id="graph-stats"></div>
           <div id="graph-canvas"></div>
@@ -637,7 +639,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 19:26</span>
+    <span class="ft-time">Built May 31 at 19:32</span>
   </footer>
 
 </div>
@@ -776,18 +778,33 @@ document.querySelectorAll('[data-countup]').forEach(el => {
   setInterval(update, 30000);
 })();
 
-// ── Equalise tri-row column heights ─────────────────────────────────────────
+// ── Graph section fills remaining column space; ResizeObserver drives height ─
 (function() {
-  function run() {
-    const cols = Array.from(document.querySelectorAll('.tri-row > div'));
-    if (!cols.length) return;
-    cols.forEach(c => { c.style.height = ''; });
-    void cols[0].offsetHeight;
-    const maxH = Math.max(...cols.map(c => c.scrollHeight));
-    cols.forEach(c => { c.style.height = maxH + 'px'; });
+  const graphWrap = document.querySelector('.graph-wrap');
+  if (!graphWrap) return;
+  // Make the .sec containing the graph fill leftover column height (flex:1)
+  const graphSec = graphWrap.parentElement;
+  if (graphSec && graphSec.classList.contains('sec')) {
+    graphSec.style.flex = '1';
+    graphSec.style.display = 'flex';
+    graphSec.style.flexDirection = 'column';
+    graphWrap.style.flex = '1';
   }
-  setTimeout(run, 100);
-  window.addEventListener('resize', () => setTimeout(run, 100));
+  // ResizeObserver: tell the 3D library its pixel height whenever the wrap settles
+  let lastH = 0;
+  const ro = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const statsEl = document.getElementById('graph-stats');
+      const statsH = statsEl ? statsEl.offsetHeight : 24;
+      const availH = Math.round(entry.contentRect.height) - statsH;
+      if (availH < 50 || Math.abs(availH - lastH) < 2) return;
+      lastH = availH;
+      if (window._vaultGraph) {
+        window._vaultGraph.height(availH).width(Math.round(entry.contentRect.width));
+      }
+    }
+  });
+  ro.observe(graphWrap);
 })();
 
 // ── Session arc: fetch live usage.json on load ──────────────────────────────
@@ -844,10 +861,9 @@ document.querySelectorAll('[data-countup]').forEach(el => {
     deg[l.target] = (deg[l.target] || 0) + 1;
   });
 
-  const GRAPH_H = 196; // graph-wrap 220px minus stats bar ~24px
   const Graph = ForceGraph3D({ controlType: 'orbit', rendererConfig: { antialias: true, alpha: true } })(el)
     .width(el.parentElement ? el.parentElement.offsetWidth : 300)
-    .height(GRAPH_H)
+    .height(Math.max(el.offsetHeight || 0, 180))
     .backgroundColor('#f5f5f7')
     .graphData(gData)
     .nodeColor(n => n.color || '#aeaeb2')
