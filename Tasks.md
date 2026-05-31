@@ -23,9 +23,16 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ---
 
+## Awaiting Reply
+
+- [ ] Myocene article V.1 -- waiting: Jean-Philippe Mathieu reply -- since 2026-05-27
+- [ ] Colona article V.2 -- waiting: Gilles Koestel reply -- since 2026-05-27
+- [ ] ATB article angle confirmation -- waiting: Pierre Detrixhe -- since 2026-05-29
+
+---
+
 ## Blocked
 
-- [ ] Write ATB article V.1 -- waiting: Pierre Detrixhe to confirm the angle -- since 2026-05-29
 - [ ] Set up phone access to second brain -- waiting: ANTHROPIC_API_KEY -- since 2026-05-28
 
 ---

@@ -76,10 +76,11 @@ def parse_tasks(content):
 
     for line in content.splitlines():
         s = line.strip()
-        if s == "## Active":    sec="active";  sub=None; tasks=[]; continue
-        if s == "## Blocked":   flush(); sub=None; sec="blocked";   continue
-        if s == "## Completed": flush(); sub=None; sec="completed"; continue
-        if s.startswith("## "): flush(); sec=None; continue
+        if s == "## Active":         sec="active";   sub=None; tasks=[]; continue
+        if s == "## Awaiting Reply": flush(); sub=None; tasks=[]; sec="awaiting"; continue
+        if s == "## Blocked":        flush(); sub=None; tasks=[]; sec="blocked";  continue
+        if s == "## Completed":      flush(); sub=None; tasks=[]; sec="completed"; continue
+        if s.startswith("## "):      flush(); sub=None; tasks=[]; sec=None; continue
         if s.startswith("<!--") or s == "---" or not s: continue
         if sec == "active" and s.startswith("### "):
             flush(); sub=strip_wikilink(s[4:].strip()); tasks=[]; continue
@@ -710,6 +711,24 @@ def build_html(active, blocked, completed, live_data):
     if not pipeline_html:
         pipeline_html = '<p class="empty-p">No articles tracked.</p>'
 
+    # Recently completed (top 3)
+    rec_html = ""
+    for c in completed[:3]:
+        d = c.get("date")
+        if d:
+            delta = (today - d).days
+            when  = "Today" if delta == 0 else ("Yesterday" if delta == 1 else f"{delta}d ago")
+        else:
+            when = ""
+        dh = f'<span class="done-dt">{escape(when)}</span>' if when else ""
+        rec_html += (f'<li class="done-li">'
+                     f'<span class="done-ck">✓</span>'
+                     f'<span class="done-txt">{escape(c["task"])}</span>'
+                     f'{dh}</li>')
+    if not rec_html:
+        rec_html = ('<li class="done-li"><span class="done-ck">✓</span>'
+                    '<span class="done-txt" style="font-style:italic">No completed tasks yet</span></li>')
+
     # Pending replies widget
     replies_html = ""
     for i,r in enumerate(replies):
@@ -839,7 +858,6 @@ def build_html(active, blocked, completed, live_data):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/3d-force-graph@1.73.0/dist/3d-force-graph.min.js"></script>
   <style>
     *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
     :root{{
@@ -977,9 +995,9 @@ def build_html(active, blocked, completed, live_data):
                gap:12px;margin-bottom:16px}}
     .card{{background:var(--surface);border:1px solid var(--border);
            border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}}
-    .sec{{margin-bottom:16px}}
+    .sec{{margin-bottom:22px}}
     .sec-lbl{{font-size:10px;font-weight:700;text-transform:uppercase;
-              letter-spacing:.9px;color:var(--muted);margin-bottom:8px;
+              letter-spacing:.9px;color:var(--muted);margin-bottom:10px;
               padding-left:2px}}
 
     /* List rows */
@@ -1202,8 +1220,11 @@ def build_html(active, blocked, completed, live_data):
     /* ─ Three-column main row ─ */
     .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
               margin-bottom:0;align-items:start}}
+    .tri-row>div{{display:flex;flex-direction:column;height:460px;
+                 overflow-y:auto;overflow-x:hidden;scrollbar-width:none}}
+    .tri-row>div::-webkit-scrollbar{{display:none}}
     .tri-row>*,.top-row>*{{min-width:0}}
-    #graph-canvas{{display:block;flex:1;min-height:180px}}
+    #graph-canvas{{display:block;width:100%;height:100%}}
 
     /* ─ Agenda ─ */
     .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -1347,11 +1368,16 @@ def build_html(active, blocked, completed, live_data):
       .extra-row{{grid-template-columns:1fr}}
     }}
 
-    /* ─ Vault graph ─ */
-    .graph-wrap{{background:var(--surface);border:1px solid var(--border);
-                border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
-                display:flex;flex-direction:column}}
-    .graph-stats{{font-size:10px;color:var(--muted);padding:8px 12px 4px;flex-shrink:0}}
+    /* ─ CC Primer ─ */
+    .cc-primer{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}}
+    .cc-block{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:14px 15px;box-shadow:var(--shadow)}}
+    .cc-block-lbl{{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+                   color:var(--blue);margin-bottom:8px}}
+    .cc-detail{{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:3px}}
+    .cc-detail strong{{font-weight:600}}
+    @media(max-width:900px){{.cc-primer{{grid-template-columns:repeat(2,1fr)}}}}
+    @media(max-width:640px){{.cc-primer{{grid-template-columns:1fr}}}}
     }}
   </style>
 </head>
@@ -1397,8 +1423,36 @@ def build_html(active, blocked, completed, live_data):
   </div>
 
   <div class="sec">
-    <div class="sec-lbl">Article Pipeline</div>
-    <div class="pipeline-grid">{pipeline_html}</div>
+    <div class="sec-lbl">Capital Croissance</div>
+    <div class="cc-primer">
+      <div class="cc-block">
+        <div class="cc-block-lbl">Arrival</div>
+        <div class="cc-detail"><strong>June 1 at 9h15</strong></div>
+        <div class="cc-detail">19A rue du Rocher, Paris 75008</div>
+        <div class="cc-detail">Code: <strong>7508</strong> · push gate · building at back of courtyard</div>
+        <div class="cc-detail">Bring laptop, nothing else required</div>
+      </div>
+      <div class="cc-block">
+        <div class="cc-block-lbl">Key Contacts</div>
+        <div class="cc-detail"><strong>Adeline Wattiau</strong> · supervisor · tu, warm</div>
+        <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · relationship-driven</div>
+        <div class="cc-detail"><strong>Arnaud Tardan</strong> · team · your intro connection</div>
+      </div>
+      <div class="cc-block">
+        <div class="cc-block-lbl">AI Mandate Focus</div>
+        <div class="cc-detail">1. LP reporting automation</div>
+        <div class="cc-detail">2. News monitoring + sentiment</div>
+        <div class="cc-detail">3. IR content and comms drafting</div>
+        <div class="cc-detail">Week 4 target: tool map for PE + IR</div>
+      </div>
+      <div class="cc-block">
+        <div class="cc-block-lbl">Day 1 Questions</div>
+        <div class="cc-detail">What tools does the team already use?</div>
+        <div class="cc-detail">Who is my day-to-day manager?</div>
+        <div class="cc-detail">End-of-internship deliverable?</div>
+        <div class="cc-detail">Access to internal data or public only?</div>
+      </div>
+    </div>
   </div>
 
   <div class="tri-row">
@@ -1420,13 +1474,6 @@ def build_html(active, blocked, completed, live_data):
       <div class="sec">
         <div class="sec-lbl">Pending Replies</div>
         <div class="card">{replies_html}</div>
-      </div>
-      <div class="sec">
-        <div class="sec-lbl">Knowledge Graph</div>
-        <div class="graph-wrap">
-          <div class="graph-stats" id="graph-stats"></div>
-          <div id="graph-canvas"></div>
-        </div>
       </div>
     </div>
     <div>
@@ -1608,49 +1655,6 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   setInterval(update, 30000);
 }})();
 
-// ── Equalise tri-row column heights ─────────────────────────────────────────
-(function() {{
-  function run() {{
-    const cols = Array.from(document.querySelectorAll('.tri-row > div'));
-    if (!cols.length) return;
-    // Reset to natural height, force reflow, measure
-    cols.forEach(c => {{ c.style.height = ''; c.style.display = 'block'; }});
-    void cols[0].offsetHeight;
-    const maxH = Math.max(...cols.map(c => c.scrollHeight));
-    // Set all columns to equal height; only stretch the graph widget to fill
-    cols.forEach(col => {{
-      col.style.height = maxH + 'px';
-      col.style.display = 'flex';
-      col.style.flexDirection = 'column';
-      const secs = Array.from(col.querySelectorAll(':scope > .sec'));
-      if (!secs.length) return;
-      const last = secs[secs.length - 1];
-      const graphWrap = last.querySelector(':scope > .graph-wrap');
-      if (graphWrap) {{
-        last.style.flex = '1';
-        last.style.display = 'flex';
-        last.style.flexDirection = 'column';
-        graphWrap.style.flex = '1';
-        graphWrap.style.display = 'flex';
-        graphWrap.style.flexDirection = 'column';
-      }}
-      // Other columns: content stays natural, whitespace below
-    }});
-    // Resize 3D graph: available = wrap height minus stats bar
-    if (window._vaultGraph) {{
-      const wrap = document.querySelector('.graph-wrap');
-      const stats = document.getElementById('graph-stats');
-      if (wrap) {{
-        void wrap.offsetHeight;
-        const availH = wrap.offsetHeight - (stats ? stats.offsetHeight : 0);
-        if (availH > 50) window._vaultGraph.height(availH).width(wrap.offsetWidth);
-      }}
-    }}
-  }}
-  setTimeout(run, 100);   // after initial paint
-  setTimeout(run, 1200);  // after 3D graph settles
-  window.addEventListener('resize', () => setTimeout(run, 100));
-}})();
 
 // ── Session arc: fetch live usage.json on load ──────────────────────────────
 (function() {{
@@ -1689,55 +1693,6 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   }}
   update();
   setInterval(update, 30000);
-}})();
-
-// ── Vault 3D graph ───────────────────────────────────────────────────────────
-(function() {{
-  const el = document.getElementById('graph-canvas');
-  const statsEl = document.getElementById('graph-stats');
-  if (!el || typeof ForceGraph3D === 'undefined') return;
-
-  const gData = {graph_data_js};
-  if (statsEl) statsEl.textContent = gData.nodes.length + ' notes · ' + gData.links.length + ' links';
-
-  const deg = {{}};
-  gData.links.forEach(l => {{
-    deg[l.source] = (deg[l.source] || 0) + 1;
-    deg[l.target] = (deg[l.target] || 0) + 1;
-  }});
-
-  const Graph = ForceGraph3D({{ controlType: 'orbit', rendererConfig: {{ antialias: true, alpha: true }} }})(el)
-    .width(el.parentElement.offsetWidth)
-    .height(el.offsetHeight || 260)
-    .backgroundColor('#f5f5f7')
-    .graphData(gData)
-    .nodeColor(n => n.color || '#aeaeb2')
-    .nodeVal(n => Math.max(1, (deg[n.id] || 0) * 0.5 + 1))
-    .nodeLabel(n => '<span style="font-size:12px;background:rgba(255,255,255,0.92);color:#1d1d1f;padding:2px 7px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,0.15)">' + n.name + '</span>')
-    .nodeResolution(10)
-    .nodeRelSize(3)
-    .linkColor(() => 'rgba(0,0,0,0.15)')
-    .linkWidth(0.8)
-    .linkDirectionalParticles(1)
-    .linkDirectionalParticleWidth(1.5)
-    .linkDirectionalParticleColor(() => 'rgba(0,113,227,0.7)')
-    .onNodeHover(n => {{ el.style.cursor = n ? 'pointer' : 'default'; }})
-    .onNodeClick(n => {{
-      Graph.cameraPosition({{ x: n.x * 1.8, y: n.y * 1.8, z: n.z * 1.8 }}, n, 800);
-    }});
-
-  window._vaultGraph = Graph;
-  Graph.d3Force('charge').strength(-50);
-  Graph.d3Force('link').distance(35);
-
-  setTimeout(() => {{
-    Graph.cameraPosition({{ x: 0, y: 0, z: 520 }});
-    if (statsEl) statsEl.textContent = gData.nodes.length + ' notes · ' + gData.links.length + ' links · drag / scroll / click';
-  }}, 600);
-
-  window.addEventListener('resize', () => {{
-    Graph.width(el.parentElement.offsetWidth).height(Math.max(el.offsetHeight, 200));
-  }});
 }})();
 
 // ── Day calendar: current-time line + auto-scroll ───────────────────────────

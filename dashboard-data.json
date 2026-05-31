@@ -20,42 +20,23 @@
       "epoch": 1780176910,
       "unread": true,
       "snippet": "You&#39;re using your credits! Your credit usage on team Felix has reached 75% of your 300 credit allowance in the current billing cycle from May 30 to June 29."
-    },
-    {
-      "subject": "Your receipt from Anthropic, PBC #2401-9719-7480",
-      "from": "Anthropic, PBC",
-      "epoch": 1780175317,
-      "unread": true,
-      "snippet": "Your receipt from Anthropic, PBC #2401-9719-7480 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
-    },
-    {
-      "subject": "[Netlify] You've used 50% of your credits on Felix",
-      "from": "Netlify",
-      "epoch": 1780174728,
-      "unread": true,
-      "snippet": "You&#39;re using your credits! Your credit usage on team Felix has reached 50% of your 300 credit allowance in the current billing cycle from May 30 to June 29."
     }
   ],
   "deadlines": [
     {
-      "date": "2026-05-30",
-      "time": "",
-      "title": "Paint two chairs: first coat done, second coat tonight, last coat tomorrow morning"
-    },
-    {
-      "date": "2026-05-31",
-      "time": "20:00",
-      "title": "Envoyer tous les docs InvestSud restants (TrustUp V.1, Sunrise V.1, Broptimize V.1)"
-    },
-    {
-      "date": "2026-05-31",
-      "time": "15:46",
-      "title": "Depart Charleville-Mezieres for Paris (TGV INOUI 2754, e-ticket BL2LBK)"
-    },
-    {
       "date": "2026-06-01",
       "time": "09:15",
-      "title": "Capital Croissance first day (19A rue du Rocher, Paris)"
+      "title": "Capital Croissance Day 1 (19A rue du Rocher, code 7508)"
+    },
+    {
+      "date": "2026-06-07",
+      "time": "",
+      "title": "AI mandate: map relevant tools for PE and IR (week 4 target)"
+    },
+    {
+      "date": "2026-08-26",
+      "time": "11:00",
+      "title": "Air Transat BRU to YUL"
     }
   ],
   "pipeline": [
@@ -158,19 +139,15 @@
   ],
   "agenda": [
     {
-      "title": "Depart Charleville-Mezieres for Paris (TGV INOUI 2754, e-ticket BL2LBK)",
-      "time": "15:46"
-    },
-    {
-      "title": "Envoyer tous les docs InvestSud restants (TrustUp V.1, Sunrise V.1, Broptimize V.1)",
-      "time": "20:00"
+      "title": "Capital Croissance Day 1 — arrive 9h15, 19A rue du Rocher",
+      "time": "09:15"
     }
   ],
   "claude_usage": {
-    "five_hour_pct": 95,
-    "resets_at": 1780254000,
-    "ctx_pct": 60,
-    "updated_at": 1780249483
+    "five_hour_pct": 16,
+    "resets_at": 1780273200,
+    "ctx_pct": 81,
+    "updated_at": 1780256473
   },
   "vault_graph": {
     "nodes": [
@@ -333,6 +310,12 @@
       {
         "id": "Memory/Council/council-transcript-2026-05-30-4.md",
         "name": "council-transcript-2026-05-30-4",
+        "folder": "Memory",
+        "color": "#aeaeb2"
+      },
+      {
+        "id": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "name": "council-transcript-2026-05-31-2000",
         "folder": "Memory",
         "color": "#aeaeb2"
       },
@@ -1531,6 +1514,14 @@
         "target": "Work & Projects/Tasks.md"
       },
       {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Memory/Council/council-transcript-2026-05-31-2000.md"
+      },
+      {
         "source": "Memory/what-works.md",
         "target": "Memory/entity-map.md"
       },
@@ -1613,6 +1604,18 @@
       {
         "source": "Memory/Council/council-transcript-2026-05-30-4.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "People/Pierre Detrixhe.md"
       },
       {
         "source": "Memory/drafts/sent/README.md",
@@ -3248,5 +3251,5 @@
       }
     ]
   },
-  "fetched_at": "2026-05-31 19:44"
+  "fetched_at": "2026-05-31 21:41"
 }
