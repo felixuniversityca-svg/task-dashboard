@@ -369,8 +369,9 @@
 
     /* ─ Three-column main row ─ */
     .tri-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
-              margin-bottom:0;align-items:stretch}
-    .tri-row>div{display:flex;flex-direction:column;overflow:hidden}
+              margin-bottom:0;align-items:start}
+    .tri-row>div{display:flex;flex-direction:column;overflow:hidden;
+                 height:min(480px,54vh)}
     .tri-row>*,.top-row>*{min-width:0}
     #graph-canvas{display:block;width:100%;height:100%}
 
@@ -538,7 +539,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#aeaeb2"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780255714">May 31 at 21:28</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780255943">May 31 at 21:32</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -643,7 +644,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 21:28</span>
+    <span class="ft-time">Built May 31 at 21:32</span>
   </footer>
 
 </div>
