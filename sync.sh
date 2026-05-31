@@ -48,7 +48,7 @@ log "building..."
 
 # ── Commit and push ───────────────────────────────────────────────────────────
 cd "$REPO" || exit 1
-git add Tasks.md public/index.html
+git add Tasks.md docs/index.html
 if ! git diff --cached --quiet; then
     git commit -m "sync $(date '+%Y-%m-%d %H:%M')" && \
         git push && \

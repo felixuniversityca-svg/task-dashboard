@@ -1,5 +1,6 @@
-public/**
-!public/index.html
+public/
+docs/**
+!docs/index.html
 dashboard-data.json
 *.log
 .DS_Store

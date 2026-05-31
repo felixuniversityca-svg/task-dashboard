@@ -11,7 +11,7 @@ from collections import defaultdict
 
 TASKS_FILE  = Path(__file__).parent / "Tasks.md"
 DATA_FILE   = Path(__file__).parent / "dashboard-data.json"
-OUTPUT_DIR  = Path(__file__).parent / "public"
+OUTPUT_DIR  = Path(__file__).parent / "docs"
 OUTPUT_FILE = OUTPUT_DIR / "index.html"
 
 # ── Utilities ────────────────────────────────────────────────────────────────
