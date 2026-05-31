@@ -1200,15 +1200,10 @@ def build_html(active, blocked, completed, live_data):
                 text-overflow:ellipsis;white-space:nowrap}}
 
     /* ─ Three-column main row ─ */
-    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:0}}
+    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+              margin-bottom:0;align-items:start}}
     .tri-row>*,.top-row>*{{min-width:0}}
-    .tri-row>div{{display:flex;flex-direction:column}}
-    .tri-row>div>.sec{{flex-shrink:0}}
-    .tri-row>div>.sec:last-child{{flex:1;display:flex;flex-direction:column}}
-    .tri-row>div>.sec:last-child>.card,
-    .tri-row>div>.sec:last-child>.graph-wrap,
-    .tri-row>div>.sec:last-child>.progress-wrap{{flex:1;min-height:0}}
-    #graph-canvas{{height:100%!important;min-height:180px}}
+    #graph-canvas{{height:260px;display:block}}
 
     /* ─ Agenda ─ */
     .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -1671,7 +1666,7 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
 
   const Graph = ForceGraph3D({{ controlType: 'orbit', rendererConfig: {{ antialias: true, alpha: true }} }})(el)
     .width(el.parentElement.offsetWidth)
-    .height(Math.max(el.offsetHeight, 200))
+    .height(260)
     .backgroundColor('#0d0d10')
     .graphData(gData)
     .nodeColor(n => n.color || '#aeaeb2')
@@ -1692,13 +1687,10 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   Graph.d3Force('charge').strength(-50);
   Graph.d3Force('link').distance(35);
 
-  // After layout resolves: resize canvas to actual container height, pull camera back
   setTimeout(() => {{
-    const h = Math.max(el.offsetHeight, 200);
-    Graph.height(h).width(el.parentElement.offsetWidth);
     Graph.cameraPosition({{ x: 0, y: 0, z: 520 }});
     if (statsEl) statsEl.textContent = gData.nodes.length + ' notes · ' + gData.links.length + ' links · drag / scroll / click';
-  }}, 400);
+  }}, 600);
 
   window.addEventListener('resize', () => {{
     Graph.width(el.parentElement.offsetWidth).height(Math.max(el.offsetHeight, 200));
