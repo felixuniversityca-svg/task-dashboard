@@ -1203,7 +1203,7 @@ def build_html(active, blocked, completed, live_data):
     .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
               margin-bottom:0;align-items:start}}
     .tri-row>*,.top-row>*{{min-width:0}}
-    #graph-canvas{{height:260px;display:block}}
+    #graph-canvas{{display:block;min-height:180px}}
 
     /* ─ Agenda ─ */
     .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -1619,7 +1619,7 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
     cols.forEach(c => {{ c.style.height = ''; c.style.display = 'block'; }});
     void cols[0].offsetHeight;
     const maxH = Math.max(...cols.map(c => c.scrollHeight));
-    // Apply equal height + flex so last widget stretches
+    // Set all columns to equal height; only stretch the graph widget to fill
     cols.forEach(col => {{
       col.style.height = maxH + 'px';
       col.style.display = 'flex';
@@ -1627,11 +1627,15 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
       const secs = Array.from(col.querySelectorAll(':scope > .sec'));
       if (!secs.length) return;
       const last = secs[secs.length - 1];
-      last.style.flex = '1';
-      last.style.display = 'flex';
-      last.style.flexDirection = 'column';
-      const inner = last.querySelector(':scope > .card, :scope > .graph-wrap, :scope > .progress-wrap');
-      if (inner) inner.style.flex = '1';
+      const graphWrap = last.querySelector(':scope > .graph-wrap');
+      if (graphWrap) {{
+        // Graph column: stretch to fill remaining space
+        last.style.flex = '1';
+        last.style.display = 'flex';
+        last.style.flexDirection = 'column';
+        graphWrap.style.flex = '1';
+      }}
+      // Other columns: content stays natural, whitespace below
     }});
     // Resize 3D graph to its new container height
     if (window._vaultGraph) {{
@@ -1700,7 +1704,7 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
 
   const Graph = ForceGraph3D({{ controlType: 'orbit', rendererConfig: {{ antialias: true, alpha: true }} }})(el)
     .width(el.parentElement.offsetWidth)
-    .height(260)
+    .height(el.offsetHeight || 260)
     .backgroundColor('#0d0d10')
     .graphData(gData)
     .nodeColor(n => n.color || '#aeaeb2')
