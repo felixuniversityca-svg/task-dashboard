@@ -1,6 +1,7 @@
 public/
 docs/**
 !docs/index.html
+!docs/usage.json
 dashboard-data.json
 *.log
 .DS_Store

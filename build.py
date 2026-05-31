@@ -1624,6 +1624,27 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   setInterval(update, 30000);
 }})();
 
+// ── Session arc: fetch live usage.json on load ──────────────────────────────
+(function() {{
+  const arc = document.getElementById('session-arc-fill');
+  const txt = document.getElementById('session-pct-text');
+  const wrap= document.getElementById('session-arc-wrap');
+  if (!arc || !txt || !wrap) return;
+  const CIRC = 238.76;
+  function applyUsage(d) {{
+    const pct   = Math.round(parseFloat(d.five_hour_pct) || 0);
+    const color = pct < 50 ? '#34c759' : (pct < 75 ? '#ff9500' : '#ff3b30');
+    arc.style.stroke = color;
+    arc.setAttribute('stroke-dasharray', (pct / 100 * CIRC).toFixed(1) + ' ' + CIRC.toFixed(1));
+    txt.textContent = pct + '%';
+    if (d.resets_at) wrap.dataset.resetsat = d.resets_at;
+  }}
+  fetch('usage.json?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {{ if (d) applyUsage(d); }})
+    .catch(() => {{}});
+}})();
+
 // ── Session arc: live reset countdown ───────────────────────────────────────
 (function() {{
   const wrap = document.getElementById('session-arc-wrap');
