@@ -107,9 +107,11 @@
             letter-spacing:.9px;color:var(--muted);margin-bottom:12px}
     .spark-big{font-size:30px;font-weight:700;color:var(--green);
                 letter-spacing:-1px;line-height:1}
-    .spark-sub{font-size:11px;color:var(--muted);margin:3px 0 14px}
+    .spark-sub{font-size:11px;color:var(--muted);margin:3px 0 10px}
+    .spark-panel{display:flex;flex-direction:column}
+    .spark-grow{flex:1;min-height:40px}
     .donut-wrap{display:flex;align-items:center;gap:14px}
-    .donut-svg{width:74px;height:74px;flex-shrink:0}
+    .donut-svg{width:100px;height:100px;flex-shrink:0}
     .leg{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
     .leg-row{display:flex;align-items:center;gap:8px;
               border-radius:7px;padding:5px 6px;margin:-5px -6px;
@@ -552,7 +554,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#aeaeb2"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780261694">May 31 at 23:08</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780262119">May 31 at 23:15</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -561,11 +563,11 @@
   <div class="priority-card" style="border-left-color:#c93566;background:#fce8f0"><div class="priority-inner"><span class="priority-flag" style="color:#c93566">Tomorrow</span><span class="priority-text">Capital Croissance Day 1 (19A rue du Rocher, code 7508)</span></div><span class="priority-detail">Deadline</span></div>
 
   <div class="top-row">
-    <div class="panel">
+    <div class="panel spark-panel">
       <div class="p-lbl">Completed — last 14 days</div>
       <div class="spark-big">23</div>
       <div class="spark-sub">tasks done</div>
-      <svg viewBox="0 0 260 44" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block"><rect data-key="spark-0" class="spark-bar" x="0.0" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:0ms"/><rect data-key="spark-1" class="spark-bar" x="18.7" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:28ms"/><rect data-key="spark-2" class="spark-bar" x="37.4" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:56ms"/><rect data-key="spark-3" class="spark-bar" x="56.1" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:84ms"/><rect data-key="spark-4" class="spark-bar" x="74.9" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:112ms"/><rect data-key="spark-5" class="spark-bar" x="93.6" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:140ms"/><rect data-key="spark-6" class="spark-bar" x="112.3" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:168ms"/><rect data-key="spark-7" class="spark-bar" x="131.0" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:196ms"/><rect data-key="spark-8" class="spark-bar" x="149.7" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:224ms"/><rect data-key="spark-9" class="spark-bar" x="168.4" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:252ms"/><rect data-key="spark-10" class="spark-bar" x="187.1" y="19" width="16.7" height="25" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:280ms"/><rect data-key="spark-11" class="spark-bar" x="205.9" y="13" width="16.7" height="31" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:308ms"/><rect data-key="spark-12" class="spark-bar" x="224.6" y="0" width="16.7" height="44" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:336ms"/><rect data-key="spark-13" class="spark-bar" x="243.3" y="0" width="16.7" height="44" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:364ms"/></svg>
+      <div class="spark-grow"><svg viewBox="0 0 260 44" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;height:100%;display:block"><rect data-key="spark-0" class="spark-bar" x="0.0" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:0ms"/><rect data-key="spark-1" class="spark-bar" x="18.7" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:28ms"/><rect data-key="spark-2" class="spark-bar" x="37.4" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:56ms"/><rect data-key="spark-3" class="spark-bar" x="56.1" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:84ms"/><rect data-key="spark-4" class="spark-bar" x="74.9" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:112ms"/><rect data-key="spark-5" class="spark-bar" x="93.6" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:140ms"/><rect data-key="spark-6" class="spark-bar" x="112.3" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:168ms"/><rect data-key="spark-7" class="spark-bar" x="131.0" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:196ms"/><rect data-key="spark-8" class="spark-bar" x="149.7" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:224ms"/><rect data-key="spark-9" class="spark-bar" x="168.4" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:252ms"/><rect data-key="spark-10" class="spark-bar" x="187.1" y="19" width="16.7" height="25" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:280ms"/><rect data-key="spark-11" class="spark-bar" x="205.9" y="13" width="16.7" height="31" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:308ms"/><rect data-key="spark-12" class="spark-bar" x="224.6" y="0" width="16.7" height="44" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:336ms"/><rect data-key="spark-13" class="spark-bar" x="243.3" y="0" width="16.7" height="44" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:364ms"/></svg></div>
     </div>
     <div class="panel">
       <div class="p-lbl">Active by project</div>
@@ -674,7 +676,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 23:08</span>
+    <span class="ft-time">Built May 31 at 23:15</span>
   </footer>
 
 </div>

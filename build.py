@@ -144,7 +144,8 @@ def sparkline(completed, days=14):
                  f'x="{i*(bw+gap):.1f}" y="{H-bh}" width="{bw:.1f}" height="{bh}" rx="2" '
                  f'fill="{fill}" style="cursor:pointer;animation-delay:{i*28}ms"/>')
     svg = (f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" '
-           f'style="width:100%;display:block">{bars}</svg>')
+           f'preserveAspectRatio="none" '
+           f'style="width:100%;height:100%;display:block">{bars}</svg>')
     return svg, sum(len(t) for _,t in data), data
 
 def donut_chart(active):
@@ -958,9 +959,11 @@ def build_html(active, blocked, completed, live_data):
             letter-spacing:.9px;color:var(--muted);margin-bottom:12px}}
     .spark-big{{font-size:30px;font-weight:700;color:var(--green);
                 letter-spacing:-1px;line-height:1}}
-    .spark-sub{{font-size:11px;color:var(--muted);margin:3px 0 14px}}
+    .spark-sub{{font-size:11px;color:var(--muted);margin:3px 0 10px}}
+    .spark-panel{{display:flex;flex-direction:column}}
+    .spark-grow{{flex:1;min-height:40px}}
     .donut-wrap{{display:flex;align-items:center;gap:14px}}
-    .donut-svg{{width:74px;height:74px;flex-shrink:0}}
+    .donut-svg{{width:100px;height:100px;flex-shrink:0}}
     .leg{{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}}
     .leg-row{{display:flex;align-items:center;gap:8px;
               border-radius:7px;padding:5px 6px;margin:-5px -6px;
@@ -1412,11 +1415,11 @@ def build_html(active, blocked, completed, live_data):
   {priority_html}
 
   <div class="top-row">
-    <div class="panel">
+    <div class="panel spark-panel">
       <div class="p-lbl">Completed — last 14 days</div>
       <div class="spark-big">{spark_n}</div>
       <div class="spark-sub">tasks done</div>
-      {spark_svg}
+      <div class="spark-grow">{spark_svg}</div>
     </div>
     <div class="panel">
       <div class="p-lbl">Active by project</div>
