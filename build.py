@@ -554,17 +554,18 @@ def build_html(active, blocked, completed, live_data):
     session_arc_html = (
         f'<div class="sec">'
         f'<div class="sec-lbl">Session</div>'
-        f'<div class="card" style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px">'
+        f'<div class="card" id="session-arc-wrap" data-epoch="{build_epoch}" '
+        f'style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px">'
         f'<svg viewBox="0 0 100 100" width="108" height="108" style="display:block">'
         f'<circle cx="50" cy="50" r="38" fill="none" stroke="#f2f2f7" stroke-width="9"/>'
-        f'<circle cx="50" cy="50" r="38" fill="none" stroke="{sb_color}" stroke-width="9" '
+        f'<circle id="session-arc-fill" cx="50" cy="50" r="38" fill="none" stroke="{sb_color}" stroke-width="9" '
         f'stroke-dasharray="{_fill:.1f} {_circ:.1f}" stroke-linecap="round" transform="rotate(-90 50 50)"/>'
-        f'<text x="50" y="46" text-anchor="middle" dominant-baseline="middle" '
+        f'<text id="session-pct-text" x="50" y="46" text-anchor="middle" dominant-baseline="middle" '
         f'font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">{sb_pct}%</text>'
         f'<text x="50" y="64" text-anchor="middle" '
         f'font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">session</text>'
         f'</svg>'
-        f'<div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">{escape(sb_label)}</div>'
+        f'<div id="session-status-lbl" style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">{escape(sb_label)}</div>'
         f'</div></div>'
     )
     panels     = build_panels(active, blocked, completed, live_data,
@@ -980,8 +981,8 @@ def build_html(active, blocked, completed, live_data):
     /* Deadline badges */
     .dt-badge{{font-size:10px;font-weight:700;border-radius:6px;
                padding:3px 8px;flex-shrink:0;white-space:nowrap}}
-    .dt-red   {{background:var(--red-bg);color:var(--red)}}
-    .dt-orange{{background:var(--orange-bg);color:var(--orange)}}
+    .dt-red   {{background:#fce8f0;color:#c93566}}
+    .dt-orange{{background:#fce8f0;color:#c93566}}
     .dt-blue  {{background:#fce8f0;color:#c93566}}
 
     /* Due tags */
@@ -1577,6 +1578,30 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   }}
   update();
   setInterval(update, 30000);
+}})();
+
+// ── Session arc: live drain ─────────────────────────────────────────────────
+(function() {{
+  const wrap = document.getElementById('session-arc-wrap');
+  const arc  = document.getElementById('session-arc-fill');
+  const txt  = document.getElementById('session-pct-text');
+  const lbl  = document.getElementById('session-status-lbl');
+  if (!wrap || !arc || !txt || !lbl) return;
+  const epoch = parseInt(wrap.dataset.epoch, 10);
+  const CIRC  = 238.76;
+  function update() {{
+    const diffMin = Math.floor((Date.now() / 1000 - epoch) / 60);
+    const pct     = Math.max(100 - Math.floor(diffMin * 1.2), 4);
+    const color   = pct >= 67 ? '#34c759' : (pct >= 33 ? '#ff9500' : '#aeaeb2');
+    arc.style.stroke = color;
+    arc.setAttribute('stroke-dasharray', (pct / 100 * CIRC).toFixed(1) + ' ' + CIRC.toFixed(1));
+    txt.textContent = pct + '%';
+    if (diffMin < 15)      lbl.textContent = 'Session active';
+    else if (diffMin < 45) lbl.textContent = 'Cooling · ' + diffMin + 'm ago';
+    else                   lbl.textContent = 'Idle · ' + Math.floor(diffMin/60) + 'h ' + (diffMin%60) + 'm ago';
+  }}
+  update();
+  setInterval(update, 60000);
 }})();
 
 // ── Day calendar: current-time line + auto-scroll ───────────────────────────
