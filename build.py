@@ -307,8 +307,7 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                  f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
                  f'<span class="dc-ev-n">{escape(ev["title"][:32])}</span>'
                  f'{dur_label}{tag_html}</div>')
-    return (f'{allday_html}'
-            f'<div class="dc-outer" id="dc-outer">'
+    return (f'<div class="dc-outer" id="dc-outer">'
             f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
             f'{rows_h}'
             f'<div style="position:absolute;left:44px;right:0;top:0;bottom:0">'
@@ -1423,32 +1422,31 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Recent Emails</div>
         <div class="card">{email_rows}</div>
       </div>
+      <div class="sec">
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span class="progress-title">Weekly Progress</span>
+            <span class="progress-stats">{done_wk} this week &nbsp;·&nbsp; {done_last_wk} last week</span>
+          </div>
+          <div class="progress-bar-row">
+            <div>
+              <div class="bar-label"><span>This week</span><span>{done_wk} tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-week" id="bar-week" style="width:0%;background:{wk_color}" data-pct="{wk_pct}"></div></div>
+            </div>
+            <div>
+              <div class="bar-label"><span>Last week</span><span>{done_last_wk} tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-last" id="bar-last" data-pct="{lw_pct}"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="extra-row">
     <div class="panel">
-      <div class="p-lbl">Today &amp; Tomorrow &nbsp;·&nbsp; {today.strftime("%b %-d")} – {(today + timedelta(days=1)).strftime("%b %-d")}</div>
+      <div class="p-lbl">Today &nbsp;·&nbsp; {today.strftime("%b %-d")}</div>
       {hourly_cal}
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="progress-wrap">
-      <div class="progress-header">
-        <span class="progress-title">Weekly Progress</span>
-        <span class="progress-stats">{done_wk} this week &nbsp;·&nbsp; {done_last_wk} last week &nbsp;·&nbsp; {done_today} today</span>
-      </div>
-      <div class="progress-bar-row">
-        <div>
-          <div class="bar-label"><span>This week</span><span>{done_wk} tasks</span></div>
-          <div class="bar-track"><div class="bar-fill bar-fill-week" id="bar-week" style="width:0%;background:{wk_color}" data-pct="{wk_pct}"></div></div>
-        </div>
-        <div>
-          <div class="bar-label"><span>Last week</span><span>{done_last_wk} tasks</span></div>
-          <div class="bar-track"><div class="bar-fill bar-fill-last" id="bar-last" data-pct="{lw_pct}"></div></div>
-        </div>
-      </div>
     </div>
   </div>
 
