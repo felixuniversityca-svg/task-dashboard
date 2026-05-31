@@ -535,8 +535,8 @@
       </div>
     </div>
     <div class="hd-right">
-      <span class="sync-dot" style="background:#ff9500"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780242537">May 31 at 17:48</span>
+      <span class="sync-dot" style="background:#aeaeb2"></span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780247978">May 31 at 19:19</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -637,7 +637,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 17:48</span>
+    <span class="ft-time">Built May 31 at 19:19</span>
   </footer>
 
 </div>
@@ -781,11 +781,16 @@ document.querySelectorAll('[data-countup]').forEach(el => {
   function run() {
     const cols = Array.from(document.querySelectorAll('.tri-row > div'));
     if (!cols.length) return;
-    // Reset to natural height, force reflow, measure
+    // Reset to natural height, force reflow
     cols.forEach(c => { c.style.height = ''; c.style.display = 'block'; });
     void cols[0].offsetHeight;
-    const maxH = Math.max(...cols.map(c => c.scrollHeight));
-    // Set all columns to equal height; only stretch the graph widget to fill
+    // Measure maxH only from columns that don't contain the graph —
+    // the 3D library pre-inflates the graph canvas which would skew the target height
+    const nonGraphH = cols
+      .filter(c => !c.querySelector('.graph-wrap'))
+      .map(c => c.scrollHeight);
+    const maxH = nonGraphH.length ? Math.max(...nonGraphH) : cols[0].scrollHeight;
+    // Set all columns to that height; stretch graph-wrap in the graph column to fill
     cols.forEach(col => {
       col.style.height = maxH + 'px';
       col.style.display = 'flex';
@@ -802,9 +807,8 @@ document.querySelectorAll('[data-countup]').forEach(el => {
         graphWrap.style.display = 'flex';
         graphWrap.style.flexDirection = 'column';
       }
-      // Other columns: content stays natural, whitespace below
     });
-    // Resize 3D graph: available = wrap height minus stats bar
+    // Resize 3D graph canvas: available = wrap height minus stats bar
     if (window._vaultGraph) {
       const wrap = document.querySelector('.graph-wrap');
       const stats = document.getElementById('graph-stats');
