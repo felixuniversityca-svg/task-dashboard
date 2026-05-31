@@ -85,14 +85,22 @@ def parse_tasks(content):
             flush(); sub=strip_wikilink(s[4:].strip()); tasks=[]; continue
         if sec == "active" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
-            due = None; time_val = None
+            due = None; time_val = None; dur_min = None
             m_due  = re.search(r"<!--\s*due:\s*(\d{4}-\d{2}-\d{2})\s*-->", raw)
             m_time = re.search(r"<!--\s*time:\s*(\d{1,2}:\d{2})\s*-->", raw)
+            m_dur  = re.search(r"<!--\s*duration:\s*([^>]+?)\s*-->", raw)
             if m_due:  due = parse_date(m_due.group(1))
             if m_time: time_val = m_time.group(1)
+            if m_dur:
+                ds = m_dur.group(1).strip()
+                mh = re.match(r"(\d+)h(?:(\d+)m?)?", ds)
+                mo = re.match(r"(\d+)m", ds)
+                if mh:  dur_min = int(mh.group(1))*60 + int(mh.group(2) or 0)
+                elif mo: dur_min = int(mo.group(1))
             raw = re.sub(r"<!--[^>]+-->", "", raw).strip()
             if sub is None: sub="Other"; tasks=[]
-            tasks.append({"text": strip_wikilink(raw), "due": due, "time": time_val}); continue
+            tasks.append({"text": strip_wikilink(raw), "due": due,
+                          "time": time_val, "dur_min": dur_min}); continue
         if sec == "blocked" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
             waiting=since=""
@@ -258,7 +266,8 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                         events.append({"title": t["text"], "h": h, "mn": mn,
                                       "color": "#ff9500" if is_tmr else "#34c759",
                                       "bg": "var(--orange-bg)" if is_tmr else "var(--green-bg)",
-                                      "tag": "TMR" if is_tmr else ""})
+                                      "tag": "TMR" if is_tmr else "",
+                                      "dur_min": t.get("dur_min")})
 
     # ── All-day section ───────────────────────────────────────────────────────
     allday_html = ""
@@ -286,13 +295,18 @@ def hourly_calendar_html(agenda, deadlines, active, today):
     ev_h = ""
     for ev in events:
         top = (ev["h"] - START_H + ev["mn"]/60) * SLOT_H
+        dur = ev.get("dur_min")
+        height = max((dur / 60) * SLOT_H, 24) if dur else None
+        height_style = f"height:{height:.0f}px;align-items:flex-start;padding-top:5px;" if height else ""
         tag_html = (f'<span class="dc-ev-tag" style="color:{ev["color"]}">{ev["tag"]}</span>'
                     if ev.get("tag") else "")
-        ev_h += (f'<div class="dc-ev" style="top:{top:.1f}px;'
+        dur_label = (f'<span class="dc-ev-dur">{dur//60}h{dur%60:02d}</span>'
+                     if dur else "")
+        ev_h += (f'<div class="dc-ev" style="top:{top:.1f}px;{height_style}'
                  f'border-left-color:{ev["color"]};background:{ev["bg"]}">'
                  f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
                  f'<span class="dc-ev-n">{escape(ev["title"][:32])}</span>'
-                 f'{tag_html}</div>')
+                 f'{dur_label}{tag_html}</div>')
     return (f'{allday_html}'
             f'<div class="dc-outer" id="dc-outer">'
             f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
@@ -534,6 +548,25 @@ def build_html(active, blocked, completed, live_data):
     else:
         sb_label = f"Session idle · {minutes_ago // 60}h {minutes_ago % 60}m ago"; sb_color = "#aeaeb2"
     sb_pct = max(100 - int(minutes_ago * 1.2), 4)  # battery-style: drains over ~80 min
+    # Circular session arc widget
+    _circ = 238.76  # 2*pi*38
+    _fill = sb_pct / 100 * _circ
+    session_arc_html = (
+        f'<div class="sec">'
+        f'<div class="sec-lbl">Session</div>'
+        f'<div class="card" style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px">'
+        f'<svg viewBox="0 0 100 100" width="108" height="108" style="display:block">'
+        f'<circle cx="50" cy="50" r="38" fill="none" stroke="#f2f2f7" stroke-width="9"/>'
+        f'<circle cx="50" cy="50" r="38" fill="none" stroke="{sb_color}" stroke-width="9" '
+        f'stroke-dasharray="{_fill:.1f} {_circ:.1f}" stroke-linecap="round" transform="rotate(-90 50 50)"/>'
+        f'<text x="50" y="46" text-anchor="middle" dominant-baseline="middle" '
+        f'font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">{sb_pct}%</text>'
+        f'<text x="50" y="64" text-anchor="middle" '
+        f'font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">session</text>'
+        f'</svg>'
+        f'<div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">{escape(sb_label)}</div>'
+        f'</div></div>'
+    )
     panels     = build_panels(active, blocked, completed, live_data,
                               spark_data, legend, event_map)
     panels_js  = json.dumps(panels, ensure_ascii=False)
@@ -550,7 +583,7 @@ def build_html(active, blocked, completed, live_data):
         kpi(t_block,  "Blocked",        "kpi-orange" if t_block else "",         "kpi-blocked", "Tap for details",   t_block) +
         kpi(done_wk,  "Done this week", "kpi-green",                             "kpi-week",    "Tap to see tasks",  done_wk) +
         kpi(f"{oldest}d" if oldest else "None", "Oldest block",
-            "kpi-red" if oldest>=14 else ("kpi-orange" if oldest>=3 else ""),    "kpi-oldest",  "Tap for details")
+            "kpi-red" if oldest>=14 else ("kpi-yellow" if oldest>=3 else ""),    "kpi-oldest",  "Tap for details")
     )
 
     # Deadlines
@@ -724,6 +757,55 @@ def build_html(active, blocked, completed, live_data):
     # Rebuild panels_js with new entries
     panels_js = json.dumps(panels, ensure_ascii=False)
 
+    # Priority card — highest urgency item
+    priority = None
+    for sec in active:
+        for t in sec["tasks"]:
+            if t.get("due") and t["due"] < today:
+                priority = {"text": t["text"], "label": "Overdue",
+                            "detail": f"Was due {rel_label(t['due'])}",
+                            "color": "var(--red)", "bg": "var(--red-bg)", "bdr": "#ff3b30"}; break
+        if priority: break
+    if not priority:
+        for dl in deadlines:
+            d = parse_date(dl["date"])
+            if d and 0 <= (d - today).days <= 2:
+                priority = {"text": dl["title"], "label": rel_label(d),
+                            "detail": "Deadline",
+                            "color": "var(--orange)", "bg": "var(--orange-bg)", "bdr": "#ff9500"}; break
+    if not priority:
+        for sec in active:
+            for t in sec["tasks"]:
+                if t.get("due") == today:
+                    priority = {"text": t["text"], "label": "Due today",
+                                "detail": sec["section"],
+                                "color": "var(--blue)", "bg": "var(--blue-bg)", "bdr": "#0071e3"}; break
+            if priority: break
+    if not priority and blocked:
+        ob = max(blocked, key=lambda b: b.get("days") or 0)
+        if (ob.get("days") or 0) >= 3:
+            priority = {"text": ob["task"], "label": f"{ob['days']}d blocked",
+                        "detail": f"Waiting on {ob['waiting']}",
+                        "color": "var(--orange)", "bg": "var(--orange-bg)", "bdr": "#ff9500"}
+    if priority:
+        priority_html = (
+            f'<div class="priority-card" style="border-left-color:{priority["bdr"]};background:{priority["bg"]}">'
+            f'<div class="priority-inner">'
+            f'<span class="priority-flag" style="color:{priority["color"]}">{escape(priority["label"])}</span>'
+            f'<span class="priority-text">{escape(priority["text"][:70])}</span>'
+            f'</div>'
+            f'<span class="priority-detail">{escape(priority["detail"])}</span>'
+            f'</div>'
+        )
+    else:
+        priority_html = (
+            '<div class="priority-card priority-clear">'
+            '<div class="priority-inner">'
+            '<span class="priority-flag" style="color:var(--green)">All clear</span>'
+            '<span class="priority-text">No overdue tasks or imminent deadlines</span>'
+            '</div></div>'
+        )
+
     # Completed
     done_rows = ""
     for i,c in enumerate(reversed(completed)):
@@ -768,8 +850,9 @@ def build_html(active, blocked, completed, live_data):
 
     /* ─ Header ─ */
     .header{{display:flex;justify-content:space-between;align-items:center;
-             margin-bottom:22px;gap:12px;flex-wrap:wrap}}
+             margin-bottom:16px;gap:12px;flex-wrap:wrap}}
     .hd-left{{display:flex;align-items:center;gap:12px}}
+    .hd-right{{display:flex;align-items:center;gap:10px}}
     .avatar{{width:42px;height:42px;border-radius:13px;flex-shrink:0;
              background:linear-gradient(135deg,#0071e3,#34aadc);
              display:flex;align-items:center;justify-content:center;
@@ -778,6 +861,23 @@ def build_html(active, blocked, completed, live_data):
     .hd-name{{font-size:17px;font-weight:700;letter-spacing:-.3px}}
     .hd-sub{{font-size:12px;color:var(--muted);margin-top:1px}}
     .hd-time{{font-size:12px;color:var(--muted)}}
+    .sync-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+    .sync-lbl{{font-size:11px;color:var(--muted)}}
+
+    /* ─ Priority card ─ */
+    .priority-card{{background:var(--surface);border:1px solid var(--border);
+                    border-left:4px solid;border-radius:var(--r);
+                    padding:13px 18px;box-shadow:var(--shadow);
+                    margin-bottom:16px;display:flex;
+                    align-items:center;justify-content:space-between;gap:14px}}
+    .priority-clear{{border-left-color:var(--green)!important;
+                     background:var(--green-bg)!important}}
+    .priority-inner{{display:flex;align-items:center;gap:12px;min-width:0}}
+    .priority-flag{{font-size:10px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:.6px;flex-shrink:0;white-space:nowrap}}
+    .priority-text{{font-size:14px;font-weight:600;letter-spacing:-.2px;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+    .priority-detail{{font-size:12px;color:var(--muted);flex-shrink:0}}
 
     /* ─ KPI ─ */
     .kpi-strip{{display:grid;grid-template-columns:repeat(4,1fr);
@@ -789,12 +889,14 @@ def build_html(active, blocked, completed, live_data):
     .kpi-green {{background:var(--green-bg); border-color:var(--green-bdr)}}
     .kpi-orange{{background:var(--orange-bg);border-color:var(--orange-bdr)}}
     .kpi-red   {{background:var(--red-bg);   border-color:var(--red-bdr)}}
+    .kpi-yellow{{background:#fff8df;border-color:rgba(160,112,0,0.20)}}
     .kpi-val{{font-size:30px;font-weight:700;letter-spacing:-1px;
               line-height:1;margin-bottom:4px}}
     .kpi-blue   .kpi-val{{color:var(--blue)}}
     .kpi-green  .kpi-val{{color:var(--green)}}
     .kpi-orange .kpi-val{{color:var(--orange)}}
     .kpi-red    .kpi-val{{color:var(--red)}}
+    .kpi-yellow .kpi-val{{color:#a07000}}
     .kpi-lbl{{font-size:11px;font-weight:500;color:var(--muted)}}
 
     /* Tooltip */
@@ -880,7 +982,7 @@ def build_html(active, blocked, completed, live_data):
                padding:3px 8px;flex-shrink:0;white-space:nowrap}}
     .dt-red   {{background:var(--red-bg);color:var(--red)}}
     .dt-orange{{background:var(--orange-bg);color:var(--orange)}}
-    .dt-blue  {{background:var(--blue-bg);color:var(--blue)}}
+    .dt-blue  {{background:#fce8f0;color:#c93566}}
 
     /* Due tags */
     .due-tag{{font-size:10px;font-weight:600;border-radius:5px;
@@ -1083,7 +1185,7 @@ def build_html(active, blocked, completed, live_data):
                 text-overflow:ellipsis;white-space:nowrap}}
 
     /* ─ Three-column main row ─ */
-    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}}
+    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;align-items:start}}
     .tri-row>*,.top-row>*{{min-width:0}}
 
     /* ─ Agenda ─ */
@@ -1174,9 +1276,8 @@ def build_html(active, blocked, completed, live_data):
     /* Count-up flash */
     .kpi-val.popped{{animation:countPulse .4s ease}}
 
-    /* ─ Extra row (day cal + velocity) ─ */
-    .extra-row{{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:16px}}
-    .extra-row>*{{min-width:0}}
+    /* ─ Extra row (day cal, full width) ─ */
+    .extra-row{{margin-bottom:16px}}
 
     /* ─ Day calendar ─ */
     .dc-outer{{max-height:360px;overflow-y:auto;scrollbar-width:thin;
@@ -1195,7 +1296,8 @@ def build_html(active, blocked, completed, live_data):
               text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
     .dc-ev-tag{{font-size:9px;font-weight:700;letter-spacing:.4px;
                 flex-shrink:0;opacity:.85}}
-    .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none}}
+    .dc-ev-dur{{font-size:10px;color:var(--muted);flex-shrink:0;margin-left:auto}}
+    .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none;z-index:10}}
     .dc-now::before{{content:'';position:absolute;left:-3px;top:-3px;
                      width:8px;height:8px;border-radius:50%;background:var(--red)}}
     .dc-allday{{padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:6px}}
@@ -1241,23 +1343,15 @@ def build_html(active, blocked, completed, live_data):
         <div class="hd-sub">Second Brain</div>
       </div>
     </div>
-    <div class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></div>
-  </div>
-
-  <!-- Status bar -->
-  <div class="sb-wrap">
-    <div class="sb-row">
-      <div class="sb-left">
-        <span class="sb-dot" style="background:{sb_color}"></span>
-        <span class="sb-label">{sb_label}</span>
-      </div>
-      <div class="sb-mid">{t_active} active &nbsp;·&nbsp; {t_block} blocked &nbsp;·&nbsp; {t_done} done &nbsp;·&nbsp; {done_wk} this week</div>
-      <div class="sb-right">CEST &nbsp;·&nbsp; {updated}</div>
+    <div class="hd-right">
+      <span class="sync-dot" style="background:{sb_color}"></span>
+      <span class="sync-lbl" id="sync-ago" data-ts="{build_epoch}">{updated}</span>
+      <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
-    <div class="sb-track"><div class="sb-fill" id="sb-fill" data-pct="{sb_pct}" style="width:0%;background:{sb_color}"></div></div>
   </div>
 
   <div class="kpi-strip">{kpi_html}</div>
+  {priority_html}
 
   <div class="top-row">
     <div class="panel">
@@ -1304,6 +1398,7 @@ def build_html(active, blocked, completed, live_data):
         <div class="sec-lbl">Pending Replies</div>
         <div class="card">{replies_html}</div>
       </div>
+      {session_arc_html}
     </div>
     <div>
       <div class="sec">
@@ -1321,35 +1416,6 @@ def build_html(active, blocked, completed, live_data):
     <div class="panel">
       <div class="p-lbl">Today &amp; Tomorrow &nbsp;·&nbsp; {today.strftime("%b %-d")} – {(today + timedelta(days=1)).strftime("%b %-d")}</div>
       {hourly_cal}
-    </div>
-    <div class="panel">
-      <div class="p-lbl">Today's Velocity</div>
-      <div class="vel-grid">
-        <div class="vel-stat">
-          <span class="vel-val {vel_color}">{done_today}</span>
-          <span class="vel-lbl">done today</span>
-        </div>
-        <div class="vel-stat">
-          <span class="vel-val vel-muted">{daily_avg}</span>
-          <span class="vel-lbl">daily avg (14d)</span>
-        </div>
-        <div class="vel-stat">
-          <span class="vel-val vel-blue">{t_active}</span>
-          <span class="vel-lbl">active tasks</span>
-        </div>
-        <div class="vel-stat">
-          <span class="vel-val {'vel-orange' if t_block else 'vel-muted'}">{t_block}</span>
-          <span class="vel-lbl">blocked</span>
-        </div>
-      </div>
-      <div class="vel-delta">
-        <span>Emails unread: <b>{unread_count}</b></span>
-        <span class="vel-trend {'vel-green' if vel_delta >= 0 else 'vel-muted'}">{vel_trend}</span>
-      </div>
-      <div style="margin-top:12px">
-        <div class="sec-lbl" style="margin-bottom:7px">Articles</div>
-        <div>{pipeline_pills}</div>
-      </div>
     </div>
   </div>
 
@@ -1372,16 +1438,9 @@ def build_html(active, blocked, completed, live_data):
     </div>
   </div>
 
-  <div class="sec">
-    <details>
-      <summary>Completed &nbsp;({t_done})</summary>
-      <ul class="done-list">{done_rows}</ul>
-    </details>
-  </div>
-
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Last synced <span id="sync-ago" data-ts="{build_epoch}">{updated}</span></span>
+    <span class="ft-time">Built {updated}</span>
   </footer>
 
 </div>
