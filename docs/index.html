@@ -371,7 +371,7 @@
     .tri-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
               margin-bottom:0;align-items:start}
     .tri-row>*,.top-row>*{min-width:0}
-    #graph-canvas{display:block;flex:1;min-height:180px}
+    #graph-canvas{display:block;width:100%;height:100%}
 
     /* ─ Agenda ─ */
     .ag-time{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
@@ -518,8 +518,8 @@
     /* ─ Vault graph ─ */
     .graph-wrap{background:var(--surface);border:1px solid var(--border);
                 border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
-                display:flex;flex-direction:column}
-    .graph-stats{font-size:10px;color:var(--muted);padding:8px 12px 4px;flex-shrink:0}
+                height:220px;flex-shrink:0}
+    .graph-stats{font-size:10px;color:var(--muted);padding:8px 12px 4px 12px}
     }
   </style>
 </head>
@@ -536,7 +536,7 @@
     </div>
     <div class="hd-right">
       <span class="sync-dot" style="background:#aeaeb2"></span>
-      <span class="sync-lbl" id="sync-ago" data-ts="1780247978">May 31 at 19:19</span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1780248403">May 31 at 19:26</span>
       <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
     </div>
   </div>
@@ -637,7 +637,7 @@
 
   <footer>
     <span class="ft-name">felix.janssen · second brain</span>
-    <span class="ft-time">Built May 31 at 19:19</span>
+    <span class="ft-time">Built May 31 at 19:26</span>
   </footer>
 
 </div>
@@ -781,46 +781,12 @@ document.querySelectorAll('[data-countup]').forEach(el => {
   function run() {
     const cols = Array.from(document.querySelectorAll('.tri-row > div'));
     if (!cols.length) return;
-    // Reset to natural height, force reflow
-    cols.forEach(c => { c.style.height = ''; c.style.display = 'block'; });
+    cols.forEach(c => { c.style.height = ''; });
     void cols[0].offsetHeight;
-    // Measure maxH only from columns that don't contain the graph —
-    // the 3D library pre-inflates the graph canvas which would skew the target height
-    const nonGraphH = cols
-      .filter(c => !c.querySelector('.graph-wrap'))
-      .map(c => c.scrollHeight);
-    const maxH = nonGraphH.length ? Math.max(...nonGraphH) : cols[0].scrollHeight;
-    // Set all columns to that height; stretch graph-wrap in the graph column to fill
-    cols.forEach(col => {
-      col.style.height = maxH + 'px';
-      col.style.display = 'flex';
-      col.style.flexDirection = 'column';
-      const secs = Array.from(col.querySelectorAll(':scope > .sec'));
-      if (!secs.length) return;
-      const last = secs[secs.length - 1];
-      const graphWrap = last.querySelector(':scope > .graph-wrap');
-      if (graphWrap) {
-        last.style.flex = '1';
-        last.style.display = 'flex';
-        last.style.flexDirection = 'column';
-        graphWrap.style.flex = '1';
-        graphWrap.style.display = 'flex';
-        graphWrap.style.flexDirection = 'column';
-      }
-    });
-    // Resize 3D graph canvas: available = wrap height minus stats bar
-    if (window._vaultGraph) {
-      const wrap = document.querySelector('.graph-wrap');
-      const stats = document.getElementById('graph-stats');
-      if (wrap) {
-        void wrap.offsetHeight;
-        const availH = wrap.offsetHeight - (stats ? stats.offsetHeight : 0);
-        if (availH > 50) window._vaultGraph.height(availH).width(wrap.offsetWidth);
-      }
-    }
+    const maxH = Math.max(...cols.map(c => c.scrollHeight));
+    cols.forEach(c => { c.style.height = maxH + 'px'; });
   }
-  setTimeout(run, 100);   // after initial paint
-  setTimeout(run, 1200);  // after 3D graph settles
+  setTimeout(run, 100);
   window.addEventListener('resize', () => setTimeout(run, 100));
 })();
 
@@ -878,9 +844,10 @@ document.querySelectorAll('[data-countup]').forEach(el => {
     deg[l.target] = (deg[l.target] || 0) + 1;
   });
 
+  const GRAPH_H = 196; // graph-wrap 220px minus stats bar ~24px
   const Graph = ForceGraph3D({ controlType: 'orbit', rendererConfig: { antialias: true, alpha: true } })(el)
-    .width(el.parentElement.offsetWidth)
-    .height(el.offsetHeight || 260)
+    .width(el.parentElement ? el.parentElement.offsetWidth : 300)
+    .height(GRAPH_H)
     .backgroundColor('#f5f5f7')
     .graphData(gData)
     .nodeColor(n => n.color || '#aeaeb2')
@@ -908,7 +875,7 @@ document.querySelectorAll('[data-countup]').forEach(el => {
   }, 600);
 
   window.addEventListener('resize', () => {
-    Graph.width(el.parentElement.offsetWidth).height(Math.max(el.offsetHeight, 200));
+    if (el.parentElement) Graph.width(el.parentElement.offsetWidth);
   });
 })();
 
