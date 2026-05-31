@@ -773,7 +773,7 @@ def build_html(active, blocked, completed, live_data):
             if d and 0 <= (d - today).days <= 2:
                 priority = {"text": dl["title"], "label": rel_label(d),
                             "detail": "Deadline",
-                            "color": "var(--orange)", "bg": "var(--orange-bg)", "bdr": "#ff9500"}; break
+                            "color": "#c93566", "bg": "#fce8f0", "bdr": "#c93566"}; break
     if not priority:
         for sec in active:
             for t in sec["tasks"]:
