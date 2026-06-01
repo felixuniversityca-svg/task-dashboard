@@ -29,7 +29,7 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 
 ## Blocked
 
-- [ ] Set up phone access to second brain -- waiting: ANTHROPIC_API_KEY -- since 2026-05-28
+<!-- Phone second brain dropped for now — not a priority, revisit as later project -->
 
 ---
 
@@ -89,3 +89,4 @@ Uncompleted tasks here = uncompleted in Apple Reminders.
 - [[TrustUp_Research_Document_initial]] — mentionné dans le fichier
 - [[Dashboard]] — mentionné dans le fichier
 - [[Phone Second Brain Setup]] — mentionné dans le fichier
+- [[Investsud_Research_Handoff]] — mentionné dans le fichier
