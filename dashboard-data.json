@@ -29,6 +29,16 @@
       "title": "Onboarding with Louise (CC)"
     },
     {
+      "date": "2026-06-01",
+      "time": "21:00",
+      "title": "Debrief Claude on CC Day 1"
+    },
+    {
+      "date": "2026-06-01",
+      "time": "21:00",
+      "title": "Voice-record CC structure, teams, current tools"
+    },
+    {
       "date": "2026-06-07",
       "time": "",
       "title": "AI mandate: map relevant tools for PE and IR (week 4 target)"
@@ -156,13 +166,21 @@
     {
       "title": "Onboarding with Louise (CC)",
       "time": "17:00"
+    },
+    {
+      "title": "Debrief Claude on CC Day 1",
+      "time": "21:00"
+    },
+    {
+      "title": "Voice-record CC structure, teams, current tools",
+      "time": "21:00"
     }
   ],
   "claude_usage": {
-    "five_hour_pct": 71,
+    "five_hour_pct": 77,
     "resets_at": 1780338600,
-    "ctx_pct": 66,
-    "updated_at": 1780325470
+    "ctx_pct": 79,
+    "updated_at": 1780326008
   },
   "vault_graph": {
     "nodes": [
@@ -1582,114 +1600,6 @@
       },
       {
         "source": "Memory/entity-map.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Tasks.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.1.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Projects/Phone Second Brain.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Article Myocene V.1.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.2.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Dashboard.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
         "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
       },
       {
@@ -3698,5 +3608,5 @@
       }
     ]
   },
-  "fetched_at": "2026-06-01 16:54"
+  "fetched_at": "2026-06-01 17:00"
 }
