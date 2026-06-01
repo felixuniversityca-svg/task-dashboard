@@ -1787,9 +1787,12 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
 
 
 def main():
-    if not TASKS_FILE.exists():
-        print("ERROR: Tasks.md not found", file=sys.stderr); sys.exit(1)
-    content   = TASKS_FILE.read_text(encoding="utf-8")
+    tasks_path = Path(sys.argv[1]) if len(sys.argv) > 1 else TASKS_FILE
+    if not tasks_path.exists():
+        print(f"ERROR: Tasks.md not found at {tasks_path}", file=sys.stderr); sys.exit(1)
+    content = tasks_path.read_text(encoding="utf-8")
+    if len(content.strip()) < 50:
+        print("ERROR: Tasks.md is empty or too small, aborting to prevent corrupt deploy", file=sys.stderr); sys.exit(1)
     live_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
     active, blocked, completed = parse_tasks(content)
     OUTPUT_DIR.mkdir(exist_ok=True)

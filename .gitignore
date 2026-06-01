@@ -5,3 +5,4 @@ docs/**
 dashboard-data.json
 *.log
 .DS_Store
+Tasks.md

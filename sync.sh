@@ -36,24 +36,28 @@ wait_for_icloud() {
     done
 }
 wait_for_icloud
-cp "$TASKS" "$REPO/Tasks.md"
 
 # ── Fetch live data (emails, calendar) ───────────────────────────────────────
 log "fetching live data..."
 /opt/homebrew/bin/python3.12 "$REPO/fetch_dashboard_data.py" 2>&1 | while IFS= read -r line; do log "$line"; done
 
-# ── Build HTML locally ────────────────────────────────────────────────────────
+# ── Build HTML directly from vault (no copy) ─────────────────────────────────
 log "building..."
-/opt/homebrew/bin/python3.12 "$REPO/build.py" 2>&1 | while IFS= read -r line; do log "$line"; done
+if ! /opt/homebrew/bin/python3.12 "$REPO/build.py" "$TASKS" 2>&1 | while IFS= read -r line; do log "$line"; done; then
+    log "build failed or Tasks.md too small -- aborting push"
+    exit 1
+fi
 
 # ── Commit and push ───────────────────────────────────────────────────────────
 cd "$REPO" || exit 1
-git add Tasks.md docs/index.html public/index.html
+git add docs/index.html
 if ! git diff --cached --quiet; then
-    git commit -m "sync $(date '+%Y-%m-%d %H:%M')" && \
-        git push && \
-        mkdir -p "$(dirname "$COOLDOWN_FILE")" && date +%s > "$COOLDOWN_FILE" && \
-        log "pushed" || log "push failed -- check remote"
+    if git commit -m "sync $(date '+%Y-%m-%d %H:%M')" && git push; then
+        mkdir -p "$(dirname "$COOLDOWN_FILE")" && date +%s > "$COOLDOWN_FILE"
+        log "pushed"
+    else
+        log "push failed -- check ~/task-dashboard/sync-error.log"
+    fi
 else
     log "no changes"
 fi
