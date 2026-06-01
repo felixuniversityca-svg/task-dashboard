@@ -1482,8 +1482,8 @@ def build_html(active, blocked, completed, live_data):
       </div>
       <div class="cc-block cc-blue">
         <div class="cc-block-lbl">Key Contacts</div>
-        <div class="cc-detail"><strong>Adeline Wattiau</strong> · supervisor · tu, warm</div>
-        <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · relationship-driven</div>
+        <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · primary contact now</div>
+        <div class="cc-detail"><strong>Adeline Wattiau</strong> · supervisor · joining her team ~July</div>
         <div class="cc-detail"><strong>Arnaud Tardan</strong> · team · your intro connection</div>
       </div>
       <div class="cc-block cc-orange">
