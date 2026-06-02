@@ -98,7 +98,14 @@ def parse_tasks(content):
                 mo = re.match(r"(\d+)m", ds)
                 if mh:  dur_min = int(mh.group(1))*60 + int(mh.group(2) or 0)
                 elif mo: dur_min = int(mo.group(1))
+            if not m_due:
+                m_bt = re.search(r'`(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2})h(\d{2}))?`', raw)
+                if m_bt:
+                    due = parse_date(m_bt.group(1))
+                    if m_bt.group(2) and m_bt.group(3):
+                        time_val = f"{m_bt.group(2)}:{m_bt.group(3)}"
             raw = re.sub(r"<!--[^>]+-->", "", raw).strip()
+            raw = re.sub(r"\s*`\d{4}-\d{2}-\d{2}[^`]*`", "", raw).strip()
             if sub is None: sub="Other"; tasks=[]
             tasks.append({"text": strip_wikilink(raw), "due": due,
                           "time": time_val, "dur_min": dur_min}); continue
@@ -359,22 +366,17 @@ def build_panels(active, blocked, completed, live_data, spark_data, legend, even
         color="#34c759"
     )
 
-    # KPI — Oldest block
-    oldest = max((b["days"] for b in blocked if b["days"] is not None), default=0)
-    if oldest > 0 and blocked:
-        ob = max(blocked, key=lambda b: b["days"] or 0)
-        pd["kpi-oldest"] = panel(
-            "Oldest Blocker",
-            [row("Task",         ob["task"][:50]),
-             row("Waiting on",   ob["waiting"][:50]),
-             row("Blocked since",ob["since_date"].strftime("%A, %b %-d") if ob["since_date"] else "unknown"),
-             row("Duration",     f"{ob['days']} days", "red" if ob["days"]>=14 else "orange")],
-            subtitle=f"{oldest} days — needs a decision",
-            color="#ff3b30" if oldest>=14 else "#ff9500"
-        )
-    else:
-        pd["kpi-oldest"] = panel("Oldest Blocker",
-            [row("Status","No blockers — clear runway","green")], color="#34c759")
+    # KPI — Due today
+    due_today_tasks = [{"text": t["text"], "section": sec["section"]}
+                       for sec in active for t in sec["tasks"] if t.get("due") == date.today()]
+    pd["kpi-due-today"] = panel(
+        "Due Today",
+        ([row("Total", f"{len(due_today_tasks)} task{'s' if len(due_today_tasks)!=1 else ''}", "red")]
+         + [row(f"  {i+1}.", t["text"][:50]) for i,t in enumerate(due_today_tasks[:6])]
+         if due_today_tasks else [row("Status", "Nothing due today", "green")]),
+        subtitle=f"{len(due_today_tasks)} task{'s' if len(due_today_tasks)!=1 else ''} due today",
+        color="#ff3b30" if due_today_tasks else "#34c759"
+    )
 
     # Sparkline bars
     for i,(d,tasks) in enumerate(spark_data):
@@ -498,10 +500,14 @@ def build_html(active, blocked, completed, live_data):
     t_block    = len(blocked)
     t_done     = len(completed)
     done_wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days<=7)
-    oldest     = max((b["days"] for b in blocked if b["days"] is not None), default=0)
+    due_today_count = sum(1 for sec in active for t in sec["tasks"] if t.get("due") == today)
+    cc_start   = date(2026, 6, 1)
+    cc_end     = date(2026, 8, 22)
+    cc_day     = max((today - cc_start).days + 1, 1)
+    cc_left    = max((cc_end - today).days, 0)
     spark_svg, spark_n, spark_data = sparkline(completed)
     donut_svg, legend   = donut_chart(active)
-    deadlines  = live_data.get("deadlines", [])
+    deadlines  = sorted(live_data.get("deadlines", []), key=lambda d: (d.get("date",""), d.get("time","") or "99:99"))
     emails     = live_data.get("emails", [])
     pipeline   = live_data.get("pipeline", [])
     replies    = live_data.get("replies", [])
@@ -606,11 +612,10 @@ def build_html(active, blocked, completed, live_data):
                 f'<div class="kpi-val"{cu}>{val}</div>'
                 f'<div class="kpi-lbl">{escape(lbl)}</div></div>')
     kpi_html = (
-        kpi(t_active, "Active",         "kpi-blue",                              "kpi-active",  "Tap for breakdown", t_active) +
-        kpi(t_block,  "Blocked",        "kpi-orange" if t_block else "",         "kpi-blocked", "Tap for details",   t_block) +
-        kpi(done_wk,  "Done this week", "kpi-green",                             "kpi-week",    "Tap to see tasks",  done_wk) +
-        kpi(f"{oldest}d" if oldest else "None", "Oldest block",
-            "kpi-red" if oldest>=14 else ("kpi-yellow" if oldest>=3 else ""),    "kpi-oldest",  "Tap for details")
+        kpi(t_active,        "Active",         "kpi-blue",                                "kpi-active",    "Tap for breakdown", t_active) +
+        kpi(t_block,         "Blocked",        "kpi-orange" if t_block else "",           "kpi-blocked",   "Tap for details",   t_block) +
+        kpi(done_wk,         "Done this week", "kpi-green",                               "kpi-week",      "Tap to see tasks",  done_wk) +
+        kpi(due_today_count, "Due today",      "kpi-red" if due_today_count > 0 else "",  "kpi-due-today", "Tap for details",   due_today_count)
     )
 
     # Deadlines
@@ -622,7 +627,7 @@ def build_html(active, blocked, completed, live_data):
         delta = (d-today).days if d else 99
         dt_cls = "dt-red" if delta<=1 else ("dt-orange" if delta<=3 else "dt-blue")
         deadline_rows += (f'<div class="list-row interactive" data-key="deadline-{i}">'
-                          f'<span class="dt-badge {dt_cls}">{escape(lbl)}</span>'
+                          f'<span class="dt-badge {dt_cls}" data-due-iso="{d.isoformat() if d else ""}" data-due-time="{escape(dl.get("time",""))}">{escape(lbl)}</span>'
                           f'<span class="list-text">{escape(dl["title"])}</span>'
                           f'<span class="chevron">›</span></div>')
     if not deadline_rows:
@@ -673,7 +678,7 @@ def build_html(active, blocked, completed, live_data):
             if t["due"]:
                 delta  = (t["due"]-today).days
                 d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
-                due_html = f'<span class="due-tag {d_cls}">{rel_label(t["due"])}</span>'
+                due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
             rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
                      f'<span class="dot dot-blue dot-sm"></span>'
                      f'<span class="task-text">{escape(t["text"])}</span>'
@@ -773,21 +778,39 @@ def build_html(active, blocked, completed, live_data):
     if not replies_html:
         replies_html = '<p class="empty-p">No pending replies.</p>'
 
-    # Today's agenda widget
+    # Today's agenda widget — calendar events + tasks due today, merged and sorted
+    agenda_items = []
+    for ev in agenda:
+        agenda_items.append({"title": ev["title"], "time": ev.get("time",""), "kind": "cal"})
+    for sec in active:
+        for t_item in sec.get("tasks", []):
+            if t_item.get("due") == today:
+                agenda_items.append({"title": t_item["text"], "time": t_item.get("time",""),
+                                     "kind": "task", "sec": sec["section"]})
+    agenda_items.sort(key=lambda x: (x["time"] == "", x["time"]))
+
     agenda_html = ""
-    for i,ev in enumerate(agenda):
-        t = ev.get("time","")
-        time_html = f'<span class="ag-time">{escape(t)}</span>' if t else '<span class="ag-time ag-allday">all day</span>'
+    for i, item in enumerate(agenda_items):
+        t = item.get("time", "")
+        if item["kind"] == "task":
+            time_html = (f'<span class="ag-time">{escape(t)}</span>' if t
+                         else '<span class="ag-time ag-allday">task</span>')
+            color = "#34c759"
+            rows  = [{"k": "Due",     "v": "Today" + (f" at {t}" if t else ""), "hl": "red"},
+                     {"k": "Project", "v": item.get("sec", "")}]
+        else:
+            time_html = (f'<span class="ag-time">{escape(t)}</span>' if t
+                         else '<span class="ag-time ag-allday">all day</span>')
+            color = "#0071e3"
+            rows  = [{"k": "Time", "v": t if t else "All day"}, {"k": "Date", "v": str(today)}]
         pd_key = f"agenda-{i}"
-        panels[pd_key] = {
-            "t": ev["title"], "sub": f"Today{' at ' + t if t else ''}",
-            "color": "#0071e3",
-            "rows": [{"k": "Time", "v": t if t else "All day"}, {"k": "Date", "v": str(today)}]
-        }
+        panels[pd_key] = {"t": item["title"],
+                          "sub": f"Today{' at ' + t if t else ''}",
+                          "color": color, "rows": rows}
         agenda_html += (
             f'<div class="list-row interactive" data-key="{pd_key}">'
             f'{time_html}'
-            f'<span class="list-text">{escape(ev["title"])}</span>'
+            f'<span class="list-text">{escape(item["title"][:44])}</span>'
             f'<span class="chevron">›</span></div>'
         )
     if not agenda_html:
@@ -827,7 +850,7 @@ def build_html(active, blocked, completed, live_data):
             d = parse_date(dl["date"])
             if d and 0 <= (d - today).days <= 2:
                 priority = {"text": dl["title"], "label": rel_label(d),
-                            "detail": "Deadline",
+                            "detail": "Deadline", "due_iso": d.isoformat(),
                             "color": "#c93566", "bg": "#fce8f0", "bdr": "#c93566"}; break
     if not priority:
         for sec in active:
@@ -847,7 +870,7 @@ def build_html(active, blocked, completed, live_data):
         priority_html = (
             f'<div class="priority-card" style="border-left-color:{priority["bdr"]};background:{priority["bg"]}">'
             f'<div class="priority-inner">'
-            f'<span class="priority-flag" style="color:{priority["color"]}">{escape(priority["label"])}</span>'
+            f'<span class="priority-flag" style="color:{priority["color"]}" data-due-iso="{priority.get("due_iso","")}">{escape(priority["label"])}</span>'
             f'<span class="priority-text">{escape(priority["text"][:70])}</span>'
             f'</div>'
             f'<span class="priority-detail">{escape(priority["detail"])}</span>'
@@ -1471,34 +1494,39 @@ def build_html(active, blocked, completed, live_data):
   </div>
 
   <div class="sec">
-    <div class="sec-lbl">Capital Croissance</div>
+    <div class="sec-lbl" style="display:flex;justify-content:space-between;align-items:center">
+      Capital Croissance
+      <span id="cc-day-ctr" style="font-size:10px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0"
+            data-start="2026-06-01" data-end="2026-08-22">Day {cc_day} &nbsp;·&nbsp; {cc_left}d left</span>
+    </div>
     <div class="cc-primer">
       <div class="cc-block cc-green">
-        <div class="cc-block-lbl">Arrival</div>
-        <div class="cc-detail"><strong>June 1 at 9h15</strong></div>
+        <div class="cc-block-lbl">Office</div>
         <div class="cc-detail">19A rue du Rocher, Paris 75008</div>
         <div class="cc-detail">Code: <strong>7508</strong> · push gate · building at back of courtyard</div>
-        <div class="cc-detail">Bring laptop, nothing else required</div>
+        <div class="cc-detail">IR + strategy team · AI mandate cross-firm</div>
+        <div class="cc-detail">Joining Adeline's team fully ~July</div>
       </div>
       <div class="cc-block cc-blue">
         <div class="cc-block-lbl">Key Contacts</div>
-        <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · primary contact now</div>
-        <div class="cc-detail"><strong>Adeline Wattiau</strong> · supervisor · joining her team ~July</div>
-        <div class="cc-detail"><strong>Arnaud Tardan</strong> · team · your intro connection</div>
+        <div class="cc-detail"><strong>Chris Chenebault</strong> · IR Director · AI mandate lead</div>
+        <div class="cc-detail"><strong>Adeline Wattiau</strong> · future supervisor · joining ~July</div>
+        <div class="cc-detail"><strong>Arnaud Tardan</strong> · team · intro connection</div>
+        <div class="cc-detail"><strong>Louise</strong> · onboarding · admin</div>
       </div>
       <div class="cc-block cc-orange">
-        <div class="cc-block-lbl">AI Mandate Focus</div>
-        <div class="cc-detail">1. LP reporting automation</div>
-        <div class="cc-detail">2. News monitoring + sentiment</div>
-        <div class="cc-detail">3. IR content and comms drafting</div>
-        <div class="cc-detail">Week 4 target: tool map for PE + IR</div>
+        <div class="cc-block-lbl">AI Mandate</div>
+        <div class="cc-detail"><strong>Use Case 1:</strong> Voice → n8n → Salesforce · email sent to Chris</div>
+        <div class="cc-detail"><strong>Use Case 2:</strong> Teams query → Salesforce/web brief · scope by Jun 7</div>
+        <div class="cc-detail"><strong>Week 4 target:</strong> tool map for PE + IR</div>
+        <div class="cc-detail">Compliance gate: LP data sign-off pending</div>
       </div>
       <div class="cc-block cc-purple">
-        <div class="cc-block-lbl">Day 1 Questions</div>
-        <div class="cc-detail">What tools does the team already use?</div>
-        <div class="cc-detail">Who is my day-to-day manager?</div>
-        <div class="cc-detail">End-of-internship deliverable?</div>
-        <div class="cc-detail">Access to internal data or public only?</div>
+        <div class="cc-block-lbl">This Week</div>
+        <div class="cc-detail">Fund deep-dives: K2, Bluester (in progress)</div>
+        <div class="cc-detail">Ask Chris: Cairn file path + deck review?</div>
+        <div class="cc-detail">Fri: Rodrigue (Ternel + AI) · Dust AI (Adeline + Chris)</div>
+        <div class="cc-detail">Jun 24: Webinaire IA France Invest 14h30</div>
       </div>
     </div>
   </div>
@@ -1521,7 +1549,7 @@ def build_html(active, blocked, completed, live_data):
         <div class="card">{agenda_html}</div>
       </div>
       <div class="sec">
-        <div class="sec-lbl">Pending Replies</div>
+        <div class="sec-lbl">Awaiting Feedback</div>
         <div class="card">{replies_html}</div>
       </div>
       <div class="sec">
@@ -1575,7 +1603,7 @@ def build_html(active, blocked, completed, live_data):
 
   <div class="extra-row">
     <div class="panel">
-      <div class="p-lbl">Today &nbsp;·&nbsp; {today.strftime("%b %-d")}</div>
+      <div class="p-lbl" id="dc-today-lbl">Today &nbsp;·&nbsp; {today.strftime("%b %-d")}</div>
       {hourly_cal}
     </div>
   </div>
@@ -1780,6 +1808,113 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
   // Scroll so current time is near top of visible area
   const n = new Date();
   outer.scrollTop = Math.max(0, (n.getHours() - START_H - 0.5) * SLOT_H);
+}})();
+
+// ── CC internship day counter ───────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('cc-day-ctr');
+  if (!el) return;
+  const start = new Date(el.dataset.start + 'T00:00:00');
+  const end   = new Date(el.dataset.end   + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const day  = Math.max(Math.round((today - start) / 86400000) + 1, 1);
+  const left = Math.max(Math.round((end - today)   / 86400000), 0);
+  el.textContent = 'Day ' + day + ' · ' + left + 'd left';
+}})();
+
+// ── Date-aware label refresh (runs on every page load) ───────────────────────
+(function() {{
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function relLbl(iso, time) {{
+    const today = new Date(); today.setHours(0,0,0,0);
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const t     = time ? ' ' + time : '';
+    if (delta < 0)   return Math.abs(delta) + 'd ago' + t;
+    if (delta === 0) return 'Today' + t;
+    if (delta === 1) return 'Tomorrow' + t;
+    if (delta <= 6)  return DAYS[due.getDay()] + t;
+    return MONTHS[due.getMonth()] + ' ' + due.getDate() + t;
+  }}
+  function urgCls(delta) {{
+    return delta <= 1 ? 'red' : (delta <= 3 ? 'orange' : 'blue');
+  }}
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.querySelectorAll('.due-tag[data-due-iso]').forEach(el => {{
+    const iso   = el.dataset.dueIso;
+    if (!iso) return;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso);
+    el.className   = 'due-tag due-' + urgCls(delta);
+  }});
+
+  document.querySelectorAll('.dt-badge[data-due-iso]').forEach(el => {{
+    const iso  = el.dataset.dueIso;
+    if (!iso) return;
+    const time = el.dataset.dueTime || '';
+    const due  = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso, time);
+    el.className   = 'dt-badge ' + (delta <= 1 ? 'dt-red' : (delta <= 3 ? 'dt-orange' : 'dt-blue'));
+  }});
+
+  const pf = document.querySelector('.priority-flag[data-due-iso]');
+  if (pf && pf.dataset.dueIso) {{
+    const iso   = pf.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    if      (delta < 0)   pf.textContent = 'Overdue';
+    else if (delta === 0) pf.textContent = 'Today';
+    else if (delta === 1) pf.textContent = 'Tomorrow';
+    else if (delta <= 6)  pf.textContent = DAYS[due.getDay()];
+  }}
+
+  const dcLbl = document.getElementById('dc-today-lbl');
+  if (dcLbl) {{
+    const n = new Date();
+    dcLbl.textContent = 'Today  ·  ' + MONTHS[n.getMonth()] + ' ' + n.getDate();
+  }}
+
+  Object.keys(PD).forEach(key => {{
+    if (!key.startsWith('deadline-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const dateRow = (d.rows || []).find(r => r && r.k === 'Date');
+    if (!dateRow) return;
+    const m  = dateRow.v.match(/(\\d{{4}}-\\d{{2}}-\\d{{2}})/);
+    const tm = dateRow.v.match(/at (\\d{{1,2}}:\\d{{2}})/);
+    if (!m) return;
+    const due   = new Date(m[1] + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const time  = tm ? tm[1] : '';
+    const hl    = urgCls(delta);
+    const whenRow = (d.rows || []).find(r => r && r.k === 'When');
+    const inRow   = (d.rows || []).find(r => r && r.k === 'In');
+    if (whenRow) {{ whenRow.v = relLbl(m[1], time); whenRow.hl = hl; }}
+    if (inRow)   {{ inRow.v  = delta >= 0 ? delta + ' day' + (delta !== 1 ? 's' : '') : 'Past due'; inRow.hl = hl; }}
+  }});
+
+  Object.keys(PD).forEach(key => {{
+    if (!key.startsWith('active-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const el = document.querySelector(`[data-key="${{key}}"] .due-tag[data-due-iso]`);
+    if (!el || !el.dataset.dueIso) return;
+    const iso   = el.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const dueRow  = (d.rows || []).find(r => r && r.k === 'Due');
+    const statRow = (d.rows || []).find(r => r && r.k === 'Status');
+    if (dueRow) {{ dueRow.v = relLbl(iso); dueRow.hl = urgCls(delta); }}
+    if (statRow) {{
+      if (delta < 0)       {{ statRow.v = 'Overdue';  statRow.hl = 'red'; }}
+      else if (delta <= 3) {{ statRow.v = 'Due soon'; statRow.hl = 'orange'; }}
+      else                 {{ statRow.v = 'On track'; statRow.hl = 'green'; }}
+    }}
+  }});
 }})();
 </script>
 </body>
