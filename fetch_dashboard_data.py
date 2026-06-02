@@ -16,7 +16,7 @@ sys.path.insert(0, str(SCRIPTS))
 OUTPUT = Path(__file__).parent / "dashboard-data.json"
 
 SKIP_SUBJECTS       = {"morning brief", "evening recap", "your 3 priorities"}
-SKIP_FROM_FRAGMENTS = {"noreply", "no-reply", "mailer-daemon", "notifications@"}
+SKIP_FROM_FRAGMENTS = {"noreply", "no-reply", "mailer-daemon", "notifications@", "indeed"}
 
 
 # ── Email ─────────────────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ def main():
     print("  fetching inbox...",           file=sys.stderr)
     emails    = fetch_inbox_emails()
     print("  reading deadlines...",        file=sys.stderr)
-    deadlines = read_deadlines()
+    deadlines = sorted(read_deadlines(), key=lambda d: (d.get("date", ""), d.get("time", "") or "99:99"))
     print("  parsing article pipeline...", file=sys.stderr)
     pipeline  = parse_article_pipeline()
     print("  parsing pending replies...",  file=sys.stderr)
