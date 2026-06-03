@@ -176,17 +176,14 @@ def donut_chart(active):
         off += dash
     return f'<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">{arcs}</svg>', legend
 
-def mini_calendar(deadlines, active_all, completed_all, months=2):
+def mini_calendar(deadlines, completed_all, months=2):
     today = date.today()
     event_map = defaultdict(list)
     for dl in deadlines:
         d = parse_date(dl["date"])
-        if d: event_map[d].append(("deadline", dl["title"]))
-    for sec in active_all:
-        for t in sec["tasks"]:
-            if t["due"]: event_map[t["due"]].append(("task", t["text"]))
+        if d: event_map[d].append(("deadline", dl["title"], dl.get("section", ""), dl.get("time", "")))
     for c in completed_all:
-        if c["date"]: event_map[c["date"]].append(("done", c["task"]))
+        if c["date"]: event_map[c["date"]].append(("done", c["task"], "", ""))
 
     DAY_NAMES   = ["M","T","W","T","F","S","S"]
     MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun",
@@ -245,23 +242,9 @@ def hourly_calendar_html(agenda, deadlines, active, today):
             elif due == tomorrow:
                 due_items.append({"text": t["text"], "label": "tomorrow", "color": "#34c759"})
 
-    # ── Timed events: calendar, deadlines, tasks ─────────────────────────────
+    # ── Timed events: tasks first (richer metadata), then calendar/deadlines ────
     events = []
-    for ev in (agenda or []):
-        mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
-        if mt:
-            h, mn = int(mt.group(1)), int(mt.group(2))
-            if START_H <= h < END_H:
-                events.append({"title": ev["title"], "h": h, "mn": mn,
-                               "color": "#0071e3", "bg": "var(--blue-bg)"})
-    for dl in (deadlines or []):
-        if dl.get("time") and parse_date(dl.get("date", "")) == today:
-            mt = re.match(r"(\d{1,2}):(\d{2})", dl["time"])
-            if mt:
-                h, mn = int(mt.group(1)), int(mt.group(2))
-                if START_H <= h < END_H:
-                    events.append({"title": dl["title"], "h": h, "mn": mn,
-                                  "color": "#ff3b30", "bg": "var(--red-bg)"})
+    seen_ev = set()
     tomorrow = today + timedelta(days=1)
     for sec in (active or []):
         for t in sec.get("tasks", []):
@@ -271,12 +254,36 @@ def hourly_calendar_html(agenda, deadlines, active, today):
                 if mt:
                     h, mn = int(mt.group(1)), int(mt.group(2))
                     if START_H <= h < END_H:
-                        is_tmr = due == tomorrow
-                        events.append({"title": t["text"], "h": h, "mn": mn,
-                                      "color": "#ff9500" if is_tmr else "#34c759",
-                                      "bg": "var(--orange-bg)" if is_tmr else "var(--green-bg)",
-                                      "tag": "TMR" if is_tmr else "",
-                                      "dur_min": t.get("dur_min")})
+                        key = t["text"].strip().lower()
+                        if key not in seen_ev:
+                            seen_ev.add(key)
+                            is_tmr = due == tomorrow
+                            events.append({"title": t["text"], "h": h, "mn": mn,
+                                          "color": "#ff9500" if is_tmr else "#34c759",
+                                          "bg": "var(--orange-bg)" if is_tmr else "var(--green-bg)",
+                                          "tag": "TMR" if is_tmr else "",
+                                          "dur_min": t.get("dur_min")})
+    for dl in (deadlines or []):
+        if dl.get("time") and parse_date(dl.get("date", "")) == today:
+            mt = re.match(r"(\d{1,2}):(\d{2})", dl["time"])
+            if mt:
+                h, mn = int(mt.group(1)), int(mt.group(2))
+                if START_H <= h < END_H:
+                    key = dl["title"].strip().lower()
+                    if key not in seen_ev:
+                        seen_ev.add(key)
+                        events.append({"title": dl["title"], "h": h, "mn": mn,
+                                      "color": "#ff3b30", "bg": "var(--red-bg)"})
+    for ev in (agenda or []):
+        mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
+        if mt:
+            h, mn = int(mt.group(1)), int(mt.group(2))
+            if START_H <= h < END_H:
+                key = ev["title"].strip().lower()
+                if key not in seen_ev:
+                    seen_ev.add(key)
+                    events.append({"title": ev["title"], "h": h, "mn": mn,
+                                   "color": "#0071e3", "bg": "var(--blue-bg)"})
 
     # ── All-day section ───────────────────────────────────────────────────────
     allday_html = ""
@@ -408,10 +415,16 @@ def build_panels(active, blocked, completed, live_data, spark_data, legend, even
     # Calendar days
     for d, events in event_map.items():
         rows_cal = []
-        for kind, title in events:
-            icon = "Deadline" if kind=="deadline" else ("Completed" if kind=="done" else "Due")
-            hl   = "red" if kind=="deadline" else ("green" if kind=="done" else "blue")
-            rows_cal.append(row(icon, title[:55], hl))
+        for kind, title, section, time in events:
+            if kind == "deadline":
+                hl      = "red"
+                label   = section if section else "Task"
+                display = f"{title[:48]}  {time}" if time else title[:55]
+            else:
+                hl      = "green"
+                label   = "Completed"
+                display = title[:55]
+            rows_cal.append(row(label, display, hl))
         pd[f"cal-{d.isoformat()}"] = panel(
             d.strftime("%A, %B %-d"),
             rows_cal,
@@ -502,9 +515,17 @@ def build_html(active, blocked, completed, live_data):
     done_wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days<=7)
     due_today_count = sum(1 for sec in active for t in sec["tasks"] if t.get("due") == today)
     cc_start   = date(2026, 6, 1)
-    cc_end     = date(2026, 8, 22)
-    cc_day     = max((today - cc_start).days + 1, 1)
-    cc_left    = max((cc_end - today).days, 0)
+    cc_end     = date(2026, 8, 1)
+    _cc_holidays = {date(2026, 7, 14)}  # Bastille Day
+    def _working_days(start, end):
+        count, d = 0, start
+        while d < end:
+            if d.weekday() < 5 and d not in _cc_holidays:
+                count += 1
+            d += timedelta(days=1)
+        return count
+    cc_day  = _working_days(cc_start, today) + 1
+    cc_left = _working_days(today + timedelta(days=1), cc_end + timedelta(days=1))
     spark_svg, spark_n, spark_data = sparkline(completed)
     donut_svg, legend   = donut_chart(active)
     deadlines  = sorted(live_data.get("deadlines", []), key=lambda d: (d.get("date",""), d.get("time","") or "99:99"))
@@ -512,7 +533,7 @@ def build_html(active, blocked, completed, live_data):
     pipeline   = live_data.get("pipeline", [])
     replies    = live_data.get("replies", [])
     agenda     = live_data.get("agenda", [])
-    cal_html, event_map = mini_calendar(deadlines, active, completed, months=2)
+    cal_html, event_map = mini_calendar(deadlines, completed, months=2)
     updated    = datetime.now().strftime("%b %-d at %H:%M")
     build_epoch = int(datetime.now().timestamp())
     hourly_cal  = hourly_calendar_html(agenda, deadlines, active, today)
@@ -778,15 +799,23 @@ def build_html(active, blocked, completed, live_data):
     if not replies_html:
         replies_html = '<p class="empty-p">No pending replies.</p>'
 
-    # Today's agenda widget — calendar events + tasks due today, merged and sorted
+    # Today's agenda widget — tasks due today + calendar events, deduped by title
     agenda_items = []
-    for ev in agenda:
-        agenda_items.append({"title": ev["title"], "time": ev.get("time",""), "kind": "cal"})
+    seen_titles = set()
+    # Tasks first so their richer metadata wins when a title appears in both sources
     for sec in active:
         for t_item in sec.get("tasks", []):
             if t_item.get("due") == today:
-                agenda_items.append({"title": t_item["text"], "time": t_item.get("time",""),
-                                     "kind": "task", "sec": sec["section"]})
+                key = t_item["text"].strip().lower()
+                if key not in seen_titles:
+                    seen_titles.add(key)
+                    agenda_items.append({"title": t_item["text"], "time": t_item.get("time",""),
+                                         "kind": "task", "sec": sec["section"]})
+    for ev in agenda:
+        key = ev["title"].strip().lower()
+        if key not in seen_titles:
+            seen_titles.add(key)
+            agenda_items.append({"title": ev["title"], "time": ev.get("time",""), "kind": "cal"})
     agenda_items.sort(key=lambda x: (x["time"] == "", x["time"]))
 
     agenda_html = ""
@@ -849,8 +878,10 @@ def build_html(active, blocked, completed, live_data):
         for dl in deadlines:
             d = parse_date(dl["date"])
             if d and 0 <= (d - today).days <= 2:
-                priority = {"text": dl["title"], "label": rel_label(d),
-                            "detail": "Deadline", "due_iso": d.isoformat(),
+                clean_title = re.sub(r'\s*\(\d{1,2}[h:]\d{2}(?:[-–]\d{1,2}[h:]\d{2})?\)', '', dl["title"]).strip()
+                time_detail = dl.get("time", "") or "Deadline"
+                priority = {"text": clean_title, "label": rel_label(d),
+                            "detail": time_detail, "due_iso": d.isoformat(),
                             "color": "#c93566", "bg": "#fce8f0", "bdr": "#c93566"}; break
     if not priority:
         for sec in active:
@@ -1497,7 +1528,7 @@ def build_html(active, blocked, completed, live_data):
     <div class="sec-lbl" style="display:flex;justify-content:space-between;align-items:center">
       Capital Croissance
       <span id="cc-day-ctr" style="font-size:10px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0"
-            data-start="2026-06-01" data-end="2026-08-22">Day {cc_day} &nbsp;·&nbsp; {cc_left}d left</span>
+            data-day="{cc_day}" data-left="{cc_left}">Day {cc_day} &nbsp;·&nbsp; {cc_left}d left</span>
     </div>
     <div class="cc-primer">
       <div class="cc-block cc-green">
@@ -1814,11 +1845,9 @@ document.querySelectorAll('[data-countup]').forEach(el => {{
 (function() {{
   const el = document.getElementById('cc-day-ctr');
   if (!el) return;
-  const start = new Date(el.dataset.start + 'T00:00:00');
-  const end   = new Date(el.dataset.end   + 'T00:00:00');
-  const today = new Date(); today.setHours(0,0,0,0);
-  const day  = Math.max(Math.round((today - start) / 86400000) + 1, 1);
-  const left = Math.max(Math.round((end - today)   / 86400000), 0);
+  // Use Python-computed working-day values (weekends + holidays excluded at build time)
+  const day  = parseInt(el.dataset.day,  10) || 1;
+  const left = parseInt(el.dataset.left, 10) || 0;
   el.textContent = 'Day ' + day + ' · ' + left + 'd left';
 }})();
 

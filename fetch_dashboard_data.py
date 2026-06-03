@@ -57,21 +57,49 @@ def fetch_inbox_emails(max_results=10):
 
 # ── Deadlines ─────────────────────────────────────────────────────────────────
 
-def read_deadlines():
+_BACKTICK_DATE_RE = re.compile(r'`(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2})h(\d{2}))?`')
+
+def _parse_tasks_deadlines():
+    """Read active tasks with backtick dates from Tasks.md."""
+    path = VAULT / "Work & Projects/Tasks.md"
+    if not path.exists(): return []
+    items = []
+    in_active = False
+    current_section = ""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s == "## Active":      in_active = True;  continue
+        if in_active and s.startswith("## "): break
+        if in_active and s.startswith("### "):
+            current_section = s[4:].strip(); continue
+        if in_active and s.startswith("- [ ] "):
+            m = _BACKTICK_DATE_RE.search(s)
+            if m:
+                title = _BACKTICK_DATE_RE.sub("", s[6:]).strip()
+                time_str = f"{int(m.group(2)):02d}:{m.group(3)}" if m.group(2) else ""
+                items.append({"date": m.group(1), "time": time_str, "title": title, "section": current_section})
+    return items
+
+def _parse_memory_deadlines():
+    """Read calendar-only events from MEMORY.md Active Deadlines."""
     path = VAULT / "Memory/MEMORY.md"
     if not path.exists(): return []
-    text = path.read_text(encoding="utf-8")
-    in_sec, items = False, []
-    for line in text.splitlines():
-        if line.strip() == "## Active Deadlines":    in_sec = True;  continue
-        if in_sec and line.startswith("## "):        break
-        if in_sec and line.strip().startswith("- "):
+    items = []
+    in_sec = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s == "## Active Deadlines":  in_sec = True;  continue
+        if in_sec and line.startswith("## "): break
+        if in_sec and s.startswith("- "):
             m = re.match(
                 r"-\s+\[\d{4}-\d{2}-\d{2}\]\s+(\d{4}-\d{2}-\d{2})[T ]?(\d{2}:\d{2})?\s*[-–]\s*(.+)",
-                line.strip())
+                s)
             if m:
                 items.append({"date": m.group(1), "time": m.group(2) or "", "title": m.group(3).strip()})
     return items
+
+def read_deadlines():
+    return _parse_tasks_deadlines() + _parse_memory_deadlines()
 
 
 # ── Article pipeline ──────────────────────────────────────────────────────────
@@ -188,6 +216,7 @@ tell application "Calendar"
 end tell
 """
     events = []
+    seen = set()
     try:
         res = subprocess.run(["osascript", "-e", script],
                              capture_output=True, text=True, timeout=8)
@@ -196,7 +225,10 @@ end tell
                 chunk = chunk.strip()
                 if "@@" in chunk:
                     title, time_str = chunk.split("@@", 1)
-                    events.append({"title": title.strip(), "time": time_str.strip()})
+                    key = (title.strip().lower(), time_str.strip())
+                    if key not in seen:
+                        seen.add(key)
+                        events.append({"title": title.strip(), "time": time_str.strip()})
     except Exception as e:
         print(f"  calendar error: {e}", file=sys.stderr)
 
