@@ -1,0 +1,25 @@
+#!/bin/bash
+# Triggered by launchd WatchPaths whenever Tasks.md changes.
+# Copies Tasks.md from vault, rebuilds dashboard, pushes to GitHub Pages.
+
+VAULT_TASKS="/Users/McGill/Documents/My Second Brain/Work & Projects/Tasks.md"
+DASHBOARD_DIR="/Users/McGill/task-dashboard"
+LOG="$DASHBOARD_DIR/sync.log"
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') auto-sync triggered" >> "$LOG"
+
+cp "$VAULT_TASKS" "$DASHBOARD_DIR/Tasks.md" || { echo "cp failed" >> "$LOG"; exit 1; }
+
+cd "$DASHBOARD_DIR" || exit 1
+
+/opt/homebrew/bin/python3.12 build.py >> "$LOG" 2>&1 || { echo "build failed" >> "$LOG"; exit 1; }
+
+git add docs/index.html Tasks.md
+
+if git diff --cached --quiet; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') no changes, skipping push" >> "$LOG"
+    exit 0
+fi
+
+git commit -m "Auto-sync $(date '+%Y-%m-%d %H:%M')" >> "$LOG" 2>&1
+git push >> "$LOG" 2>&1 && echo "$(date '+%Y-%m-%d %H:%M:%S') pushed OK" >> "$LOG" || echo "$(date '+%Y-%m-%d %H:%M:%S') push failed" >> "$LOG"

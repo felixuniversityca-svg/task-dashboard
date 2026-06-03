@@ -14,6 +14,22 @@ DATA_FILE   = Path(__file__).parent / "dashboard-data.json"
 OUTPUT_DIR  = Path(__file__).parent / "docs"
 OUTPUT_FILE = OUTPUT_DIR / "index.html"
 
+# CC internship start (Monday). Used to compute "this week" labels dynamically.
+CC_START = date(2026, 6, 1)
+
+def cc_week_label(section: str) -> str:
+    """Replace 'Week N (this week)' in a section header with the computed label."""
+    if "(this week)" not in section:
+        return section
+    today = date.today()
+    week_n = max((today - CC_START).days // 7 + 1, 1)
+    week_start = CC_START + timedelta(weeks=week_n - 1)
+    week_end   = week_start + timedelta(days=6)
+    MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    span = f"{week_start.day}–{week_end.day} {MONTHS[week_end.month-1]}"
+    replacement = f"Week {week_n}  ·  {span}"
+    return re.sub(r"Week\s*\d*\s*\(this week\)", replacement, section).strip()
+
 # ── Utilities ────────────────────────────────────────────────────────────────
 
 def strip_wikilink(t):
@@ -83,7 +99,7 @@ def parse_tasks(content):
         if s.startswith("## "):      flush(); sub=None; tasks=[]; sec=None; continue
         if s.startswith("<!--") or s == "---" or not s: continue
         if sec == "active" and s.startswith("### "):
-            flush(); sub=strip_wikilink(s[4:].strip()); tasks=[]; continue
+            flush(); sub=cc_week_label(strip_wikilink(s[4:].strip())); tasks=[]; continue
         if sec == "active" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
             due = None; time_val = None; dur_min = None
@@ -181,7 +197,7 @@ def mini_calendar(deadlines, completed_all, months=2):
     event_map = defaultdict(list)
     for dl in deadlines:
         d = parse_date(dl["date"])
-        if d: event_map[d].append(("deadline", dl["title"], dl.get("section", ""), dl.get("time", "")))
+        if d: event_map[d].append(("deadline", dl["title"], cc_week_label(dl.get("section", "")), dl.get("time", "")))
     for c in completed_all:
         if c["date"]: event_map[c["date"]].append(("done", c["task"], "", ""))
 

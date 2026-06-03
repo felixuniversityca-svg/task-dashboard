@@ -37,14 +37,48 @@ wait_for_icloud() {
 }
 wait_for_icloud
 
-# ── Fetch live data (emails, calendar) ───────────────────────────────────────
-log "fetching live data..."
-/opt/homebrew/bin/python3.12 "$REPO/fetch_dashboard_data.py" 2>&1 | while IFS= read -r line; do log "$line"; done
-
-# ── Build HTML directly from vault (no copy) ─────────────────────────────────
+# ── Build HTML directly from vault (fetch runs separately via fetch.sh) ──────
 log "building..."
 if ! /opt/homebrew/bin/python3.12 "$REPO/build.py" "$TASKS" 2>&1 | while IFS= read -r line; do log "$line"; done; then
     log "build failed or Tasks.md too small -- aborting push"
+    exit 1
+fi
+
+# ── Post-build validation ─────────────────────────────────────────────────────
+HTML="$REPO/docs/index.html"
+fail=0
+
+# 1. CC counter must not show calendar-day value (80d = 80 calendar days to Aug 22)
+if grep -q '80d left' "$HTML"; then
+    log "VALIDATION FAIL: dashboard shows '80d left' — JS is overriding Python working-day count"
+    fail=1
+fi
+
+# 2. No item should appear twice in the agenda section (adjacent duplicate titles)
+dupes=$(python3 -c "
+import re, sys
+html = open('$HTML').read()
+m = re.search(r'id=\"dc-outer\".*?</div>', html, re.S)
+if not m: sys.exit(0)
+titles = re.findall(r'class=\"dc-ev-n\"[^>]*>([^<]+)<', html)
+seen = set()
+for t in titles:
+    if t.strip().lower() in seen:
+        print('DUPLICATE:', t.strip())
+    seen.add(t.strip().lower())
+" 2>/dev/null)
+if [ -n "$dupes" ]; then
+    log "VALIDATION FAIL: duplicate agenda items detected: $dupes"
+    fail=1
+fi
+
+# 3. Credentials.md stub check — warn if still empty (non-blocking)
+if grep -q '\[À RENSEIGNER\]' "$HOME/Documents/My Second Brain/Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md" 2>/dev/null; then
+    log "WARNING: Credentials.md still has unfilled slots"
+fi
+
+if [ "$fail" -eq 1 ]; then
+    log "Validation failed — aborting push. Fix the issues above."
     exit 1
 fi
 

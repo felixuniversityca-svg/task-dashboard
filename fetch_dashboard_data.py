@@ -360,7 +360,9 @@ def main():
         "vault_graph":  vault_graph,
         "fetched_at":   datetime.now().strftime("%Y-%m-%d %H:%M")
     }
-    OUTPUT.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    tmp = OUTPUT.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    tmp.replace(OUTPUT)
     print(f"  done: {len(emails)} emails, {len(pipeline)} articles, "
           f"{len(replies)} pending replies, {len(agenda)} agenda items")
 
