@@ -54,7 +54,21 @@ if grep -q '80d left' "$HTML"; then
     fail=1
 fi
 
-# 2. No item should appear twice in the agenda section (adjacent duplicate titles)
+# 2. Warn if any [x] checked tasks are still in ## Active (should be in ## Completed)
+stale_checked=$(python3 -c "
+import re
+txt = open('$TASKS').read()
+active = re.search(r'## Active(.*?)(?=## Awaiting|## Blocked|## Completed|\Z)', txt, re.S)
+if active:
+    hits = re.findall(r'^- \[x\].+', active.group(1), re.M)
+    for h in hits: print(h[:80])
+" 2>/dev/null)
+if [ -n "$stale_checked" ]; then
+    log "WARNING: checked [x] tasks found in ## Active — move them to ## Completed:"
+    echo "$stale_checked" | while IFS= read -r line; do log "  $line"; done
+fi
+
+# 3. No item should appear twice in the agenda section (adjacent duplicate titles)
 dupes=$(python3 -c "
 import re, sys
 html = open('$HTML').read()
