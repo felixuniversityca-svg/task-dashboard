@@ -80,6 +80,17 @@ def _parse_tasks_deadlines():
                 items.append({"date": m.group(1), "time": time_str, "title": title, "section": current_section})
     return items
 
+_CC_KEYWORDS = ["cc ", " cc", "capital croissance", "ternel", "rodrigue", "adeline",
+                "webinaire", "france invest", "dust ai", "fondateurs",
+                "stagiaires", "commission ri", "luca"]
+_TRAVEL_KEYWORDS = ["air transat", "transavia", "vol ", "flight", "bru to", "yul"]
+
+def _categorise_event(title: str) -> str:
+    t = title.lower()
+    if any(k in t for k in _CC_KEYWORDS): return "Capital Croissance"
+    if any(k in t for k in _TRAVEL_KEYWORDS): return "Travel"
+    return "Summer"
+
 def _parse_memory_deadlines():
     """Read calendar-only events from MEMORY.md Active Deadlines."""
     path = VAULT / "Memory/MEMORY.md"
@@ -95,7 +106,9 @@ def _parse_memory_deadlines():
                 r"-\s+\[\d{4}-\d{2}-\d{2}\]\s+(\d{4}-\d{2}-\d{2})[T ]?(\d{2}:\d{2})?\s*[-–]\s*(.+)",
                 s)
             if m:
-                items.append({"date": m.group(1), "time": m.group(2) or "", "title": m.group(3).strip()})
+                title = m.group(3).strip()
+                items.append({"date": m.group(1), "time": m.group(2) or "",
+                              "title": title, "section": _categorise_event(title)})
     return items
 
 def read_deadlines():
