@@ -541,6 +541,77 @@ def build_panels(active, blocked, completed, live_data, spark_data, legend, even
                 color="#0071e3"
             )
 
+    # Project overview + subfolder panels (for grouped sections with subsections)
+    for si, sec in enumerate(active):
+        subs = sec.get("subsections", [])
+        if not subs:
+            continue
+        # Compute offset of each sub's tasks within sec["tasks"]
+        offset = 0
+        sub_offsets = []
+        for sub in subs:
+            sub_offsets.append(offset)
+            offset += len(sub["tasks"])
+        # Project overview panel — one row per subsection
+        overview_rows = []
+        for sj, sub in enumerate(subs):
+            n = len(sub["tasks"])
+            due_dates = sorted([t["due"] for t in sub["tasks"] if t.get("due")])
+            next_due  = due_dates[0] if due_dates else None
+            next_str  = rel_label(next_due) if next_due else "no deadline"
+            delta     = (next_due - today).days if next_due else None
+            due_cls   = ("due-red" if delta is not None and delta <= 1
+                         else "due-orange" if delta is not None and delta <= 3
+                         else "due-blue" if next_due else "")
+            due_pill  = (f'<span class="due-tag {due_cls}" style="font-size:10px">{next_str}</span>'
+                         if next_due else f'<span style="font-size:11px;color:var(--muted)">{next_str}</span>')
+            overview_rows.append({"html": (
+                f'<div class="dr-sub-item" data-key="sub-{si}-{sj}">'
+                f'<div class="dr-sub-left">'
+                f'<span class="dr-sub-nm">{escape(sub["label"])}</span>'
+                f'<div class="dr-sub-meta">'
+                f'<span>{n} task{"s" if n != 1 else ""}</span>'
+                f'<span>·</span>{due_pill}'
+                f'</div></div>'
+                f'<span class="chevron">›</span>'
+                f'</div>'
+            )})
+        pd[f"project-{si}"] = {
+            "t": sec["section"],
+            "sub": f"{len(sec['tasks'])} tasks across {len(subs)} areas",
+            "color": "#0071e3",
+            "rows": overview_rows
+        }
+        # Subfolder panels — tasks sorted chronologically
+        for sj, (sub, sub_offset) in enumerate(zip(subs, sub_offsets)):
+            sorted_local = sorted(
+                enumerate(sub["tasks"]),
+                key=lambda x: (x[1].get("due") or date.max, x[1].get("time") or "99:99")
+            )
+            task_rows = []
+            for local_idx, t in sorted_local:
+                ti      = sub_offset + local_idx
+                due_str = rel_label(t["due"]) if t.get("due") else ""
+                delta   = (t["due"] - today).days if t.get("due") else None
+                d_cls   = ("due-red" if delta is not None and delta <= 1
+                           else "due-orange" if delta is not None and delta <= 3
+                           else "due-blue" if t.get("due") else "")
+                due_tag = f'<span class="due-tag {d_cls}">{due_str}</span>' if due_str else ""
+                task_rows.append({"html": (
+                    f'<div class="dr-task-row" data-key="active-{si}-{ti}">'
+                    f'<span class="dot dot-blue dot-sm"></span>'
+                    f'<span class="dr-task-text">{escape(t["text"][:80])}</span>'
+                    f'{due_tag}'
+                    f'<span class="chevron">›</span>'
+                    f'</div>'
+                )})
+            pd[f"sub-{si}-{sj}"] = {
+                "t": sub["label"],
+                "sub": sec["section"],
+                "color": "#0071e3",
+                "rows": task_rows
+            }
+
     # Completed
     for i,c in enumerate(reversed(completed)):
         date_str = c["date"].strftime("%A, %B %-d") if c["date"] else "Date not recorded"
@@ -775,10 +846,15 @@ def build_html(active, blocked, completed, live_data):
                          f'{due_html}'
                          f'<span class="chevron">›</span></li>')
                 ti += 1
+        has_subs  = bool(sec.get("subsections"))
+        hd_extra  = f' data-key="project-{si}"' if has_subs else ""
+        hd_cls    = " interactive" if has_subs else ""
+        hd_arrow  = '<span class="chevron" style="font-size:10px">›</span>' if has_subs else ""
         active_cards += (f'<div class="proj-card">'
-                         f'<div class="proj-hd">'
+                         f'<div class="proj-hd{hd_cls}"{hd_extra}>'
                          f'<span class="proj-nm">{escape(sec["section"])}</span>'
                          f'<span class="pill pill-gray">{len(sec["tasks"])}</span>'
+                         f'{hd_arrow}'
                          f'</div>'
                          f'<ul class="task-ul">{rows}</ul></div>')
     if not active_cards:
@@ -1289,6 +1365,26 @@ def build_html(active, blocked, completed, live_data):
     .dr-note{{font-size:12px;color:var(--muted);margin-top:14px;
               padding-top:12px;border-top:1px solid var(--border);
               line-height:1.5}}
+    .dr-back{{width:30px;height:30px;border-radius:50%;
+              background:#f2f2f7;border:none;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;
+              font-size:16px;color:var(--text);flex-shrink:0;margin-right:4px;
+              -webkit-tap-highlight-color:transparent}}
+    .dr-back:hover{{background:#e5e5ea}}
+    .dr-sub-item{{display:flex;align-items:center;justify-content:space-between;
+                  padding:13px 12px;border-radius:10px;margin-bottom:6px;
+                  border:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}}
+    .dr-sub-item:hover,.dr-sub-item:active{{background:rgba(0,0,0,0.04)}}
+    .dr-sub-left{{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}}
+    .dr-sub-nm{{font-size:13px;font-weight:600;color:var(--text)}}
+    .dr-sub-meta{{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}}
+    .dr-task-row{{display:flex;align-items:flex-start;gap:9px;padding:11px 7px;
+                  border-radius:8px;border-bottom:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}}
+    .dr-task-row:last-child{{border-bottom:none}}
+    .dr-task-row:hover,.dr-task-row:active{{background:rgba(0,0,0,0.03)}}
+    .dr-task-text{{font-size:13px;line-height:1.45;flex:1}}
 
     /* Desktop: centered modal */
     @media(min-width:640px){{
@@ -1727,6 +1823,7 @@ def build_html(active, blocked, completed, live_data):
   <div class="dr-accent" id="dr-accent"></div>
   <div class="dr-inner">
     <div class="dr-header">
+      <button class="dr-back" id="dr-back" hidden>&#8592;</button>
       <div class="dr-titles">
         <div class="dr-title" id="dr-title"></div>
         <div class="dr-sub"   id="dr-sub"></div>
@@ -1750,13 +1847,21 @@ const drRows  = document.getElementById('dr-rows');
 const drNote  = document.getElementById('dr-note');
 const drAccent= document.getElementById('dr-accent');
 
-function openDrawer(key) {{
+let _navStack = [];
+let _curKey   = null;
+const drBack  = document.getElementById('dr-back');
+
+function openDrawer(key, pushNav) {{
   const d = PD[key];
   if (!d) return;
+  if (pushNav && _curKey) _navStack.push(_curKey);
+  _curKey = key;
+  drBack.hidden = _navStack.length === 0;
   drTitle.textContent = d.t;
   drSub.textContent   = d.sub || '';
   drAccent.style.background = d.color || '#0071e3';
   drRows.innerHTML = (d.rows || []).map(r => {{
+    if (r.html) return r.html;
     const hlCls = r.hl ? ` hl-${{r.hl}}` : '';
     return `<div class="dr-row">
       <span class="dr-key">${{r.k}}</span>
@@ -1775,19 +1880,31 @@ function openDrawer(key) {{
 }}
 
 function closeDrawer() {{
+  _navStack = [];
+  _curKey   = null;
   overlay.classList.remove('open');
   drawer.classList.remove('open');
   document.body.style.overflow = '';
 }}
 
 document.getElementById('dr-close').addEventListener('click', closeDrawer);
+drBack.addEventListener('click', e => {{
+  e.stopPropagation();
+  if (_navStack.length) openDrawer(_navStack.pop(), false);
+}});
 overlay.addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => {{ if (e.key === 'Escape') closeDrawer(); }});
+
+// Navigation inside the drawer (sub-items and task rows)
+drRows.addEventListener('click', e => {{
+  const el = e.target.closest('[data-key]');
+  if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key, true); }}
+}});
 
 document.addEventListener('click', e => {{
   if (e.target.closest('#drawer')) return;
   const el = e.target.closest('[data-key]');
-  if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key); }}
+  if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key, false); }}
 }});
 
 let startY = 0;
