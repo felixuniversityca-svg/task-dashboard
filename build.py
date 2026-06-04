@@ -31,6 +31,10 @@ def cc_week_label(section: str) -> str:
     return re.sub(r"Week\s*\d*\s*\(this week\)", replacement, section).strip()
 
 
+_PROJECT_DISPLAY = {
+    "Capital Croissance IR": "IR",
+}
+
 def group_active_sections(active):
     """Merge sections sharing the same project prefix (text before ' — ') into one card.
     Returns [{section, tasks, subsections}] where subsections = [{label, tasks}].
@@ -50,7 +54,8 @@ def group_active_sections(active):
             proj      = name
             sub_label = ""
         if proj not in groups:
-            groups[proj] = {"section": proj, "tasks": [], "subsections": []}
+            display = _PROJECT_DISPLAY.get(proj, proj)
+            groups[proj] = {"section": display, "tasks": [], "subsections": []}
             order.append(proj)
         groups[proj]["tasks"].extend(sec["tasks"])
         if sub_label:
