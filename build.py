@@ -30,6 +30,34 @@ def cc_week_label(section: str) -> str:
     replacement = f"Week {week_n}  ·  {span}"
     return re.sub(r"Week\s*\d*\s*\(this week\)", replacement, section).strip()
 
+
+def group_active_sections(active):
+    """Merge sections sharing the same project prefix (text before ' — ') into one card.
+    Returns [{section, tasks, subsections}] where subsections = [{label, tasks}].
+    Keeps total task count unchanged — just reduces card count from 8 to ~3.
+    """
+    groups: dict = {}
+    order: list  = []
+    SEP = " — "  # em dash with spaces, as used in Tasks.md section headers
+    for sec in active:
+        if not sec["tasks"]:
+            continue
+        name = sec["section"]
+        if SEP in name:
+            proj      = name.split(SEP, 1)[0].strip()
+            sub_label = cc_week_label(name.split(SEP, 1)[1].strip())
+        else:
+            proj      = name
+            sub_label = ""
+        if proj not in groups:
+            groups[proj] = {"section": proj, "tasks": [], "subsections": []}
+            order.append(proj)
+        groups[proj]["tasks"].extend(sec["tasks"])
+        if sub_label:
+            groups[proj]["subsections"].append({"label": sub_label, "tasks": list(sec["tasks"])})
+    return [groups[p] for p in order]
+
+
 # ── Utilities ────────────────────────────────────────────────────────────────
 
 def strip_wikilink(t):
@@ -524,6 +552,7 @@ def build_panels(active, blocked, completed, live_data, spark_data, legend, even
 # ── Build HTML ────────────────────────────────────────────────────────────────
 
 def build_html(active, blocked, completed, live_data):
+    active     = group_active_sections(active)
     today      = date.today()
     t_active   = sum(len(s["tasks"]) for s in active)
     t_block    = len(blocked)
@@ -710,17 +739,37 @@ def build_html(active, blocked, completed, live_data):
     for si,sec in enumerate(active):
         if not sec["tasks"]: continue
         rows = ""
-        for ti,t in enumerate(sec["tasks"]):
-            due_html = ""
-            if t["due"]:
-                delta  = (t["due"]-today).days
-                d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
-                due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
-            rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
-                     f'<span class="dot dot-blue dot-sm"></span>'
-                     f'<span class="task-text">{escape(t["text"])}</span>'
-                     f'{due_html}'
-                     f'<span class="chevron">›</span></li>')
+        ti   = 0
+        subsections = sec.get("subsections", [])
+        if subsections:
+            for sub in subsections:
+                if not sub["tasks"]: continue
+                rows += f'<li class="sub-label">{escape(sub["label"])}</li>'
+                for t in sub["tasks"]:
+                    due_html = ""
+                    if t["due"]:
+                        delta  = (t["due"]-today).days
+                        d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
+                        due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
+                    rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
+                             f'<span class="dot dot-blue dot-sm"></span>'
+                             f'<span class="task-text">{escape(t["text"])}</span>'
+                             f'{due_html}'
+                             f'<span class="chevron">›</span></li>')
+                    ti += 1
+        else:
+            for t in sec["tasks"]:
+                due_html = ""
+                if t["due"]:
+                    delta  = (t["due"]-today).days
+                    d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
+                    due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
+                rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
+                         f'<span class="dot dot-blue dot-sm"></span>'
+                         f'<span class="task-text">{escape(t["text"])}</span>'
+                         f'{due_html}'
+                         f'<span class="chevron">›</span></li>')
+                ti += 1
         active_cards += (f'<div class="proj-card">'
                          f'<div class="proj-hd">'
                          f'<span class="proj-nm">{escape(sec["section"])}</span>'
@@ -1154,6 +1203,10 @@ def build_html(active, blocked, completed, live_data):
     .task-li{{display:flex;align-items:flex-start;gap:9px;padding:8px 7px;
               border-radius:8px;min-height:var(--touch)}}
     .task-text{{font-size:13px;line-height:1.45;flex:1}}
+    .sub-label{{list-style:none;font-size:10px;font-weight:600;text-transform:uppercase;
+                letter-spacing:.5px;color:var(--muted);padding:8px 7px 2px;margin-top:4px;
+                border-top:1px solid var(--border)}}
+    .sub-label:first-child{{border-top:none;margin-top:0;padding-top:2px}}
 
     /* Completed */
     details{{}}
