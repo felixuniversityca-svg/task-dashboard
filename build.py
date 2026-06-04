@@ -9,7 +9,7 @@ from html import escape
 from datetime import datetime, date, timedelta
 from collections import defaultdict
 
-TASKS_FILE  = Path(__file__).parent / "Tasks.md"
+TASKS_FILE  = Path.home() / "Documents/My Second Brain/Work & Projects/Tasks.md"
 DATA_FILE   = Path(__file__).parent / "dashboard-data.json"
 OUTPUT_DIR  = Path(__file__).parent / "docs"
 OUTPUT_FILE = OUTPUT_DIR / "index.html"
@@ -124,7 +124,7 @@ def parse_tasks(content):
             raw = re.sub(r"\s*`\d{4}-\d{2}-\d{2}[^`]*`", "", raw).strip()
             if sub is None: sub="Other"; tasks=[]
             tasks.append({"text": strip_wikilink(raw), "due": due,
-                          "time": time_val, "dur_min": dur_min}); continue
+                          "time": time_val or "", "dur_min": dur_min}); continue
         if sec == "blocked" and "- [ ]" in line:
             raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
             waiting=since=""
@@ -832,7 +832,7 @@ def build_html(active, blocked, completed, live_data):
         if key not in seen_titles:
             seen_titles.add(key)
             agenda_items.append({"title": ev["title"], "time": ev.get("time",""), "kind": "cal"})
-    agenda_items.sort(key=lambda x: (x["time"] == "", x["time"]))
+    agenda_items.sort(key=lambda x: (not x.get("time"), x.get("time") or ""))
 
     agenda_html = ""
     for i, item in enumerate(agenda_items):
