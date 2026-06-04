@@ -623,6 +623,12 @@ def build_panels(active, blocked, completed, live_data, spark_data, legend, even
             color="#34c759"
         )
 
+    # Donut legend taps → project overview panel (hierarchical nav instead of flat list)
+    for l in legend:
+        si = l["idx"]
+        if f"project-{si}" in pd:
+            pd[f"donut-{si}"] = pd[f"project-{si}"]
+
     return pd
 
 # ── Build HTML ────────────────────────────────────────────────────────────────
