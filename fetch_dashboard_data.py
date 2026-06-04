@@ -112,7 +112,12 @@ def _parse_memory_deadlines():
     return items
 
 def read_deadlines():
-    return _parse_tasks_deadlines() + _parse_memory_deadlines()
+    tasks_dl = _parse_tasks_deadlines()
+    memory_dl = _parse_memory_deadlines()
+    # Drop any MEMORY entry that shares (date, time) with a task — tasks.md is authoritative
+    task_keys = {(t['date'], t['time']) for t in tasks_dl if t['time']}
+    deduped_memory = [m for m in memory_dl if not (m['time'] and (m['date'], m['time']) in task_keys)]
+    return tasks_dl + deduped_memory
 
 
 # ── Article pipeline ──────────────────────────────────────────────────────────
