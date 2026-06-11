@@ -6,3 +6,5 @@ dashboard-data.json
 *.log
 .DS_Store
 Tasks.md
+dashboard-data.json
+__pycache__/
