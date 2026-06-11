@@ -56,7 +56,7 @@
     {
       "date": "2026-06-16",
       "time": "",
-      "title": "RDV Romaric : classification des données (public / interne / confidentiel)",
+      "title": "RDV Romaric Lerousseau : classification des données (public / interne / confidentiel)",
       "section": "Capital Croissance — Introduction"
     },
     {
@@ -337,10 +337,10 @@
     }
   ],
   "claude_usage": {
-    "five_hour_pct": 40,
+    "five_hour_pct": 43,
     "resets_at": 1781178000,
-    "ctx_pct": 33,
-    "updated_at": 1781170427
+    "ctx_pct": 42,
+    "updated_at": 1781171038
   },
   "vault_graph": {
     "nodes": [
@@ -543,6 +543,12 @@
         "color": "#ff9500"
       },
       {
+        "id": "People/Cynthia Adom.md",
+        "name": "Cynthia Adom",
+        "folder": "People",
+        "color": "#ff9500"
+      },
+      {
         "id": "People/Adeline Wattiau.md",
         "name": "Adeline Wattiau",
         "folder": "People",
@@ -563,6 +569,18 @@
       {
         "id": "People/Chris Chenebault.md",
         "name": "Chris Chenebault",
+        "folder": "People",
+        "color": "#ff9500"
+      },
+      {
+        "id": "People/Nicolas Jego.md",
+        "name": "Nicolas Jego",
+        "folder": "People",
+        "color": "#ff9500"
+      },
+      {
+        "id": "People/Romaric Lerousseau.md",
+        "name": "Romaric Lerousseau",
         "folder": "People",
         "color": "#ff9500"
       },
@@ -2420,6 +2438,10 @@
       },
       {
         "source": "Memory/session-checkpoint.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
       },
       {
@@ -2428,15 +2450,11 @@
       },
       {
         "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md"
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
       },
       {
         "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Tasks.md"
-      },
-      {
-        "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+        "target": "Work & Projects/Dashboard.md"
       },
       {
         "source": "Memory/violation-tracker.md",
@@ -2879,6 +2897,22 @@
         "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
       },
       {
+        "source": "People/Cynthia Adom.md",
+        "target": "People/Nicolas Jego.md"
+      },
+      {
+        "source": "People/Cynthia Adom.md",
+        "target": "People/Romaric Lerousseau.md"
+      },
+      {
+        "source": "People/Cynthia Adom.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "People/Cynthia Adom.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
         "source": "People/Adeline Wattiau.md",
         "target": "Archive/Threads-Outlook/Chris Chenebault.md"
       },
@@ -2925,6 +2959,30 @@
       {
         "source": "People/Chris Chenebault.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "People/Romaric Lerousseau.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
         "source": "People/Gilles Koestel.md",
@@ -3025,6 +3083,42 @@
       {
         "source": "Work & Projects/Dashboard.md",
         "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "People/Romaric Lerousseau.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "People/Rodrigue Leroy.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Dashboard.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
       },
       {
         "source": "Work & Projects/Tasks.md",
@@ -5624,5 +5718,5 @@
       }
     ]
   },
-  "fetched_at": "2026-06-11 11:33"
+  "fetched_at": "2026-06-11 11:44"
 }
