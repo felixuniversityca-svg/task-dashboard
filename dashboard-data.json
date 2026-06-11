@@ -1,40 +1,28 @@
 {
   "emails": [
     {
-      "subject": "Your receipt from Anthropic, PBC #2822-3632-5000",
+      "subject": "Your receipt from Anthropic, PBC #2465-1114-0658",
       "from": "Anthropic, PBC",
-      "epoch": 1781172121,
+      "epoch": 1781180840,
       "unread": true,
-      "snippet": "Your receipt from Anthropic, PBC #2822-3632-5000 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
+      "snippet": "Your receipt from Anthropic, PBC #2465-1114-0658 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
     },
     {
-      "subject": "Search the web and get full page content",
-      "from": "Alex Nucci",
-      "epoch": 1781170223,
+      "subject": "Your receipt from Anthropic, PBC #2941-8237-0390",
+      "from": "Anthropic, PBC",
+      "epoch": 1781178978,
       "unread": true,
-      "snippet": "Great to have you exploring Firecrawl! The Search endpoint lets you search the web and optionally scrape the full content from every result, all in one API call"
+      "snippet": "Your receipt from Anthropic, PBC #2941-8237-0390 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
     },
     {
-      "subject": "Before you leave Use AI behind",
-      "from": "Josh from use.ai",
-      "epoch": 1781133806,
+      "subject": "Welcome to Voyage AI: Let’s get started (1/2)",
+      "from": "Voyage AI",
+      "epoch": 1781177674,
       "unread": true,
-      "snippet": "Hi there, You looked at Use AI a few times. Haven&#39;t pulled the trigger. What&#39;s holding you back? Whatever it is, one question will answer it. Pick the A"
+      "snippet": "Generate your first embedding in minutes. Voyage AI Welcome to Voyage AI. We&#39;re excited to have you on board! Whether you&#39;re building agentic workflows,"
     }
   ],
   "deadlines": [
-    {
-      "date": "2026-06-09",
-      "time": "18:30",
-      "title": "CC Dîner fondateurs français",
-      "section": "Capital Croissance"
-    },
-    {
-      "date": "2026-06-11",
-      "time": "14:30",
-      "title": "RDV Cynthia + Nicolas — outils middle office",
-      "section": "Capital Croissance — Introduction"
-    },
     {
       "date": "2026-06-11",
       "time": "16:00",
@@ -328,19 +316,15 @@
   ],
   "agenda": [
     {
-      "title": "RDV Cynthia + Nicolas — outils middle office",
-      "time": "14:30"
-    },
-    {
       "title": "RDV Luca Müller + Chris (taskforce IA CC)",
       "time": "16:00"
     }
   ],
   "claude_usage": {
-    "five_hour_pct": 55.00000000000001,
-    "resets_at": 1781178000,
-    "ctx_pct": 57,
-    "updated_at": 1781172201
+    "five_hour_pct": 0,
+    "resets_at": 0,
+    "ctx_pct": 5,
+    "updated_at": 1781185058
   },
   "vault_graph": {
     "nodes": [
@@ -2442,15 +2426,31 @@
       },
       {
         "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
         "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md"
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
         "source": "Memory/session-checkpoint.md",
-        "target": "Work & Projects/Dashboard.md"
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Memory/session-checkpoint.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
       },
       {
         "source": "Memory/violation-tracker.md",
@@ -4181,42 +4181,6 @@
         "target": "CLAUDE.md"
       },
       {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "People/Romaric Lerousseau.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "People/Rodrigue Leroy.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Identity/Voice.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
-      },
-      {
         "source": "Work & Projects/Tasks.md",
         "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
       },
@@ -4595,6 +4559,10 @@
       {
         "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
         "target": "Identity/Values.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
       },
       {
         "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md",
@@ -5513,12 +5481,16 @@
         "target": "People/Jean-Philippe Mathieu.md"
       },
       {
-        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md",
         "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
       },
       {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
       },
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
@@ -5531,10 +5503,6 @@
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
         "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
-      },
-      {
-        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
       },
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
@@ -5738,5 +5706,5 @@
       }
     ]
   },
-  "fetched_at": "2026-06-11 12:03"
+  "fetched_at": "2026-06-11 15:39"
 }
