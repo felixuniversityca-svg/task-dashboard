@@ -1,6 +1,13 @@
 {
   "emails": [
     {
+      "subject": "Your receipt from Anthropic, PBC #2822-3632-5000",
+      "from": "Anthropic, PBC",
+      "epoch": 1781172121,
+      "unread": true,
+      "snippet": "Your receipt from Anthropic, PBC #2822-3632-5000 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
+    },
+    {
       "subject": "Search the web and get full page content",
       "from": "Alex Nucci",
       "epoch": 1781170223,
@@ -13,13 +20,6 @@
       "epoch": 1781133806,
       "unread": true,
       "snippet": "Hi there, You looked at Use AI a few times. Haven&#39;t pulled the trigger. What&#39;s holding you back? Whatever it is, one question will answer it. Pick the A"
-    },
-    {
-      "subject": "Say it. Style it. Sync it.",
-      "from": "Mermaid",
-      "epoch": 1781132445,
-      "unread": true,
-      "snippet": "Voice diagramming, custom themes, new fonts – plus two new places to make diagrams.‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌"
     }
   ],
   "deadlines": [
@@ -337,10 +337,10 @@
     }
   ],
   "claude_usage": {
-    "five_hour_pct": 54,
+    "five_hour_pct": 55.00000000000001,
     "resets_at": 1781178000,
-    "ctx_pct": 54,
-    "updated_at": 1781171824
+    "ctx_pct": 57,
+    "updated_at": 1781172201
   },
   "vault_graph": {
     "nodes": [
@@ -5738,5 +5738,5 @@
       }
     ]
   },
-  "fetched_at": "2026-06-11 11:57"
+  "fetched_at": "2026-06-11 12:03"
 }
