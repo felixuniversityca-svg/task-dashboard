@@ -297,6 +297,8 @@ def parse_vault_graph():
 
     for f in md_files:
         src_id = str(f.relative_to(VAULT))
+        if f.stat().st_size > 50_000:  # skip large files (likely embedded base64 images)
+            continue
         try:
             text = f.read_text(encoding="utf-8", errors="ignore")
         except Exception:
