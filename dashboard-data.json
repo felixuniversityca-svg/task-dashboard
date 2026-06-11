@@ -13,34 +13,9 @@
       "epoch": 1781178978,
       "unread": true,
       "snippet": "Your receipt from Anthropic, PBC #2941-8237-0390 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
-    },
-    {
-      "subject": "Welcome to Voyage AI: Let’s get started (1/2)",
-      "from": "Voyage AI",
-      "epoch": 1781177674,
-      "unread": true,
-      "snippet": "Generate your first embedding in minutes. Voyage AI Welcome to Voyage AI. We&#39;re excited to have you on board! Whether you&#39;re building agentic workflows,"
     }
   ],
   "deadlines": [
-    {
-      "date": "2026-06-11",
-      "time": "16:00",
-      "title": "RDV Luca Müller + Chris (taskforce IA CC)",
-      "section": "Capital Croissance — Introduction"
-    },
-    {
-      "date": "2026-06-12",
-      "time": "",
-      "title": "Email Rodrigue + Hugo : résumé des cas d'usage envisagés + attente validation stack IA CC avant de démarrer les builds",
-      "section": "Ternel — Gate 0 (avant tout build)"
-    },
-    {
-      "date": "2026-06-16",
-      "time": "",
-      "title": "RDV Sonia : intégrer réflexion DORA dans politique IA CC",
-      "section": "Capital Croissance — Introduction"
-    },
     {
       "date": "2026-06-16",
       "time": "",
@@ -314,17 +289,12 @@
       "desc": "Angle email sent to Pierre 2026-05-29. Awaiting confirmation. Angle: Investsud a"
     }
   ],
-  "agenda": [
-    {
-      "title": "RDV Luca Müller + Chris (taskforce IA CC)",
-      "time": "16:00"
-    }
-  ],
+  "agenda": [],
   "claude_usage": {
-    "five_hour_pct": 0,
-    "resets_at": 0,
-    "ctx_pct": 0,
-    "updated_at": 1781185492
+    "five_hour_pct": 23,
+    "resets_at": 1781215200,
+    "ctx_pct": 11,
+    "updated_at": 1781197940
   },
   "vault_graph": {
     "nodes": [
@@ -905,6 +875,12 @@
         "color": "#aeaeb2"
       },
       {
+        "id": "Memory/Council/council-transcript-2026-06-11-1906.md",
+        "name": "council-transcript-2026-06-11-1906",
+        "folder": "Memory",
+        "color": "#aeaeb2"
+      },
+      {
         "id": "Memory/Council/council-transcript-2026-05-31-dashboard-hosting.md",
         "name": "council-transcript-2026-05-31-dashboard-hosting",
         "folder": "Memory",
@@ -1181,8 +1157,14 @@
         "color": "#aeaeb2"
       },
       {
-        "id": "Memory/drafts/active/2026-06-10_email_fw-sondage-organisation-cc-data.md",
-        "name": "2026-06-10_email_fw-sondage-organisation-cc-data",
+        "id": "Memory/drafts/active/2026-06-11_email_fw-n8n-security-update---june-10.md",
+        "name": "2026-06-11_email_fw-n8n-security-update---june-10",
+        "folder": "Memory",
+        "color": "#aeaeb2"
+      },
+      {
+        "id": "Memory/drafts/active/2026-06-11_email_fw-snowflake--capital-croissance.md",
+        "name": "2026-06-11_email_fw-snowflake--capital-croissance",
         "folder": "Memory",
         "color": "#aeaeb2"
       },
@@ -1207,6 +1189,12 @@
       {
         "id": "Memory/drafts/expired/2026-06-04_email_fw-support-présentation-data-et-in.md",
         "name": "2026-06-04_email_fw-support-présentation-data-et-in",
+        "folder": "Memory",
+        "color": "#aeaeb2"
+      },
+      {
+        "id": "Memory/drafts/expired/2026-06-10_email_fw-sondage-organisation-cc-data.md",
+        "name": "2026-06-10_email_fw-sondage-organisation-cc-data",
         "folder": "Memory",
         "color": "#aeaeb2"
       },
@@ -1739,6 +1727,12 @@
         "color": "#0071e3"
       },
       {
+        "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "name": "Notes Entretien Middle Office + DORA (2026-06-11)",
+        "folder": "Work & Projects",
+        "color": "#0071e3"
+      },
+      {
         "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
         "name": "CC_AI_Stack_Policy",
         "folder": "Work & Projects",
@@ -1775,6 +1769,12 @@
         "color": "#0071e3"
       },
       {
+        "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "name": "Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11)",
+        "folder": "Work & Projects",
+        "color": "#0071e3"
+      },
+      {
         "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md",
         "name": "DORA_Research_Note",
         "folder": "Work & Projects",
@@ -1795,6 +1795,12 @@
       {
         "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/Training Guide.md",
         "name": "Training Guide",
+        "folder": "Work & Projects",
+        "color": "#0071e3"
+      },
+      {
+        "id": "Work & Projects/Internships/Capital Croissance/AI Mandate/CR Email Chris + Adeline (2026-06-11).md",
+        "name": "CR Email Chris + Adeline (2026-06-11)",
         "folder": "Work & Projects",
         "color": "#0071e3"
       },
@@ -2281,6 +2287,146 @@
         "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
+        "source": "Memory/LEARNING-LOG.md",
+        "target": "Memory/LEARNING-LOG-2026-06.md"
+      },
+      {
+        "source": "Memory/LEARNING-LOG.md",
+        "target": "Memory/LEARNING-LOG-2026-05.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "People/Pierre Detrixhe.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "People/Philippe Degive.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/Threads-Outlook/Adeline Wattiau.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/Threads-Outlook/Gilles Koestel.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "People/Arnaud Tardan.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Memory/entity-map.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
         "source": "Memory/violation-tracker.md",
         "target": "Work & Projects/Dashboard.md"
       },
@@ -2349,12 +2495,316 @@
         "target": "Communications/LinkedIn/Simon Painchaud.md"
       },
       {
+        "source": "Archive/SOUL (archived 2026-05-29 — content fully in CLAUDE.md).md",
+        "target": "Career & Identity/Career Overview.md"
+      },
+      {
+        "source": "Archive/daily-priorities.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Archive/daily-priorities.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Archive/daily-priorities.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Career & Identity/Career Overview.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Career & Identity/Professional Identity.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Career & Identity/My Story.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Career & Identity/Experiences/Experiences Index.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Archive/USER (archived 2026-05-29 — content migrated to Identity).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Archive/apple-ecosystem-mcp Reminders Fix Log.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Archive/apple-ecosystem-mcp Reminders Fix Log.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Resources/Task Reminder Skill — Runbook.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Resources/Second Brain MCP Tools Reference.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Career & Identity/Professional Identity.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Career & Identity/Experiences/Experiences Index.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Career & Identity/My Story.md"
+      },
+      {
+        "source": "Archive/Lessons Learnt (moved to Memory 2026-05-29).md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Archive/HABITS (deleted 2026-05-29 — rebuild later if needed).md",
+        "target": "Memory/HEARTBEAT.md"
+      },
+      {
+        "source": "Archive/HABITS (deleted 2026-05-29 — rebuild later if needed).md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Resources/Second Brain MCP Tools Reference.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/apple-ecosystem-mcp Reminders Fix Log.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/McGill/McGill Admin/Course Registration Fall 2026.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": ".claude/skills/create-second-brain-prd/my-second-brain-requirements.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/SuperPlastic/Article Superplastic V.3.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Weekly Learnings.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Resources/Task Reminder Skill — Runbook.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
         "source": "Resources/Second Brain MCP Tools Reference.md",
         "target": "CLAUDE.md"
       },
       {
         "source": "Resources/Second Brain MCP Tools Reference.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Career & Identity/Professional Identity.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Career & Identity/My Story.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Career & Identity/Experiences/Experiences Index.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Career & Identity/CV/Felix Janssen CV.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Career & Identity/Career Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Career & Identity/My Story.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Career & Identity/Experiences/Experiences Index.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Career & Identity/CV/Felix Janssen CV.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Career & Identity/Professional Identity.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Career & Identity/Experiences/Experiences Index.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Career & Identity/CV/Felix Janssen CV.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "People/Philippe Degive.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Career & Identity/My Story.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Knowledge/README.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Knowledge/README.md",
+        "target": "Identity/Values.md"
+      },
+      {
+        "source": "People/Benjamin Cuypers.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "People/Benjamin Cuypers.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
         "source": "People/Rodrigue Leroy.md",
@@ -2377,6 +2827,22 @@
         "target": "Work & Projects/Tasks.md"
       },
       {
+        "source": "People/Jean-Philippe Mathieu.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "People/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "People/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md"
+      },
+      {
+        "source": "People/Jean-Philippe Mathieu.md",
+        "target": "People/Benjamin Cuypers.md"
+      },
+      {
         "source": "People/Arnaud Tardan.md",
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
@@ -2387,6 +2853,18 @@
       {
         "source": "People/Arnaud Tardan.md",
         "target": "Communications/WhatsApp/2026-06-03 Arnaud Tardan — premier jour CC.md"
+      },
+      {
+        "source": "People/Pierre Detrixhe.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "People/Pierre Detrixhe.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "People/Pierre Detrixhe.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
       },
       {
         "source": "People/Cynthia Adom.md",
@@ -2405,8 +2883,44 @@
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
+        "source": "People/Adeline Wattiau.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "People/Adeline Wattiau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "People/Stéphane Dantinne.md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "People/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "People/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md"
+      },
+      {
+        "source": "People/Simon Painchaud.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "People/Simon Painchaud.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
         "source": "People/Chris Chenebault.md",
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "People/Chris Chenebault.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md"
+      },
+      {
+        "source": "People/Chris Chenebault.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md"
       },
       {
         "source": "People/Chris Chenebault.md",
@@ -2423,6 +2937,50 @@
       {
         "source": "People/Chris Chenebault.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "People/Romaric Lerousseau.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "People/Nicolas Jego.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "People/Romaric Lerousseau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "People/Gilles Koestel.md",
+        "target": "Archive/Threads-Outlook/Gilles Koestel.md"
+      },
+      {
+        "source": "People/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "People/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "People/Philippe Degive.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "People/Philippe Degive.md",
+        "target": "Communications/WhatsApp/2026-05-28 Philippe Degive — réponse cadeau MEC.md"
       },
       {
         "source": "Work & Projects/Dashboard.md",
@@ -2503,42 +3061,6 @@
       {
         "source": "Work & Projects/Dashboard.md",
         "target": "CLAUDE.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "People/Romaric Lerousseau.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "People/Rodrigue Leroy.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Identity/Voice.md"
-      },
-      {
-        "source": "Work & Projects/Dashboard.md",
-        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
       },
       {
         "source": "Work & Projects/Tasks.md",
@@ -2693,10 +3215,6 @@
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
       },
       {
-        "source": "Work & Projects/Tasks.md",
-        "target": "People/Romaric Lerousseau.md"
-      },
-      {
         "source": "Memory/Council/council-transcript-2026-06-01-Teams-Bot-Voice-Trigger.md",
         "target": "Identity/Voice.md"
       },
@@ -2711,6 +3229,78 @@
       {
         "source": "Memory/Council/council-transcript-2026-06-01-AI-Salesforce-Voice.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2330.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2330.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-9.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-review.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-review.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2300.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2300.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2200.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2200.md",
+        "target": "People/Rodrigue Leroy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2200.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-1530.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-1200.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-1200.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-1200.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-transcription-routing.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-transcription-routing.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-03-2230.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-1500.md",
+        "target": "CLAUDE.md"
       },
       {
         "source": "Memory/Council/council-transcript-2026-05-31-articles-review.md",
@@ -2729,12 +3319,100 @@
         "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
       },
       {
+        "source": "Memory/Council/council-transcript-2026-06-04-ternel-scout-actionplan.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-v2.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-hetzner-n8n-stack.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-10-1200.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-10-1200.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-10-1200.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1400.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1400.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1030.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1400.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1400.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1400.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-3.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-3.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-3.md",
+        "target": "Memory/session-checkpoint.md"
+      },
+      {
         "source": "Memory/Council/council-transcript-2026-06-04-2100.md",
         "target": "Memory/Council/council-transcript-2026-06-04-1900.md"
       },
       {
         "source": "Memory/Council/council-transcript-2026-06-04-2100.md",
         "target": "Memory/Council/council-transcript-2026-06-04-2000.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1800.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1800.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1700.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1800.md",
+        "target": "CLAUDE.md"
       },
       {
         "source": "Memory/Council/council-transcript-2026-05-31-broptimize-sunrise-review.md",
@@ -2789,8 +3467,40 @@
         "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
       },
       {
+        "source": "Memory/Council/council-transcript-2026-06-05-0100.md",
+        "target": "Memory/Council/council-transcript-2026-06-04-2200.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-05-0100.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-6.md",
+        "target": "Memory/session-checkpoint.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-6.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-6.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
         "source": "Memory/Council/council-transcript-2026-06-03-salesforce-oauth.md",
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2000.md",
+        "target": "Memory/Council/council-transcript-2026-06-04-1900.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2000.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2000.md",
+        "target": "CLAUDE.md"
       },
       {
         "source": "Memory/Council/council-transcript-2026-06-01-AI-Salesforce-Stack-Review.md",
@@ -2807,6 +3517,82 @@
       {
         "source": "Memory/Council/council-transcript-2026-06-01-AI-Salesforce-Stack-Review.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1500.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1500.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1400.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1500.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1030.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1500.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1500.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-2.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-2.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-M365Copilot.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-M365Copilot.md",
+        "target": "Identity/Thinking.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-M365Copilot.md",
+        "target": "Archive/council-personas-old/skeptic.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-M365Copilot.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-M365Copilot.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1600.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1600.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1500.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1600.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1400.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1600.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-05-1800.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-05-1800.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-05-1800.md",
+        "target": "CLAUDE.md"
       },
       {
         "source": "Memory/Council/council-transcript-2026-06-04-1900.md",
@@ -2829,6 +3615,250 @@
         "target": "CLAUDE.md"
       },
       {
+        "source": "Memory/Council/council-transcript-2026-05-30-5.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-5.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-action-plan.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-action-plan.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-action-plan.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-action-plan.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-1.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-1.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-1.md",
+        "target": "Identity/Thinking.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-1.md",
+        "target": "Identity/Values.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-1.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-hugo-scouting-agent.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-cu1-validation.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-cu1-validation.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-11-1906.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-11-1906.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-11-1906.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-hosting.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-hosting.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-dashboard-hosting.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1700.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1700.md",
+        "target": "Memory/Council/council-transcript-2026-06-08-1600.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1700.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-4.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-4.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-30-4.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2200.md",
+        "target": "Memory/Council/council-transcript-2026-06-04-1900.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2200.md",
+        "target": "Memory/Council/council-transcript-2026-06-04-2000.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2200.md",
+        "target": "Memory/Council/council-transcript-2026-06-04-2100.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-2200.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-1030.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-ternel-buildplan.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-04-ternel-buildplan.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-10-1100.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-10-1100.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "People/Pierre Detrixhe.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Article Superplastic V.5.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-05-31-2000.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-1100.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-09-1100.md",
+        "target": "Identity/Voice.md"
+      },
+      {
         "source": "Memory/Council/council-transcript-2026-06-01-dashboard-race-condition.md",
         "target": "Work & Projects/Dashboard.md"
       },
@@ -2839,6 +3869,426 @@
       {
         "source": "Memory/Council/council-transcript-2026-06-01-dashboard-race-condition.md",
         "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-08-CC-AI-briefing-note.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-review.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-review.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-review.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-review.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-n8n-review.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-1700.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/Council/council-transcript-2026-06-02-1700.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Memory/drafts/sent/README.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 — Adeline Wattiau — Éléments présentation interne.md",
+        "target": "Archive/Threads-Outlook/Adeline Wattiau.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Adeline Wattiau - Presntation interne.md",
+        "target": "Archive/Threads-Outlook/Adeline Wattiau.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Memory/drafts/sent/2026-05-27 - Jean-Philippe Mathieu - Suivi articles + angles.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Adeline Wattiau.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Adeline Wattiau.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Archive/InvestSud/SuperPlastic/Article Superplastic V.3.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Archive/InvestSud/SuperPlastic/Article Superplastic V.2.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Stéphane Dantinne.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.2.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Archive/Threads-Outlook/Gilles Koestel.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp Research Doc v2.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Archive/InvestSud/Fiche Recherche SA Marchandise.md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Archive/InvestSud/Fiche Recherche SA Marchandise.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Archive/InvestSud/Fiche Recherche SA Marchandise (duplicate).md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Archive/InvestSud/Fiche Recherche SA Marchandise (duplicate).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Archive/InvestSud/Fiche Recherche SA Marchandise (duplicate).md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp_Research_Document initial.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp_Research_Document initial.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp_Research_Document_initial.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp_Research_Document_initial.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Archive/InvestSud/TrustUp_Research_Document_initial.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/Setup/my-second-brain-requirements.md",
+        "target": "Archive/second-brain-prd.md"
+      },
+      {
+        "source": "Archive/Setup/my-second-brain-requirements.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Archive/Setup/my-second-brain-requirements.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Archive/Threads-Outlook/Gilles Koestel.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Synthese_Investsud_3_Participations.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/HANDOFF_Article_Brief_Investsud.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md",
+        "target": "People/Philippe Degive.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Career & Identity/Experiences/Experiences Index.md",
+        "target": "Career & Identity/CV/Felix Janssen CV.md"
+      },
+      {
+        "source": "Career & Identity/Experiences/Experiences Index.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Career & Identity/Experiences/Experiences Index.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Career & Identity/Experiences/Experiences Index.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Career & Identity/Experiences/Experiences Index.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Career & Identity/CV/Felix Janssen CV.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Career & Identity/CV/Felix Janssen CV.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Career & Identity/CV/Felix Janssen CV.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Career & Identity/CV/Felix Janssen CV.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
         "source": "Knowledge/AI in Finance/Dust AI — Research Notes.md",
@@ -2853,8 +4303,56 @@
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
-        "source": "Work & Projects/Projects/CC_AI_Mandate.md",
-        "target": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md"
+        "source": "Knowledge/PE & Venture/France Invest - Table ronde LP - Ecosystème Français (juin 2026).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Note IA Sociétés de Gestion.md"
+      },
+      {
+        "source": "Knowledge/PE & Venture/France Invest - Table ronde LP - Ecosystème Français (juin 2026).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Knowledge/PE & Venture/France Invest - Table ronde LP - Ecosystème Français (juin 2026).md",
+        "target": "Work & Projects/Internships/Capital Croissance/CC Funds Overview.md"
+      },
+      {
+        "source": "Knowledge/PE & Venture/France Invest - Table ronde LP - Ecosystème Français (juin 2026).md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Phone Second Brain.md",
+        "target": "Work & Projects/Projects/Phone Second Brain Setup.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Phone Second Brain Setup.md",
+        "target": "Resources/Second Brain MCP Tools Reference.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Phone Second Brain Setup.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Phone Second Brain Setup.md",
+        "target": "Memory/session-checkpoint.md"
+      },
+      {
+        "source": "Work & Projects/Projects/Phone Second Brain Setup.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
         "source": "Work & Projects/Projects/CC_AI_Mandate.md",
@@ -2957,6 +4455,386 @@
         "target": "Identity/Voice.md"
       },
       {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Archive/Threads-Outlook/Adeline Wattiau.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence_Chris.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Chris Chenebault + Adeline Wattiau (2026-06-11).md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/McGill/McGill Admin/Course Registration Fall 2026.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Identity/Thinking.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Identity/Values.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel Fund Notes.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/Threads-Outlook/Gilles Koestel.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "People/Benjamin Cuypers.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud Article Dashboard.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/SuperPlastic/Article Superplastic V.3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Myocene_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/K2/K2 Fund Notes.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/K2/K2 Fund Notes.md",
+        "target": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Gaia/Gaia Fund Notes.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Gaia/Gaia Fund Notes.md",
+        "target": "Archive/council-personas-old/operator.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel Fund Notes.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Ternel/AI Mandate/Mission 2 — Monday Brief/WhatsApp Delivery Options.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Identity/Thinking.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Communications/LinkedIn/Simon Painchaud.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel AI Use Cases — Research.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
         "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel Fund Notes.md",
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
@@ -2965,8 +4843,56 @@
         "target": "Work & Projects/Projects/CC_AI_Mandate.md"
       },
       {
-        "source": "Work & Projects/Internships/Capital Croissance/Ternel/Ternel Fund Notes.md",
-        "target": "Work & Projects/Internships/Capital Croissance/Interview Prep — Rodrigue Leroy (2026-06-04).md"
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CR Email Chris + Adeline (2026-06-11).md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
       },
       {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Maintenance Guide.md",
@@ -2979,6 +4905,22 @@
       {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Maintenance Guide.md",
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/README.md",
@@ -3045,8 +4987,120 @@
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Session Handover — Agenda.md"
       },
       {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CR Email Chris + Adeline (2026-06-11).md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Taskforce IA (Lucas + Chris) (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence_Chris.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Work & Projects/Projects/Mission 1 - Activation Workflow Vocal Salesforce.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Work & Projects/Dashboard.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 - Field Mapping.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Achievements & Roadmap.md",
+        "target": "People/Rodrigue Leroy.md"
+      },
+      {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Training Guide.md",
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CR Email Chris + Adeline (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/CR Email Chris + Adeline (2026-06-11).md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Conformité RGPD — CU1.md",
+        "target": "Identity/Voice.md"
       },
       {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Session Handover — Agenda.md",
@@ -3061,6 +5115,98 @@
         "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
       },
       {
+        "source": "Work & Projects/Internships/Capital Croissance/Ternel/AI Mandate/Mission 2 — Monday Brief/WhatsApp Delivery Options.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security_Architecture_Technical.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence_Chris.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security_Architecture_Technical.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security_Architecture_Technical.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security_Architecture_Technical.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security_Architecture_Technical.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Note_Cadrage_Systeme_Intelligence_Chris.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Archive/Threads-Outlook/Chris Chenebault.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Teams Webhook Verification.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Overview.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Teams Webhook Verification.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Teams Webhook Verification.md",
+        "target": "Identity/Values.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Security Checklist.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Security/Incident Response.md",
+        "target": "Archive/council-personas-old/operator.md"
+      },
+      {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Prompts/Claude - Structuration CR.md",
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md"
       },
@@ -3071,6 +5217,306 @@
       {
         "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Prompts/Claude - Extraction Nom LP.md",
         "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Compliance.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Compliance.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/DORA_Research_Note.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Reddit_Copilot_Claude_EU_Findings.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Snowflake_Cortex_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/DORA_DPA_Vendor_Compliance.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Reddit_Copilot_Claude_EU_Findings.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Reddit_Copilot_Claude_EU_Findings.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Snowflake_Cortex_Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Snowflake_Cortex_Research.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Snowflake_Cortex_Research.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/CC_AI_Stack_Policy.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Notes Entretien Middle Office + DORA (2026-06-11).md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/CC_AI_Tools_Detail.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Reference/Dust_Research.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/README.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 - Field Mapping.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Work & Projects/Projects/CC_AI_Mandate.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Identity/Voice.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 Documentation.md",
+        "target": "Work & Projects/Tasks.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 - Field Mapping.md",
+        "target": "Work & Projects/Internships/Capital Croissance/AI Mandate/Credentials.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 - Field Mapping.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/Capital Croissance/AI Mandate/Workflows/CU1 - Voice to Salesforce/CU1 - Field Mapping.md",
+        "target": "Identity/Values.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Reminder — Email JP Broptimize.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Archive/InvestSud/TrustUp_Research_Document_initial.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Archive/InvestSud/Handoffs/Sunrise_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.3.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.2.md",
+        "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Sunrise Research Doc.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md"
       },
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.1.md",
@@ -3085,12 +5531,8 @@
         "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
       },
       {
-        "source": "Work & Projects/Internships/InvestSud Internship/Sunrise/Article Sunrise V.1.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Article Broptimize V.1.md"
-      },
-      {
-        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md",
-        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+        "source": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Fiche Recherche Myocene updated.md"
       },
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md",
@@ -3099,6 +5541,78 @@
       {
         "source": "Work & Projects/Internships/InvestSud Internship/Colona/Fiche Recherche Colona updated.md",
         "target": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Article Colona V.1.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Marchandise/Fiche Recherche Marchandise updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Archive/InvestSud/Handoffs/ATB_Therapeutics_Article_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Archive/InvestSud/Handoffs/Colona_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/Colona/Colona Handoff and Context Document.md",
+        "target": "Archive/InvestSud/Handoffs/Fiche_Recherche_Colona.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Fiche Recherche TrustUp v3.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/TrustUp/TrustUp Research Doc v2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Broptimize/Broptimize Research Doc.md"
       },
       {
         "source": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md",
@@ -3111,6 +5625,82 @@
       {
         "source": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md",
         "target": "Archive/Threads-Outlook/Jean-Philippe Mathieu.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.1 (angle validation).md",
+        "target": "Archive/Threads-Outlook/Stéphane Dantinne.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.1 (angle validation).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.1 (angle validation).md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.1 (angle validation).md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md",
+        "target": "Archive/InvestSud/SuperPlastic/Article Superplastic V.2.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md",
+        "target": "Archive/InvestSud/Handoffs/Superplastic_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Feedback Stéphane Dantinne V.2.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/DOSAN_SUPERPLAST_2012.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/Fiche Recherche Superplastic updated.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/SuperPlastic/DOSAN_SUPERPLAST_2012.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Notes Entretien Pierre Detrixhe (2026-05-29).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Notes Entretien Pierre Detrixhe (2026-05-29).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Notes Entretien Pierre Detrixhe (2026-05-29).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Notes Entretien Pierre Detrixhe (2026-05-29).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/TrustUp/Article TrustUp V.1.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Esobiotech/Esobiotec_Research_Document.md"
+      },
+      {
+        "source": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/Interview Prep — Pierre Detrixhe (2026-05-29).md",
+        "target": "Work & Projects/Internships/InvestSud Internship/Myocene/Myocene Research Doc.md"
+      },
+      {
+        "source": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md",
+        "target": "Work & Projects/McGill/McGill Admin/Course Registration Fall 2026.md"
+      },
+      {
+        "source": "Work & Projects/McGill/Graduation Pathway/BCom Graduation Pathway.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       },
       {
         "source": "Communications/WhatsApp/2026-05-31 Arnaud Tardan — remerciement + Capital Croissance.md",
@@ -3127,8 +5717,40 @@
       {
         "source": "Communications/WhatsApp/2026-05-31 Payou et Mayou — remerciements mois ensemble.md",
         "target": "Communications/WhatsApp/WhatsApp Style Guide.md"
+      },
+      {
+        "source": "Communications/WhatsApp/WhatsApp Style Guide.md",
+        "target": "People/Philippe Degive.md"
+      },
+      {
+        "source": "Communications/WhatsApp/WhatsApp Style Guide.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
+      },
+      {
+        "source": "Communications/WhatsApp/WhatsApp Style Guide.md",
+        "target": "CLAUDE.md"
+      },
+      {
+        "source": "Communications/WhatsApp/2026-05-27 Philippe Degive (fin de stage + Capital Croissance).md",
+        "target": "Communications/WhatsApp/2026-05-28 Philippe Degive — réponse cadeau MEC.md"
+      },
+      {
+        "source": "Communications/LinkedIn/Simon Painchaud.md",
+        "target": "Work & Projects/Internships/Capital Croissance/Capital Croissance Internship Context.md"
+      },
+      {
+        "source": "Communications/LinkedIn/Simon Painchaud.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/InvestSud_Internship_Context.md"
+      },
+      {
+        "source": "Communications/LinkedIn/Simon Painchaud.md",
+        "target": "Work & Projects/Internships/InvestSud Internship/ATB Therapeutics/ATB_Therapeutics_Research_Document.md"
+      },
+      {
+        "source": "Communications/LinkedIn/Simon Painchaud.md",
+        "target": "Archive/InvestSud/Handoffs/Investsud_Research_Handoff.md"
       }
     ]
   },
-  "fetched_at": "2026-06-11 15:45"
+  "fetched_at": "2026-06-11 21:35"
 }
