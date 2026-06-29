@@ -2,6 +2,8 @@
 
 A self-contained, Apple-style personal task dashboard generated from a plain Markdown task list and a small JSON data file. One Python script turns them into a single static HTML page you can host anywhere.
 
+**[Live demo](https://felixuniversityca-svg.github.io/task-dashboard/)**
+
 ![dashboard](docs/screenshot.png)
 
 ## Features
