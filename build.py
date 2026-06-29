@@ -1130,6 +1130,7 @@ def build_html(active, blocked, completed, live_data):
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+    [hidden]{{display:none!important}}  /* fix: display:flex on .dr-back was overriding the hidden attribute */
     :root{{
       --bg:#f5f5f7;--surface:#ffffff;
       --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
@@ -1139,7 +1140,19 @@ def build_html(active, blocked, completed, live_data):
       --orange:#ff9500;--orange-bg:#fff4e0;--orange-bdr:rgba(255,149,0,0.20);
       --red:#ff3b30;--red-bg:#ffebe9;--red-bdr:rgba(255,59,48,0.20);
       --shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 14px rgba(0,0,0,0.06);
-      --r:14px;--touch:44px
+      --r:14px;--touch:44px;
+      --hover:rgba(0,0,0,0.045);--hover-btn:#e5e5ea
+    }}
+    /* Keyboard focus ring (was missing entirely) */
+    a:focus-visible,button:focus-visible,summary:focus-visible,
+    .interactive:focus-visible,.cal-has-ev:focus-visible,.proj-card:focus-visible,
+    .dr-sub-item:focus-visible,.dr-task-row:focus-visible,.news-row:focus-visible,
+    [tabindex]:focus-visible{{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}}
+    :focus:not(:focus-visible){{outline:none}}
+    /* Respect macOS "reduce motion" for all animations/transitions */
+    @media(prefers-reduced-motion:reduce){{
+      *,*::before,*::after{{animation-duration:.01ms!important;animation-iteration-count:1!important;
+                            transition-duration:.01ms!important;scroll-behavior:auto!important}}
     }}
     html{{background:var(--bg)}}
     body{{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -1214,7 +1227,7 @@ def build_html(active, blocked, completed, live_data):
 
     /* Interactive */
     .interactive{{cursor:pointer;-webkit-tap-highlight-color:transparent}}
-    .interactive:hover{{background:rgba(0,0,0,0.025)}}
+    .interactive:hover{{background:var(--hover)}}
     .interactive:active{{background:rgba(0,0,0,0.06)}}
     .chevron{{color:var(--subtle);font-size:16px;font-weight:400;
               flex-shrink:0;margin-left:auto;padding-left:6px}}
@@ -1350,6 +1363,8 @@ def build_html(active, blocked, completed, live_data):
                     border-top:4px solid var(--muted);
                     transition:transform .15s}}
     details[open] summary::after{{transform:rotate(180deg)}}
+    summary{{transition:color .15s}}
+    summary:hover{{color:var(--text)}}
     .done-list{{display:flex;flex-direction:column;gap:4px;list-style:none}}
     .done-li{{display:flex;align-items:center;gap:8px;padding:9px 13px;
               background:var(--surface);border:1px solid var(--border);
@@ -1396,7 +1411,7 @@ def build_html(active, blocked, completed, live_data):
                display:flex;align-items:center;justify-content:center;
                font-size:14px;color:var(--muted);flex-shrink:0;
                -webkit-tap-highlight-color:transparent}}
-    .dr-close:hover{{background:#e5e5ea}}
+    .dr-close:hover{{background:var(--hover-btn)}}
     .dr-divider{{height:1px;background:var(--border);margin-bottom:14px}}
     .dr-rows{{display:flex;flex-direction:column;gap:0}}
     .dr-row{{display:flex;align-items:baseline;gap:12px;
@@ -1426,12 +1441,12 @@ def build_html(active, blocked, completed, live_data):
               display:flex;align-items:center;justify-content:center;
               font-size:16px;color:var(--text);flex-shrink:0;margin-right:4px;
               -webkit-tap-highlight-color:transparent}}
-    .dr-back:hover{{background:#e5e5ea}}
+    .dr-back:hover{{background:var(--hover-btn)}}
     .dr-sub-item{{display:flex;align-items:center;justify-content:space-between;
                   padding:13px 12px;border-radius:10px;margin-bottom:6px;
                   border:1px solid var(--border);cursor:pointer;
                   -webkit-tap-highlight-color:transparent}}
-    .dr-sub-item:hover,.dr-sub-item:active{{background:rgba(0,0,0,0.04)}}
+    .dr-sub-item:hover,.dr-sub-item:active{{background:var(--hover)}}
     .dr-sub-left{{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}}
     .dr-sub-nm{{font-size:13px;font-weight:600;color:var(--text)}}
     .dr-sub-meta{{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}}
@@ -1439,7 +1454,7 @@ def build_html(active, blocked, completed, live_data):
                   border-radius:8px;border-bottom:1px solid var(--border);cursor:pointer;
                   -webkit-tap-highlight-color:transparent}}
     .dr-task-row:last-child{{border-bottom:none}}
-    .dr-task-row:hover,.dr-task-row:active{{background:rgba(0,0,0,0.03)}}
+    .dr-task-row:hover,.dr-task-row:active{{background:var(--hover)}}
     .dr-task-text{{font-size:13px;line-height:1.45;flex:1}}
 
     /* Desktop: centered modal */
@@ -1975,9 +1990,9 @@ document.addEventListener('click', e => {{
   if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key, false); }}
 }});
 
-let startY = 0;
-drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; }}, {{passive:true}});
-drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
+let startY = 0, startScroll = 0;
+drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; startScroll = drawer.scrollTop; }}, {{passive:true}});
+drawer.addEventListener('touchend',   e => {{ if (startScroll <= 0 && e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
 
 // ── Status bar + progress bars ───────────────────────────────────────────────
 (function() {{
