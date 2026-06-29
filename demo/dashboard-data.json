@@ -1,0 +1,50 @@
+{
+  "fetched_at": "2026-06-29 08:45",
+  "deadlines": [
+    {"title": "v2.1 release cutoff", "date": "2026-07-02", "time": "17:00", "section": "Open Source Library"},
+    {"title": "Take-home assignment due", "date": "2026-06-30", "time": "23:59", "section": "Job Search"},
+    {"title": "Lease signing", "date": "2026-07-01", "time": "10:00", "section": "Apartment Move"},
+    {"title": "Conference talk submission", "date": "2026-07-10", "time": "12:00", "section": "Side Project"},
+    {"title": "Open enrollment ends", "date": "2026-07-15", "section": "Job Search"}
+  ],
+  "emails": [
+    {"from": "Northwind Recruiting", "subject": "Next steps for your application", "snippet": "Thanks for the great conversation last week. We would love to set up a final round.", "epoch": 1782712200, "unread": true},
+    {"from": "Alex (maintainer)", "subject": "Re: dependency-bump PR", "snippet": "Looks good overall, left a couple of comments on the lockfile changes.", "epoch": 1782707400, "unread": true},
+    {"from": "Moving Co", "subject": "Your quote #4821", "snippet": "Please find attached the quote for your move on July 5th.", "epoch": 1782655200, "unread": false},
+    {"from": "GitHub", "subject": "[library] New issue: high memory usage", "snippet": "A user reported the parser allocates more than expected on large files.", "epoch": 1782565200, "unread": false}
+  ],
+  "pipeline": [
+    {"name": "Northwind", "label": "Final round", "color": "#34c759", "stage": "final", "contact": "recruiter", "sent_date": "2026-06-24", "days_ago": 5, "desc": "Final onsite scheduling in progress."},
+    {"name": "Acme Corp", "label": "Phone screen", "color": "#0071e3", "stage": "screen", "contact": "Sam", "sent_date": "2026-06-26", "days_ago": 3, "desc": "Waiting to hear back after the recruiter call."},
+    {"name": "Initech", "label": "Applied", "color": "#ff9500", "stage": "applied", "contact": "", "sent_date": "2026-06-20", "days_ago": 9, "desc": "Application submitted, no response yet."}
+  ],
+  "replies": [
+    {"item": "Reference letter", "waiting_on": "former manager", "since": "2026-06-22", "days": 7, "desc": "Requested for the Northwind application.", "label": "7d"},
+    {"item": "Logo sign-off", "waiting_on": "a teammate", "since": "2026-06-24", "days": 5, "desc": "Sent two options, waiting on a pick.", "label": "5d"},
+    {"item": "PR review", "waiting_on": "Alex", "since": "2026-06-27", "days": 2, "desc": "Dependency bump awaiting approval.", "label": "2d"}
+  ],
+  "agenda": [
+    {"title": "Standup", "time": "09:00"},
+    {"title": "Recruiter call", "time": "14:00"},
+    {"title": "Gym", "time": "18:30"}
+  ],
+  "markets": [
+    {"name": "S&P 500", "value": "5,460.22", "pct": "0.42%", "up": true},
+    {"name": "Nasdaq", "value": "17,805.10", "pct": "0.61%", "up": true},
+    {"name": "10Y Treasury", "value": "4.28%", "pct": "0.03%", "up": false},
+    {"name": "BTC/USD", "value": "61,240", "pct": "1.12%", "up": false},
+    {"name": "EUR/USD", "value": "1.073", "pct": "0.18%", "up": true}
+  ],
+  "ai_news": [
+    {"title": "New open-weights model tops the coding benchmarks", "source": "AI Weekly", "ago": "2h", "link": "https://example.com/ai-1"},
+    {"title": "Survey: most teams now ship with an LLM in the loop", "source": "The Stack", "ago": "5h", "link": "https://example.com/ai-2"},
+    {"title": "Vector databases add native hybrid search", "source": "DevReport", "ago": "1d", "link": "https://example.com/ai-3"}
+  ],
+  "pe_news": [
+    {"title": "Seed rounds rebound in the second quarter", "source": "Cap Table", "ago": "3h", "link": "https://example.com/pe-1"},
+    {"title": "Developer-tools startup raises a Series B", "source": "TechFunding", "ago": "6h", "link": "https://example.com/pe-2"},
+    {"title": "Open-source company announces a commercial tier", "source": "OSS News", "ago": "1d", "link": "https://example.com/pe-3"}
+  ],
+  "claude_usage": {"five_hour_pct": 37, "resets_at": 1782723600},
+  "week_recap": {"text": "Shipped v2.0 and cleared most of the move checklist. The focus this week is the v2.1 release and the Northwind final round."}
+}

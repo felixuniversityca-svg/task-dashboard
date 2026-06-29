@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#f5f5f7;--surface:#ffffff;
+      --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+      --text:#1d1d1f;--muted:#6e6e73;--subtle:#aeaeb2;
+      --blue:#0071e3;--blue-bg:#e8f0fd;--blue-bdr:rgba(0,113,227,0.20);
+      --green:#34c759;--green-bg:#e8f8ed;--green-bdr:rgba(52,199,89,0.20);
+      --orange:#ff9500;--orange-bg:#fff4e0;--orange-bdr:rgba(255,149,0,0.20);
+      --red:#ff3b30;--red-bg:#ffebe9;--red-bdr:rgba(255,59,48,0.20);
+      --shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 14px rgba(0,0,0,0.06);
+      --r:14px;--touch:44px
+    }
+    html{background:var(--bg)}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+          background:
+            radial-gradient(ellipse 55% 28% at 15% 0%,rgba(0,113,227,0.07) 0%,transparent 65%),
+            radial-gradient(ellipse 45% 22% at 85% 0%,rgba(52,199,89,0.06) 0%,transparent 65%),
+            var(--bg);
+          color:var(--text);min-height:100vh;
+          padding:28px 20px 80px;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:1140px;margin:0 auto}
+
+    /* ─ Header ─ */
+    .header{display:flex;justify-content:space-between;align-items:center;
+             margin-bottom:16px;gap:12px;flex-wrap:wrap}
+    .hd-left{display:flex;align-items:center;gap:12px}
+    .hd-right{display:flex;align-items:center;gap:10px}
+    .avatar{width:42px;height:42px;border-radius:13px;flex-shrink:0;
+             background:linear-gradient(135deg,#0071e3,#34aadc);
+             display:flex;align-items:center;justify-content:center;
+             font-size:16px;font-weight:700;color:#fff;
+             box-shadow:0 2px 10px rgba(0,113,227,0.30)}
+    .hd-name{font-size:17px;font-weight:700;letter-spacing:-.3px}
+    .hd-sub{font-size:12px;color:var(--muted);margin-top:1px}
+    .hd-time{font-size:12px;color:var(--muted)}
+    .sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .sync-lbl{font-size:11px;color:var(--muted)}
+
+    /* ─ Priority card ─ */
+    .priority-card{background:var(--surface);border:1px solid var(--border);
+                    border-left:4px solid;border-radius:var(--r);
+                    padding:13px 18px;box-shadow:var(--shadow);
+                    margin-bottom:16px;display:flex;
+                    align-items:center;justify-content:space-between;gap:14px}
+    .priority-clear{border-left-color:var(--green)!important;
+                     background:var(--green-bg)!important}
+    .priority-inner{display:flex;align-items:center;gap:12px;min-width:0}
+    .priority-flag{font-size:10px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:.6px;flex-shrink:0;white-space:nowrap}
+    .priority-text{font-size:14px;font-weight:600;letter-spacing:-.2px;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .priority-detail{font-size:12px;color:var(--muted);flex-shrink:0}
+
+    /* ─ KPI ─ */
+    .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);
+               gap:10px;margin-bottom:16px}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:16px 15px;box-shadow:var(--shadow);
+               min-height:var(--touch)}
+    .kpi-blue  {background:var(--blue-bg);  border-color:var(--blue-bdr)}
+    .kpi-green {background:var(--green-bg); border-color:var(--green-bdr)}
+    .kpi-orange{background:var(--orange-bg);border-color:var(--orange-bdr)}
+    .kpi-red   {background:var(--red-bg);   border-color:var(--red-bdr)}
+    .kpi-yellow{background:#fff8df;border-color:rgba(160,112,0,0.20)}
+    .kpi-val{font-size:30px;font-weight:700;letter-spacing:-1px;
+              line-height:1;margin-bottom:4px}
+    .kpi-blue   .kpi-val{color:var(--blue)}
+    .kpi-green  .kpi-val{color:var(--green)}
+    .kpi-orange .kpi-val{color:var(--orange)}
+    .kpi-red    .kpi-val{color:var(--red)}
+    .kpi-yellow .kpi-val{color:#a07000}
+    .kpi-lbl{font-size:11px;font-weight:500;color:var(--muted)}
+
+    /* Tooltip */
+    [data-tip]{position:relative}
+    [data-tip]::after{content:attr(data-tip);position:absolute;
+      bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+      background:#1d1d1f;color:#fff;font-size:11px;padding:5px 10px;
+      border-radius:7px;white-space:nowrap;pointer-events:none;
+      opacity:0;transition:opacity .15s;z-index:60;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+    [data-tip]:hover::after{opacity:1}
+
+    /* Interactive */
+    .interactive{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .interactive:hover{background:rgba(0,0,0,0.025)}
+    .interactive:active{background:rgba(0,0,0,0.06)}
+    .chevron{color:var(--subtle);font-size:16px;font-weight:400;
+              flex-shrink:0;margin-left:auto;padding-left:6px}
+
+    /* ─ Top row ─ */
+    .top-row{display:grid;grid-template-columns:1fr 1fr 1fr;
+              gap:12px;margin-bottom:16px}
+    .panel{background:var(--surface);border:1px solid var(--border);
+            border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+    .p-lbl{font-size:10px;font-weight:700;text-transform:uppercase;
+            letter-spacing:.9px;color:var(--muted);margin-bottom:12px}
+    .spark-big{font-size:30px;font-weight:700;color:var(--green);
+                letter-spacing:-1px;line-height:1}
+    .spark-sub{font-size:11px;color:var(--muted);margin:3px 0 10px}
+    .spark-panel{display:flex;flex-direction:column}
+    .spark-grow{flex:1;min-height:40px}
+    .donut-wrap{display:flex;align-items:center;gap:14px}
+    .donut-svg{width:100px;height:100px;flex-shrink:0}
+    .leg{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+    .leg-row{display:flex;align-items:center;gap:8px;
+              border-radius:7px;padding:5px 6px;margin:-5px -6px;
+              min-height:var(--touch)}
+    .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .leg-name{font-size:12px;color:var(--text);flex:1;overflow:hidden;
+               text-overflow:ellipsis;white-space:nowrap}
+    .leg-n{font-size:12px;font-weight:600;color:var(--muted)}
+
+    /* ─ Calendar ─ */
+    .cal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .cal-title{font-size:12px;font-weight:700;margin-bottom:7px;
+                letter-spacing:-.2px}
+    .cal-days-hd{display:grid;grid-template-columns:repeat(7,1fr);
+                  margin-bottom:3px}
+    .cal-days-hd span{font-size:9px;font-weight:600;text-align:center;
+                       color:var(--subtle);padding:1px 0}
+    .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+    .cal-cell{display:flex;flex-direction:column;align-items:center;
+               padding:2px 1px;border-radius:6px;min-height:26px}
+    .cal-has-ev{cursor:pointer}
+    .cal-has-ev:hover{background:rgba(0,113,227,0.08)}
+    .cal-today .cal-num{background:var(--blue);color:#fff;border-radius:50%;
+                         width:18px;height:18px;display:flex;align-items:center;
+                         justify-content:center}
+    .cal-past .cal-num{color:var(--subtle)}
+    .cal-num{font-size:10px;font-weight:500;line-height:1.8}
+    .cal-dot{width:4px;height:4px;border-radius:50%;margin-top:1px}
+
+    /* ─ Main two-col ─ */
+    .main-row{display:grid;grid-template-columns:1fr 1fr;
+               gap:12px;margin-bottom:16px}
+    .card{background:var(--surface);border:1px solid var(--border);
+           border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+    .sec{margin-bottom:22px}
+    .sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;
+              letter-spacing:.9px;color:var(--muted);margin-bottom:10px;
+              padding-left:2px}
+
+    /* List rows */
+    .list-row{display:flex;align-items:center;gap:10px;padding:12px 14px;
+               border-bottom:1px solid var(--border);min-height:var(--touch)}
+    .list-row:last-child{border-bottom:none}
+    .list-main{flex:1;min-width:0}
+    .list-text{font-size:13px;line-height:1.4;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap}
+    .list-meta{font-size:11px;color:var(--muted);margin-top:2px;
+                overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* Deadline badges */
+    .dt-badge{font-size:10px;font-weight:700;border-radius:6px;
+               padding:3px 8px;flex-shrink:0;white-space:nowrap}
+    .dt-red   {background:#fce8f0;color:#c93566}
+    .dt-orange{background:#fce8f0;color:#c93566}
+    .dt-blue  {background:#fce8f0;color:#c93566}
+
+    /* Due tags */
+    .due-tag{font-size:10px;font-weight:600;border-radius:5px;
+              padding:2px 6px;flex-shrink:0;white-space:nowrap}
+    .due-red   {background:var(--red-bg);color:var(--red)}
+    .due-orange{background:var(--orange-bg);color:var(--orange)}
+    .due-blue  {background:var(--blue-bg);color:var(--blue)}
+
+    /* Emails */
+    .email-row{display:flex;align-items:center;gap:10px;padding:12px 14px;
+                border-bottom:1px solid var(--border);min-height:var(--touch)}
+    .email-row:last-child{border-bottom:none}
+    .e-dot{width:8px;height:8px;border-radius:50%;
+            background:var(--blue);flex-shrink:0}
+    .e-dot-read{background:transparent;border:1.5px solid var(--border2)}
+    .e-body{flex:1;min-width:0}
+    .e-from{font-size:13px;font-weight:600;overflow:hidden;
+             text-overflow:ellipsis;white-space:nowrap}
+    .e-sub{font-size:12px;color:var(--muted);overflow:hidden;
+            text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+    .e-time{font-size:11px;color:var(--muted);flex-shrink:0;white-space:nowrap}
+
+    /* Dots + pills */
+    .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .dot-sm{width:5px;height:5px;margin-top:9px}
+    .dot-orange{background:var(--orange)}.dot-blue{background:var(--blue)}
+    .pill{font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;flex-shrink:0}
+    .pill-gray  {background:#f2f2f7;color:var(--muted)}
+    .pill-orange{background:var(--orange-bg);color:var(--orange)}
+    .pill-red   {background:var(--red-bg);color:var(--red)}
+
+    /* Project cards */
+    .proj-card{background:var(--surface);border:1px solid var(--border);
+                border-radius:var(--r);padding:14px 15px;margin-bottom:8px;
+                box-shadow:var(--shadow)}
+    .proj-hd{display:flex;align-items:center;justify-content:space-between;
+              margin-bottom:10px}
+    .proj-nm{font-size:11px;font-weight:700;text-transform:uppercase;
+              letter-spacing:.5px;color:var(--muted)}
+    .task-ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+    .task-li{display:flex;align-items:flex-start;gap:9px;padding:8px 7px;
+              border-radius:8px;min-height:var(--touch)}
+    .task-text{font-size:13px;line-height:1.45;flex:1}
+    .sub-label{list-style:none;font-size:10px;font-weight:600;text-transform:uppercase;
+                letter-spacing:.5px;color:var(--muted);padding:8px 7px 2px;margin-top:4px;
+                border-top:1px solid var(--border)}
+    .sub-label:first-child{border-top:none;margin-top:0;padding-top:2px}
+
+    /* Completed */
+    details{}
+    summary{cursor:pointer;user-select:none;list-style:none;
+             display:flex;align-items:center;gap:7px;
+             font-size:10px;font-weight:700;text-transform:uppercase;
+             letter-spacing:.9px;color:var(--muted);
+             margin-bottom:8px;padding-left:2px}
+    summary::-webkit-details-marker{display:none}
+    summary::after{content:'';display:inline-block;width:0;height:0;
+                    border-left:4px solid transparent;
+                    border-right:4px solid transparent;
+                    border-top:4px solid var(--muted);
+                    transition:transform .15s}
+    details[open] summary::after{transform:rotate(180deg)}
+    .done-list{display:flex;flex-direction:column;gap:4px;list-style:none}
+    .done-li{display:flex;align-items:center;gap:8px;padding:9px 13px;
+              background:var(--surface);border:1px solid var(--border);
+              border-radius:9px;box-shadow:var(--shadow);
+              min-height:var(--touch)}
+    .done-ck{color:var(--green);font-size:12px;flex-shrink:0}
+    .done-txt{font-size:13px;color:var(--subtle);text-decoration:line-through;flex:1}
+    .done-dt{font-size:11px;color:var(--subtle);white-space:nowrap;flex-shrink:0}
+
+    .empty-p{font-size:13px;color:var(--muted);padding:14px 15px;font-style:italic}
+
+    footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--border);
+            display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+    .ft-name{font-size:12px;font-weight:600;color:var(--subtle)}
+    .ft-time{font-size:11px;color:var(--subtle)}
+
+    /* ─ Drawer / modal ─ */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0);
+              pointer-events:none;z-index:200;transition:background .22s}
+    .overlay.open{background:rgba(0,0,0,0.30);pointer-events:all}
+
+    .drawer{
+      position:fixed;bottom:0;left:0;right:0;z-index:201;
+      background:var(--surface);border-radius:22px 22px 0 0;
+      box-shadow:0 -8px 40px rgba(0,0,0,0.14);
+      max-height:78vh;overflow-y:auto;
+      transform:translateY(100%);
+      transition:transform .30s cubic-bezier(.32,.72,0,1)
+    }
+    .drawer.open{transform:translateY(0)}
+
+    .dr-handle{width:36px;height:4px;background:var(--border2);
+                border-radius:2px;margin:12px auto 0}
+    .dr-accent{height:3px;margin:14px 0 0;border-radius:0}
+    .dr-inner{padding:16px 20px 32px}
+    .dr-header{display:flex;align-items:flex-start;
+                justify-content:space-between;gap:12px;margin-bottom:16px}
+    .dr-titles{flex:1;min-width:0}
+    .dr-title{font-size:17px;font-weight:700;letter-spacing:-.3px;
+               line-height:1.3;word-break:break-word}
+    .dr-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .dr-close{width:30px;height:30px;border-radius:50%;
+               background:#f2f2f7;border:none;cursor:pointer;
+               display:flex;align-items:center;justify-content:center;
+               font-size:14px;color:var(--muted);flex-shrink:0;
+               -webkit-tap-highlight-color:transparent}
+    .dr-close:hover{background:#e5e5ea}
+    .dr-divider{height:1px;background:var(--border);margin-bottom:14px}
+    .dr-rows{display:flex;flex-direction:column;gap:0}
+    .dr-row{display:flex;align-items:baseline;gap:12px;
+             padding:11px 0;border-bottom:1px solid var(--border)}
+    .dr-row:last-child{border-bottom:none}
+    .dr-key{font-size:12px;font-weight:600;color:var(--muted);
+             min-width:90px;flex-shrink:0}
+    .dr-val{font-size:13px;color:var(--text);flex:1;line-height:1.5}
+    .dr-val.hl-red{color:var(--red);font-weight:600}
+    .dr-val.hl-orange{color:var(--orange);font-weight:600}
+    .dr-val.hl-green{color:var(--green);font-weight:600}
+    .dr-val.hl-blue{color:var(--blue);font-weight:600}
+    .ae-row{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+    .ae-row:last-child{border-bottom:none}
+    .ae-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+    .ae-body{flex:1;min-width:0}
+    .ae-task{font-size:13px;color:var(--text);font-weight:500;line-height:1.45;word-break:break-word}
+    .ae-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px}
+    .ae-proj{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:1px 8px;border-radius:6px;white-space:nowrap}
+    .ae-time{font-size:11px;color:var(--subtle)}
+    .ae-done .ae-task{text-decoration:line-through;color:var(--muted);font-weight:400}
+    .dr-note{font-size:12px;color:var(--muted);margin-top:14px;
+              padding-top:12px;border-top:1px solid var(--border);
+              line-height:1.5}
+    .dr-back{width:30px;height:30px;border-radius:50%;
+              background:#f2f2f7;border:none;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;
+              font-size:16px;color:var(--text);flex-shrink:0;margin-right:4px;
+              -webkit-tap-highlight-color:transparent}
+    .dr-back:hover{background:#e5e5ea}
+    .dr-sub-item{display:flex;align-items:center;justify-content:space-between;
+                  padding:13px 12px;border-radius:10px;margin-bottom:6px;
+                  border:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}
+    .dr-sub-item:hover,.dr-sub-item:active{background:rgba(0,0,0,0.04)}
+    .dr-sub-left{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+    .dr-sub-nm{font-size:13px;font-weight:600;color:var(--text)}
+    .dr-sub-meta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+    .dr-task-row{display:flex;align-items:flex-start;gap:9px;padding:11px 7px;
+                  border-radius:8px;border-bottom:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}
+    .dr-task-row:last-child{border-bottom:none}
+    .dr-task-row:hover,.dr-task-row:active{background:rgba(0,0,0,0.03)}
+    .dr-task-text{font-size:13px;line-height:1.45;flex:1}
+
+    /* Desktop: centered modal */
+    @media(min-width:640px){
+      .drawer{
+        bottom:auto;top:50%;left:50%;right:auto;
+        transform:translate(-50%,-44%);
+        width:440px;max-width:calc(100vw - 32px);
+        border-radius:20px;max-height:82vh;
+        opacity:0;transition:opacity .18s,transform .18s
+      }
+      .drawer.open{transform:translate(-50%,-50%);opacity:1}
+      .dr-handle{display:none}
+    }
+
+    /* ─ Responsive ─ */
+
+    /* iPad landscape + small laptop (900-1140px) */
+    @media(max-width:1140px){
+      .wrap{max-width:900px}
+    }
+
+    /* iPad portrait (600-900px) */
+    @media(max-width:900px){
+      .wrap{max-width:100%}
+      .top-row{grid-template-columns:1fr 1fr}
+      .cal-grid{grid-template-columns:1fr}
+      .tri-row{grid-template-columns:1fr 1fr}
+      .pipeline-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+    }
+
+    /* Large phone / small iPad (480-640px) */
+    @media(max-width:640px){
+      body{padding:20px 14px 72px}
+      .kpi-strip{grid-template-columns:repeat(2,1fr);gap:8px}
+      .kpi-val{font-size:24px}
+      .top-row{grid-template-columns:1fr}
+      .main-row{grid-template-columns:1fr}
+      .tri-row{grid-template-columns:1fr}
+      .cal-grid{grid-template-columns:1fr 1fr}
+      .sb-mid{display:none}
+    }
+
+    /* iPhone (max 480px) */
+    @media(max-width:480px){
+      body{padding:16px 12px 64px}
+      .kpi-strip{grid-template-columns:repeat(2,1fr);gap:7px}
+      .kpi-val{font-size:22px}
+      .kpi-card{padding:13px 12px}
+      .task-text,.list-text,.e-from{font-size:13px}
+      .cal-grid{grid-template-columns:1fr}
+      [data-tip]::after{display:none}
+    }
+
+    /* ─ Status bar ─ */
+    .sb-wrap{background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--r);padding:11px 16px;box-shadow:var(--shadow);
+              margin-bottom:16px}
+    .sb-row{display:flex;justify-content:space-between;align-items:center;
+             flex-wrap:wrap;gap:6px}
+    .sb-left{display:flex;align-items:center;gap:8px}
+    .sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .sb-label{font-size:12px;font-weight:600;color:var(--text)}
+    .sb-mid{font-size:11px;color:var(--muted)}
+    .sb-right{font-size:11px;color:var(--muted)}
+    .sb-track{height:6px;background:#f2f2f7;border-radius:3px;
+               margin-top:10px;overflow:hidden}
+    .sb-fill{height:100%;border-radius:3px;
+              transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+
+    /* ─ Article pipeline ─ */
+    .pipeline-grid{display:grid;
+                    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+                    gap:10px}
+    .pipe-card{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);
+               display:flex;flex-direction:column;gap:6px}
+    .pipe-name{font-size:13px;font-weight:600;color:var(--text);
+               overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .pipe-badge{font-size:10px;font-weight:700;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap}
+
+    /* ─ Today's Progress ─ */
+    .tp-card{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:18px 18px 14px;box-shadow:var(--shadow)}
+    .tp-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+    .tp-big{font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:var(--text)}
+    .tp-of{font-size:14px;font-weight:500;color:var(--muted);margin-left:5px}
+    .tp-pct{font-size:22px;font-weight:700;letter-spacing:-.5px}
+    .tp-track{height:12px;background:#f2f2f7;border-radius:6px;overflow:hidden;margin-bottom:12px}
+    .tp-fill{height:100%;border-radius:6px;width:0%;
+               transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+    .tp-footer{display:flex;justify-content:space-between;align-items:center;
+                 font-size:11px;color:var(--muted)}
+    .tp-done-lbl{font-weight:600}
+
+    /* ─ Three-column main row ─ */
+    .tri-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+              margin-bottom:0;align-items:start}
+    .tri-row>div{display:flex;flex-direction:column;height:460px;
+                 overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+    .tri-row>div::-webkit-scrollbar{display:none}
+    .tri-row>*,.top-row>*{min-width:0}
+    #graph-canvas{display:block;width:100%;height:100%}
+
+    /* ─ Agenda ─ */
+    .ag-time{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
+              flex-shrink:0;background:var(--blue-bg);border-radius:5px;
+              padding:2px 6px;text-align:center}
+    .ag-allday{color:var(--muted);background:#f2f2f7}
+
+    /* ─ Progress bar ─ */
+    .progress-wrap{background:var(--surface);border:1px solid var(--border);
+                   border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+    .progress-header{display:flex;justify-content:space-between;align-items:baseline;
+                      margin-bottom:12px}
+    .progress-title{font-size:10px;font-weight:700;text-transform:uppercase;
+                     letter-spacing:.9px;color:var(--muted)}
+    .progress-stats{font-size:12px;color:var(--muted)}
+    .progress-bar-row{display:flex;flex-direction:column;gap:6px}
+    .bar-label{font-size:11px;color:var(--muted);display:flex;
+               justify-content:space-between;margin-bottom:2px}
+    .bar-track{height:8px;background:#f2f2f7;border-radius:4px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+    .bar-fill-week{background:var(--green)}
+    .bar-fill-last{background:#e5e5ea}
+
+    /* ─ Animations ─ */
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(10px)}
+      to  {opacity:1;transform:translateY(0)}
+    }
+    @keyframes fadeIn{
+      from{opacity:0} to{opacity:1}
+    }
+    @keyframes growBar{
+      from{transform:scaleY(0);opacity:0}
+      to  {transform:scaleY(1);opacity:1}
+    }
+    @keyframes countPulse{
+      0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)}
+    }
+
+    /* Header */
+    .header{animation:fadeUp .45s cubic-bezier(.16,1,.3,1) both}
+
+    /* KPI stagger */
+    .kpi-card{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}
+    .kpi-strip>:nth-child(1){animation-delay:60ms}
+    .kpi-strip>:nth-child(2){animation-delay:120ms}
+    .kpi-strip>:nth-child(3){animation-delay:180ms}
+    .kpi-strip>:nth-child(4){animation-delay:240ms}
+
+    /* Top row */
+    .top-row>:nth-child(1){animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 300ms both}
+    .top-row>:nth-child(2){animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 360ms both}
+    .top-row>:nth-child(3){animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 420ms both}
+
+    /* Main columns */
+    .main-row>:nth-child(1){animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 480ms both}
+    .main-row>:nth-child(2){animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 540ms both}
+
+    /* Completed section */
+    .sec:last-of-type{animation:fadeIn .5s ease 600ms both}
+
+    /* Sparkline bar grow */
+    .spark-bar{transform-origin:center bottom;animation:growBar .5s cubic-bezier(.16,1,.3,1) backwards}
+
+    /* Hover lift -- cards and panels */
+    .kpi-card,.panel,.proj-card{
+      transition:transform .22s cubic-bezier(.16,1,.3,1),
+                 box-shadow .22s ease,
+                 border-color .15s ease
+    }
+    .kpi-card:hover,.panel:hover,.proj-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 28px rgba(0,0,0,0.10)
+    }
+    .card{transition:box-shadow .22s ease}
+    .card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.09)}
+
+    /* Live clock pulse dot */
+    .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+               background:var(--green);margin-right:5px;vertical-align:middle;
+               animation:pulse 2.4s ease-in-out infinite}
+    @keyframes pulse{
+      0%,100%{opacity:1;transform:scale(1)}
+      50%{opacity:.5;transform:scale(.85)}
+    }
+
+    /* Count-up flash */
+    .kpi-val.popped{animation:countPulse .4s ease}
+
+    /* ─ Extra row (day cal, full width) ─ */
+    .extra-row{margin-bottom:16px;margin-top:12px}
+
+    /* ─ Day calendar ─ */
+    .dc-outer{max-height:360px;overflow-y:auto;scrollbar-width:thin;
+               scrollbar-color:var(--border2) transparent}
+    .dc-outer::-webkit-scrollbar{width:4px}
+    .dc-outer::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+    .dc-hrow{position:absolute;left:0;right:0;display:flex;align-items:flex-start}
+    .dc-hlbl{font-size:10px;color:var(--subtle);width:36px;text-align:right;
+              padding-right:7px;margin-top:-6px;flex-shrink:0}
+    .dc-hline{flex:1;height:1px;background:var(--border)}
+    .dc-ev{position:absolute;left:4px;right:4px;min-height:22px;
+            border-left:3px solid;padding:3px 7px;border-radius:0 5px 5px 0;
+            display:flex;align-items:center;gap:6px}
+    .dc-ev-t{font-size:10px;color:var(--muted);flex-shrink:0}
+    .dc-ev-n{font-size:12px;font-weight:500;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+    .dc-ev-tag{font-size:9px;font-weight:700;letter-spacing:.4px;
+                flex-shrink:0;opacity:.85}
+    .dc-ev-dur{font-size:10px;color:var(--muted);flex-shrink:0;margin-left:auto}
+    .dc-now{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none;z-index:10}
+    .dc-now::before{content:'';position:absolute;left:-3px;top:-3px;
+                     width:8px;height:8px;border-radius:50%;background:var(--red)}
+    .dc-allday{padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:6px}
+    .dc-allday-hd{font-size:9px;font-weight:700;text-transform:uppercase;
+                   letter-spacing:.7px;color:var(--subtle);margin-bottom:5px}
+    .dc-allday-item{display:flex;align-items:center;gap:7px;
+                     padding:3px 0;min-height:24px}
+    .dc-alldot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .dc-alltext{font-size:12px;flex:1;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+    .dc-alllbl{font-size:10px;font-weight:600;flex-shrink:0}
+
+    /* ─ Velocity card ─ */
+    .vel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+    .vel-stat{background:#f9f9fb;border:1px solid var(--border);border-radius:10px;
+               padding:10px 11px;text-align:center}
+    .vel-val{font-size:22px;font-weight:700;letter-spacing:-1px;line-height:1;
+              display:block;margin-bottom:3px}
+    .vel-lbl{font-size:10px;color:var(--muted);font-weight:500;line-height:1.3;display:block}
+    .vel-green{color:var(--green)}.vel-blue{color:var(--blue)}
+    .vel-orange{color:var(--orange)}.vel-red{color:var(--red)}.vel-muted{color:var(--subtle)}
+    .vel-delta{display:flex;align-items:center;justify-content:space-between;
+                font-size:11px;color:var(--muted);padding:8px 0;
+                border-top:1px solid var(--border);margin-top:6px}
+    .vel-trend{font-weight:600}
+    .act-pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;
+               display:inline-block;margin:2px}
+
+    @media(max-width:900px){
+      .extra-row{grid-template-columns:1fr}
+    }
+
+    /* ─ CC Primer ─ */
+    .cc-primer{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .cc-block{background:var(--surface);border:1px solid var(--border);
+               border-top:3px solid var(--border);
+               border-radius:var(--r);padding:14px 15px;box-shadow:var(--shadow)}
+    .cc-block-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+                   margin-bottom:8px}
+    .cc-detail{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:3px}
+    .cc-detail strong{font-weight:600}
+    .week-recap{font-size:12.5px;line-height:1.55;color:var(--text)}
+    .news-row{display:flex;gap:8px;align-items:flex-start;text-decoration:none;
+              padding:7px 4px;margin:0 -4px;border-radius:7px;
+              border-bottom:1px solid var(--border);transition:background .12s}
+    .news-row:last-child{border-bottom:none;padding-bottom:1px}
+    .news-row:first-child{padding-top:1px}
+    .news-row:hover{background:var(--surface)}
+    .news-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex:0 0 auto}
+    .news-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .news-ttl{font-size:12px;line-height:1.32;color:var(--text);font-weight:500;
+              display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .news-row:hover .news-ttl{text-decoration:underline}
+    .news-meta{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
+    .news-meta b{font-weight:700;color:var(--text);letter-spacing:.2px}
+    .news-age{padding:1px 5px;border-radius:5px;background:var(--border);
+              color:var(--muted);font-weight:600}
+    .news-empty{font-size:12px;color:var(--muted);padding:4px 0}
+    .mkt-row{display:grid;grid-template-columns:1fr auto auto;align-items:baseline;
+             gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+    .mkt-row:last-child{border-bottom:none;padding-bottom:1px}
+    .mkt-row:first-child{padding-top:1px}
+    .mkt-name{font-size:12px;color:var(--text);font-weight:500}
+    .mkt-val{font-size:12px;color:var(--text);font-weight:600;
+             font-variant-numeric:tabular-nums}
+    .mkt-chg{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;
+             min-width:64px;text-align:right;white-space:nowrap}
+    .mkt-up{color:var(--green)}
+    .mkt-down{color:#ff3b30}
+    .cc-green{background:var(--green-bg);border-color:var(--green-bdr);border-top-color:var(--green)}
+    .cc-green .cc-block-lbl{color:var(--green)}
+    .cc-blue{background:var(--blue-bg);border-color:var(--blue-bdr);border-top-color:var(--blue)}
+    .cc-blue .cc-block-lbl{color:var(--blue)}
+    .cc-orange{background:var(--orange-bg);border-color:var(--orange-bdr);border-top-color:var(--orange)}
+    .cc-orange .cc-block-lbl{color:var(--orange)}
+    .cc-purple{background:#f5edff;border-color:rgba(191,90,242,0.20);border-top-color:#bf5af2}
+    .cc-purple .cc-block-lbl{color:#bf5af2}
+    @media(max-width:900px){.cc-primer{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.cc-primer{grid-template-columns:1fr}}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hd-left">
+      <div class="avatar">F</div>
+      <div>
+        <div class="hd-name">Felix Janssen</div>
+        <div class="hd-sub">Task Dashboard</div>
+      </div>
+    </div>
+    <div class="hd-right">
+      <span class="sync-dot" style="background:#aeaeb2"></span>
+      <span class="sync-lbl" id="sync-ago" data-ts="1782736432">Jun 29 at 14:33</span>
+      <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
+    </div>
+  </div>
+
+  <div class="kpi-strip"><div class="kpi-card kpi-blue interactive" data-key="kpi-active" data-tip="Tap for breakdown"><div class="kpi-val" data-countup="18">18</div><div class="kpi-lbl">Active</div></div><div class="kpi-card kpi-orange interactive" data-key="kpi-blocked" data-tip="Tap for details"><div class="kpi-val" data-countup="3">3</div><div class="kpi-lbl">Blocked</div></div><div class="kpi-card kpi-green interactive" data-key="kpi-week" data-tip="Tap to see tasks"><div class="kpi-val" data-countup="8">8</div><div class="kpi-lbl">Done this week</div></div><div class="kpi-card kpi-red interactive" data-key="kpi-due-today" data-tip="Tap for details"><div class="kpi-val" data-countup="3">3</div><div class="kpi-lbl">Due today</div></div></div>
+  <div class="priority-card" style="border-left-color:#ff3b30;background:var(--red-bg)"><div class="priority-inner"><span class="priority-flag" style="color:var(--red)" data-due-iso="">Overdue</span><span class="priority-text">Finish the take-home assignment</span></div><span class="priority-detail">Was due 2d ago</span></div>
+
+  <div class="top-row">
+    <div class="panel spark-panel">
+      <div class="p-lbl">Completed, last 14 days</div>
+      <div class="spark-big">11</div>
+      <div class="spark-sub">tasks done</div>
+      <div class="spark-grow"><svg viewBox="0 0 260 44" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;height:100%;display:block"><rect data-key="spark-0" class="spark-bar" x="0.0" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:0ms"/><rect data-key="spark-1" class="spark-bar" x="18.7" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:28ms"/><rect data-key="spark-2" class="spark-bar" x="37.4" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:56ms"/><rect data-key="spark-3" class="spark-bar" x="56.1" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:84ms"/><rect data-key="spark-4" class="spark-bar" x="74.9" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:112ms"/><rect data-key="spark-5" class="spark-bar" x="93.6" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:140ms"/><rect data-key="spark-6" class="spark-bar" x="112.3" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:168ms"/><rect data-key="spark-7" class="spark-bar" x="131.0" y="41" width="16.7" height="3" rx="2" fill="#e5e5ea" style="cursor:pointer;animation-delay:196ms"/><rect data-key="spark-8" class="spark-bar" x="149.7" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:224ms"/><rect data-key="spark-9" class="spark-bar" x="168.4" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:252ms"/><rect data-key="spark-10" class="spark-bar" x="187.1" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:280ms"/><rect data-key="spark-11" class="spark-bar" x="205.9" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:308ms"/><rect data-key="spark-12" class="spark-bar" x="224.6" y="22" width="16.7" height="22" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:336ms"/><rect data-key="spark-13" class="spark-bar" x="243.3" y="0" width="16.7" height="44" rx="2" fill="#34c759" style="cursor:pointer;animation-delay:364ms"/></svg></div>
+    </div>
+    <div class="panel">
+      <div class="p-lbl">Active by project</div>
+      <div class="donut-wrap">
+        <div class="donut-svg"><svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg"><circle data-key="donut-0" cx="36" cy="36" r="26" fill="none" stroke="#0071e3" stroke-width="10" stroke-dasharray="45.38 163.36" stroke-dashoffset="0.00" transform="rotate(-90 36 36)" style="cursor:pointer"/><circle data-key="donut-1" cx="36" cy="36" r="26" fill="none" stroke="#34c759" stroke-width="10" stroke-dasharray="36.30 163.36" stroke-dashoffset="-45.38" transform="rotate(-90 36 36)" style="cursor:pointer"/><circle data-key="donut-2" cx="36" cy="36" r="26" fill="none" stroke="#ff9500" stroke-width="10" stroke-dasharray="36.30 163.36" stroke-dashoffset="-81.68" transform="rotate(-90 36 36)" style="cursor:pointer"/><circle data-key="donut-3" cx="36" cy="36" r="26" fill="none" stroke="#af52de" stroke-width="10" stroke-dasharray="27.23 163.36" stroke-dashoffset="-117.98" transform="rotate(-90 36 36)" style="cursor:pointer"/><circle data-key="donut-4" cx="36" cy="36" r="26" fill="none" stroke="#ff3b30" stroke-width="10" stroke-dasharray="18.15 163.36" stroke-dashoffset="-145.21" transform="rotate(-90 36 36)" style="cursor:pointer"/></svg></div>
+        <div class="leg"><div class="leg-row interactive" data-key="donut-0"><span class="leg-dot" style="background:#0071e3"></span><span class="leg-name">Open Source Library</span><span class="leg-n">5</span><span class="chevron" style="font-size:10px;margin-left:2px">›</span></div><div class="leg-row interactive" data-key="donut-1"><span class="leg-dot" style="background:#34c759"></span><span class="leg-name">Job Search</span><span class="leg-n">4</span><span class="chevron" style="font-size:10px;margin-left:2px">›</span></div><div class="leg-row interactive" data-key="donut-2"><span class="leg-dot" style="background:#ff9500"></span><span class="leg-name">Apartment Move</span><span class="leg-n">4</span><span class="chevron" style="font-size:10px;margin-left:2px">›</span></div><div class="leg-row interactive" data-key="donut-3"><span class="leg-dot" style="background:#af52de"></span><span class="leg-name">Side Project</span><span class="leg-n">3</span><span class="chevron" style="font-size:10px;margin-left:2px">›</span></div><div class="leg-row interactive" data-key="donut-4"><span class="leg-dot" style="background:#ff3b30"></span><span class="leg-name">Reading List</span><span class="leg-n">2</span><span class="chevron" style="font-size:10px;margin-left:2px">›</span></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="p-lbl">Calendar</div>
+      <div class="cal-grid"><div class="cal-month"><div class="cal-title">Jun 2026</div><div class="cal-days-hd"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cal-days"><div class="cal-cell cal-past"><span class="cal-num">1</span></div><div class="cal-cell cal-past"><span class="cal-num">2</span></div><div class="cal-cell cal-past"><span class="cal-num">3</span></div><div class="cal-cell cal-past"><span class="cal-num">4</span></div><div class="cal-cell cal-past"><span class="cal-num">5</span></div><div class="cal-cell cal-past"><span class="cal-num">6</span></div><div class="cal-cell cal-past"><span class="cal-num">7</span></div><div class="cal-cell cal-past"><span class="cal-num">8</span></div><div class="cal-cell cal-past"><span class="cal-num">9</span></div><div class="cal-cell cal-past"><span class="cal-num">10</span></div><div class="cal-cell cal-past"><span class="cal-num">11</span></div><div class="cal-cell cal-past"><span class="cal-num">12</span></div><div class="cal-cell cal-past"><span class="cal-num">13</span></div><div class="cal-cell cal-past"><span class="cal-num">14</span></div><div class="cal-cell cal-past"><span class="cal-num">15</span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-16"><span class="cal-num">16</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past"><span class="cal-num">17</span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-18"><span class="cal-num">18</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past"><span class="cal-num">19</span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-20"><span class="cal-num">20</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past"><span class="cal-num">21</span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-22"><span class="cal-num">22</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past"><span class="cal-num">23</span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-24"><span class="cal-num">24</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-25"><span class="cal-num">25</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-26"><span class="cal-num">26</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-27"><span class="cal-num">27</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-past cal-has-ev" data-key="cal-2026-06-28"><span class="cal-num">28</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-today cal-has-ev" data-key="cal-2026-06-29"><span class="cal-num">29</span><span class="cal-dot" style="background:#ff3b30"></span></div><div class="cal-cell cal-has-ev" data-key="cal-2026-06-30"><span class="cal-num">30</span><span class="cal-dot" style="background:#ff3b30"></span></div></div></div><div class="cal-month"><div class="cal-title">Jul 2026</div><div class="cal-days-hd"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cal-days"><div class="cal-cell cal-empty"></div><div class="cal-cell cal-empty"></div><div class="cal-cell cal-has-ev" data-key="cal-2026-07-01"><span class="cal-num">1</span><span class="cal-dot" style="background:#ff9500"></span></div><div class="cal-cell cal-has-ev" data-key="cal-2026-07-02"><span class="cal-num">2</span><span class="cal-dot" style="background:#ff9500"></span></div><div class="cal-cell"><span class="cal-num">3</span></div><div class="cal-cell"><span class="cal-num">4</span></div><div class="cal-cell"><span class="cal-num">5</span></div><div class="cal-cell"><span class="cal-num">6</span></div><div class="cal-cell"><span class="cal-num">7</span></div><div class="cal-cell"><span class="cal-num">8</span></div><div class="cal-cell"><span class="cal-num">9</span></div><div class="cal-cell cal-has-ev" data-key="cal-2026-07-10"><span class="cal-num">10</span><span class="cal-dot" style="background:#0071e3"></span></div><div class="cal-cell"><span class="cal-num">11</span></div><div class="cal-cell"><span class="cal-num">12</span></div><div class="cal-cell"><span class="cal-num">13</span></div><div class="cal-cell"><span class="cal-num">14</span></div><div class="cal-cell cal-has-ev" data-key="cal-2026-07-15"><span class="cal-num">15</span><span class="cal-dot" style="background:#0071e3"></span></div><div class="cal-cell"><span class="cal-num">16</span></div><div class="cal-cell"><span class="cal-num">17</span></div><div class="cal-cell"><span class="cal-num">18</span></div><div class="cal-cell"><span class="cal-num">19</span></div><div class="cal-cell"><span class="cal-num">20</span></div><div class="cal-cell"><span class="cal-num">21</span></div><div class="cal-cell"><span class="cal-num">22</span></div><div class="cal-cell"><span class="cal-num">23</span></div><div class="cal-cell"><span class="cal-num">24</span></div><div class="cal-cell"><span class="cal-num">25</span></div><div class="cal-cell"><span class="cal-num">26</span></div><div class="cal-cell"><span class="cal-num">27</span></div><div class="cal-cell"><span class="cal-num">28</span></div><div class="cal-cell"><span class="cal-num">29</span></div><div class="cal-cell"><span class="cal-num">30</span></div><div class="cal-cell"><span class="cal-num">31</span></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-lbl">Daily Brief</div>
+    <div class="cc-primer">
+      <div class="cc-block cc-green">
+        <div class="cc-block-lbl">AI News</div>
+        <a class="news-row" href="https://example.com/ai-1" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--green)"></span><span class="news-main"><span class="news-ttl">New open-weights model tops the coding benchmarks</span><span class="news-meta"><b>AI Weekly</b><span class="news-age">2h</span></span></span></a><a class="news-row" href="https://example.com/ai-2" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--green)"></span><span class="news-main"><span class="news-ttl">Survey: most teams now ship with an LLM in the loop</span><span class="news-meta"><b>The Stack</b><span class="news-age">5h</span></span></span></a><a class="news-row" href="https://example.com/ai-3" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--green)"></span><span class="news-main"><span class="news-ttl">Vector databases add native hybrid search</span><span class="news-meta"><b>DevReport</b><span class="news-age">1d</span></span></span></a>
+      </div>
+      <div class="cc-block cc-blue">
+        <div class="cc-block-lbl">Deal Flow</div>
+        <a class="news-row" href="https://example.com/pe-1" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--blue)"></span><span class="news-main"><span class="news-ttl">Seed rounds rebound in the second quarter</span><span class="news-meta"><b>Cap Table</b><span class="news-age">3h</span></span></span></a><a class="news-row" href="https://example.com/pe-2" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--blue)"></span><span class="news-main"><span class="news-ttl">Developer-tools startup raises a Series B</span><span class="news-meta"><b>TechFunding</b><span class="news-age">6h</span></span></span></a><a class="news-row" href="https://example.com/pe-3" target="_blank" rel="noopener"><span class="news-dot" style="background:var(--blue)"></span><span class="news-main"><span class="news-ttl">Open-source company announces a commercial tier</span><span class="news-meta"><b>OSS News</b><span class="news-age">1d</span></span></span></a>
+      </div>
+      <div class="cc-block cc-orange">
+        <div class="cc-block-lbl">Markets</div>
+        <div class="mkt-row"><span class="mkt-name">S&amp;P 500</span><span class="mkt-val">5,460.22</span><span class="mkt-chg mkt-up">&#9650;&nbsp;0.42%</span></div><div class="mkt-row"><span class="mkt-name">Nasdaq</span><span class="mkt-val">17,805.10</span><span class="mkt-chg mkt-up">&#9650;&nbsp;0.61%</span></div><div class="mkt-row"><span class="mkt-name">10Y Treasury</span><span class="mkt-val">4.28%</span><span class="mkt-chg mkt-down">&#9660;&nbsp;0.03%</span></div><div class="mkt-row"><span class="mkt-name">BTC/USD</span><span class="mkt-val">61,240</span><span class="mkt-chg mkt-down">&#9660;&nbsp;1.12%</span></div><div class="mkt-row"><span class="mkt-name">EUR/USD</span><span class="mkt-val">1.073</span><span class="mkt-chg mkt-up">&#9650;&nbsp;0.18%</span></div>
+      </div>
+      <div class="cc-block cc-purple">
+        <div class="cc-block-lbl">This Week</div>
+        <div class="week-recap">Shipped v2.0 and cleared most of the move checklist. The focus this week is the v2.1 release and the Northwind final round.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tri-row">
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Active Tasks</div>
+        <div class="proj-card"><div class="proj-hd interactive" data-key="project-0"><span class="proj-nm">Open Source Library</span><span class="pill pill-gray">5</span><span class="chevron" style="font-size:10px">›</span></div><ul class="task-ul"><li class="sub-label">Triage</li><li class="task-li interactive" data-key="active-0-0"><span class="dot dot-blue dot-sm"></span><span class="task-text">Reproduce the flaky CI test on Windows</span><span class="due-tag due-red" data-due-iso="2026-06-29">Today</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-0-1"><span class="dot dot-blue dot-sm"></span><span class="task-text">Reply to the open issue about high memory usage</span><span class="due-tag due-red" data-due-iso="2026-06-30">Tomorrow</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-0-2"><span class="dot dot-blue dot-sm"></span><span class="task-text">Cut the v2.1 release notes</span><span class="due-tag due-orange" data-due-iso="2026-07-02">Thursday</span><span class="chevron">›</span></li><li class="sub-label">Roadmap</li><li class="task-li interactive" data-key="active-0-3"><span class="dot dot-blue dot-sm"></span><span class="task-text">Draft the plugin API proposal</span><span class="due-tag due-blue" data-due-iso="2026-07-08">Jul 8</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-0-4"><span class="dot dot-blue dot-sm"></span><span class="task-text">Benchmark the new parser against the old one</span><span class="due-tag due-blue" data-due-iso="2026-07-03">Friday</span><span class="chevron">›</span></li></ul></div><div class="proj-card"><div class="proj-hd"><span class="proj-nm">Job Search</span><span class="pill pill-gray">4</span></div><ul class="task-ul"><li class="task-li interactive" data-key="active-1-0"><span class="dot dot-blue dot-sm"></span><span class="task-text">Finish the take-home assignment</span><span class="due-tag due-red" data-due-iso="2026-06-27">2d ago</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-1-1"><span class="dot dot-blue dot-sm"></span><span class="task-text">Send a follow-up to the recruiter at Northwind</span><span class="due-tag due-red" data-due-iso="2026-06-29">Today</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-1-2"><span class="dot dot-blue dot-sm"></span><span class="task-text">Prep system-design talking points</span><span class="due-tag due-orange" data-due-iso="2026-07-01">Wednesday</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-1-3"><span class="dot dot-blue dot-sm"></span><span class="task-text">Update the portfolio site copy</span><span class="due-tag due-blue" data-due-iso="2026-07-15">Jul 15</span><span class="chevron">›</span></li></ul></div><div class="proj-card"><div class="proj-hd"><span class="proj-nm">Apartment Move</span><span class="pill pill-gray">4</span></div><ul class="task-ul"><li class="task-li interactive" data-key="active-2-0"><span class="dot dot-blue dot-sm"></span><span class="task-text">Cancel the old internet plan</span><span class="due-tag due-red" data-due-iso="2026-06-26">3d ago</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-2-1"><span class="dot dot-blue dot-sm"></span><span class="task-text">Confirm the moving-company quote</span><span class="due-tag due-red" data-due-iso="2026-06-29">Today</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-2-2"><span class="dot dot-blue dot-sm"></span><span class="task-text">Buy packing boxes</span><span class="due-tag due-red" data-due-iso="2026-06-30">Tomorrow</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-2-3"><span class="dot dot-blue dot-sm"></span><span class="task-text">Schedule the elevator booking</span><span class="due-tag due-orange" data-due-iso="2026-07-01">Wednesday</span><span class="chevron">›</span></li></ul></div><div class="proj-card"><div class="proj-hd"><span class="proj-nm">Side Project</span><span class="pill pill-gray">3</span></div><ul class="task-ul"><li class="task-li interactive" data-key="active-3-0"><span class="dot dot-blue dot-sm"></span><span class="task-text">Wire up the auth flow</span><span class="due-tag due-orange" data-due-iso="2026-07-02">Thursday</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-3-1"><span class="dot dot-blue dot-sm"></span><span class="task-text">Write the landing-page hero copy</span><span class="due-tag due-blue" data-due-iso="2026-07-04">Saturday</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-3-2"><span class="dot dot-blue dot-sm"></span><span class="task-text">Set up the analytics events</span><span class="due-tag due-blue" data-due-iso="2026-07-09">Jul 9</span><span class="chevron">›</span></li></ul></div><div class="proj-card"><div class="proj-hd"><span class="proj-nm">Reading List</span><span class="pill pill-gray">2</span></div><ul class="task-ul"><li class="task-li interactive" data-key="active-4-0"><span class="dot dot-blue dot-sm"></span><span class="task-text">Finish chapter 7 of the systems book</span><span class="due-tag due-blue" data-due-iso="2026-07-05">Sunday</span><span class="chevron">›</span></li><li class="task-li interactive" data-key="active-4-1"><span class="dot dot-blue dot-sm"></span><span class="task-text">Write notes on the consensus paper</span><span class="due-tag due-blue" data-due-iso="2026-07-10">Jul 10</span><span class="chevron">›</span></li></ul></div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Blocked</div>
+        <div class="card"><div class="list-row interactive" data-key="blocked-0"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Merge the dependency-bump PR</div><div class="list-meta">Alex (maintainer)  ·  Since Jun 12</div></div><span class="pill pill-red">17d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="blocked-1"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Get sign-off on the new logo</div><div class="list-meta">a teammate  ·  Since Jun 24</div></div><span class="pill pill-orange">5d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="blocked-2"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Get access to the staging server</div><div class="list-meta">IT support  ·  Since Jun 27</div></div><span class="pill pill-gray">2d</span><span class="chevron">›</span></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Today's Agenda</div>
+        <div class="card"><div class="list-row interactive" data-key="agenda-0"><span class="ag-time">09:00</span><span class="list-text">Standup</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="agenda-1"><span class="ag-time">09:30</span><span class="list-text">Reproduce the flaky CI test on Windows</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="agenda-2"><span class="ag-time">11:00</span><span class="list-text">Confirm the moving-company quote</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="agenda-3"><span class="ag-time">14:00</span><span class="list-text">Send a follow-up to the recruiter at Northwi</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="agenda-4"><span class="ag-time">14:00</span><span class="list-text">Recruiter call</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="agenda-5"><span class="ag-time">18:30</span><span class="list-text">Gym</span><span class="chevron">›</span></div></div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Awaiting Feedback</div>
+        <div class="card"><div class="list-row interactive" data-key="reply-0"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Reference letter</div><div class="list-meta">Waiting on former manager</div></div><span class="pill pill-red">7d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="reply-1"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">Logo sign-off</div><div class="list-meta">Waiting on a teammate</div></div><span class="pill pill-orange">5d</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="reply-2"><span class="dot dot-orange"></span><div class="list-main"><div class="list-text">PR review</div><div class="list-meta">Waiting on Alex</div></div><span class="pill pill-gray">2d</span><span class="chevron">›</span></div></div>
+      </div>
+      <div class="sec">
+        <div class="tp-card interactive" data-key="today-progress">
+          <div class="tp-header">
+            <div>
+              <span class="tp-big">2</span>
+              <span class="tp-of">/ 5</span>
+            </div>
+            <span class="tp-pct" style="color:#0071e3">40%</span>
+          </div>
+          <div class="tp-track">
+            <div class="tp-fill" id="tp-fill" data-pct="40" style="background:#0071e3"></div>
+          </div>
+          <div class="tp-footer">
+            <span class="tp-done-lbl">3 tasks remaining</span>
+            <span class="chevron">&#8250;</span>
+          </div>
+        </div>
+      </div>
+      <div class="sec"><div class="sec-lbl">Claude Session</div><div class="card" id="session-arc-wrap" data-resetsat="1782723600" style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px"><svg viewBox="0 0 100 100" width="108" height="108" style="display:block"><circle cx="50" cy="50" r="38" fill="none" stroke="#f2f2f7" stroke-width="9"/><circle id="session-arc-fill" cx="50" cy="50" r="38" fill="none" stroke="#34c759" stroke-width="9" stroke-dasharray="88.3 238.8" stroke-linecap="round" transform="rotate(-90 50 50)"/><text id="session-pct-text" x="50" y="44" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">37%</text><text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">used</text></svg><div id="session-status-lbl" style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">...</div></div></div>
+    </div>
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Upcoming</div>
+        <div class="card"><div class="list-row interactive" data-key="deadline-0"><span class="dt-badge dt-red" data-due-iso="2026-06-30" data-due-time="23:59">Tomorrow 23:59</span><span class="list-text">Take-home assignment due</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="deadline-1"><span class="dt-badge dt-orange" data-due-iso="2026-07-01" data-due-time="10:00">Wednesday 10:00</span><span class="list-text">Lease signing</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="deadline-2"><span class="dt-badge dt-orange" data-due-iso="2026-07-02" data-due-time="17:00">Thursday 17:00</span><span class="list-text">v2.1 release cutoff</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="deadline-3"><span class="dt-badge dt-blue" data-due-iso="2026-07-10" data-due-time="12:00">Jul 10 12:00</span><span class="list-text">Conference talk submission</span><span class="chevron">›</span></div><div class="list-row interactive" data-key="deadline-4"><span class="dt-badge dt-blue" data-due-iso="2026-07-15" data-due-time="">Jul 15</span><span class="list-text">Open enrollment ends</span><span class="chevron">›</span></div></div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Recent Emails</div>
+        <div class="card"><div class="email-row interactive" data-key="email-0"><span class="e-dot"></span><div class="e-body"><div class="e-from">Northwind Recruiting</div><div class="e-sub">Next steps for your application</div></div><div class="e-time">7:50 AM</div><span class="chevron">›</span></div><div class="email-row interactive" data-key="email-1"><span class="e-dot"></span><div class="e-body"><div class="e-from">Alex (maintainer)</div><div class="e-sub">Re: dependency-bump PR</div></div><div class="e-time">6:30 AM</div><span class="chevron">›</span></div><div class="email-row interactive" data-key="email-2"><span class="e-dot e-dot-read"></span><div class="e-body"><div class="e-from">Moving Co</div><div class="e-sub">Your quote #4821</div></div><div class="e-time">Yesterday</div><span class="chevron">›</span></div><div class="email-row interactive" data-key="email-3"><span class="e-dot e-dot-read"></span><div class="e-body"><div class="e-from">GitHub</div><div class="e-sub">[library] New issue: high memory usage</div></div><div class="e-time">Saturday</div><span class="chevron">›</span></div></div>
+      </div>
+      <div class="sec">
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span class="progress-title">Weekly Progress</span>
+            <span class="progress-stats">8 this week &nbsp;·&nbsp; 3 last week</span>
+          </div>
+          <div class="progress-bar-row">
+            <div>
+              <div class="bar-label"><span>This week</span><span>8 tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-week" id="bar-week" style="width:0%;background:#34c759" data-pct="100"></div></div>
+            </div>
+            <div>
+              <div class="bar-label"><span>Last week</span><span>3 tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-last" id="bar-last" data-pct="37"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="extra-row">
+    <div class="panel">
+      <div class="p-lbl" id="dc-today-lbl">Today &nbsp;·&nbsp; Jun 29</div>
+      <div class="dc-outer" id="dc-outer"><div style="height:616px;position:relative;padding-left:44px"><div class="dc-hrow" style="top:0px"><span class="dc-hlbl">8am</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:44px"><span class="dc-hlbl">9am</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:88px"><span class="dc-hlbl">10am</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:132px"><span class="dc-hlbl">11am</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:176px"><span class="dc-hlbl">12pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:220px"><span class="dc-hlbl">1pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:264px"><span class="dc-hlbl">2pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:308px"><span class="dc-hlbl">3pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:352px"><span class="dc-hlbl">4pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:396px"><span class="dc-hlbl">5pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:440px"><span class="dc-hlbl">6pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:484px"><span class="dc-hlbl">7pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:528px"><span class="dc-hlbl">8pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:572px"><span class="dc-hlbl">9pm</span><div class="dc-hline"></div></div><div class="dc-hrow" style="top:616px"><span class="dc-hlbl">10pm</span><div class="dc-hline"></div></div><div style="position:absolute;left:44px;right:0;top:0;bottom:0"><div class="dc-now" id="dc-now"></div><div class="dc-ev" style="top:66.0px;height:66px;align-items:flex-start;padding-top:5px;border-left-color:#34c759;background:var(--green-bg)"><span class="dc-ev-t">09:30</span><span class="dc-ev-n">Reproduce the flaky CI test on W</span><span class="dc-ev-dur">1h30</span></div><div class="dc-ev" style="top:264.0px;height:24px;align-items:flex-start;padding-top:5px;border-left-color:#34c759;background:var(--green-bg)"><span class="dc-ev-t">14:00</span><span class="dc-ev-n">Send a follow-up to the recruite</span><span class="dc-ev-dur">0h30</span></div><div class="dc-ev" style="top:132.0px;height:33px;align-items:flex-start;padding-top:5px;border-left-color:#34c759;background:var(--green-bg)"><span class="dc-ev-t">11:00</span><span class="dc-ev-n">Confirm the moving-company quote</span><span class="dc-ev-dur">0h45</span></div><div class="dc-ev" style="top:44.0px;border-left-color:#0071e3;background:var(--blue-bg)"><span class="dc-ev-t">09:00</span><span class="dc-ev-n">Standup</span></div><div class="dc-ev" style="top:264.0px;border-left-color:#0071e3;background:var(--blue-bg)"><span class="dc-ev-t">14:00</span><span class="dc-ev-n">Recruiter call</span></div><div class="dc-ev" style="top:462.0px;border-left-color:#0071e3;background:var(--blue-bg)"><span class="dc-ev-t">18:30</span><span class="dc-ev-n">Gym</span></div></div></div></div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="ft-name">felix janssen · task dashboard</span>
+    <span class="ft-time">Built Jun 29 at 14:33</span>
+  </footer>
+
+</div>
+
+<!-- Drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="dr-handle"></div>
+  <div class="dr-accent" id="dr-accent"></div>
+  <div class="dr-inner">
+    <div class="dr-header">
+      <button class="dr-back" id="dr-back" hidden>&#8592;</button>
+      <div class="dr-titles">
+        <div class="dr-title" id="dr-title"></div>
+        <div class="dr-sub"   id="dr-sub"></div>
+      </div>
+      <button class="dr-close" id="dr-close">&#x2715;</button>
+    </div>
+    <div class="dr-divider"></div>
+    <div class="dr-rows" id="dr-rows"></div>
+    <div class="dr-note" id="dr-note" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const PD = {"kpi-active": {"t": "Active Tasks", "sub": "All open work across your projects", "color": "#0071e3", "rows": [{"k": "Total open", "v": "18 tasks", "hl": ""}, {"k": "Open Source Library", "v": "5 tasks", "hl": ""}, {"k": "Job Search", "v": "4 tasks", "hl": ""}, {"k": "Apartment Move", "v": "4 tasks", "hl": ""}, {"k": "Side Project", "v": "3 tasks", "hl": ""}, {"k": "Reading List", "v": "2 tasks", "hl": ""}], "note": ""}, "kpi-blocked": {"t": "Blocked Tasks", "sub": "3 tasks waiting on external dependencies", "color": "#ff9500", "rows": [{"k": "Merge the dependency-bump PR", "v": "17d waiting", "hl": "red"}, {"k": "Get sign-off on the new logo", "v": "5d waiting", "hl": "orange"}, {"k": "Get access to the staging server", "v": "2d waiting", "hl": "orange"}], "note": ""}, "kpi-week": {"t": "Done This Week", "sub": "Last 7 days · 8 tasks", "color": "#34c759", "rows": [{"k": "Total", "v": "8 tasks completed", "hl": ""}, {"k": "Jun 29", "v": "Fix the off-by-one in the date parser", "hl": ""}, {"k": "Jun 29", "v": "Review the onboarding PR", "hl": ""}, {"k": "Jun 28", "v": "Email the references list", "hl": ""}, {"k": "Jun 27", "v": "Pack the kitchen", "hl": ""}, {"k": "Jun 26", "v": "Publish the v2.0 blog post", "hl": ""}, {"k": "Jun 25", "v": "Set up CI caching", "hl": ""}], "note": ""}, "kpi-due-today": {"t": "Due Today", "sub": "3 tasks due today", "color": "#ff3b30", "rows": [{"k": "Total", "v": "3 tasks", "hl": "red"}, {"k": "  1.", "v": "Reproduce the flaky CI test on Windows", "hl": ""}, {"k": "  2.", "v": "Send a follow-up to the recruiter at Northwind", "hl": ""}, {"k": "  3.", "v": "Confirm the moving-company quote", "hl": ""}], "note": ""}, "spark-0": {"t": "Tuesday, June 16", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Migrate the tests to pytest", "hl": ""}], "note": ""}, "spark-1": {"t": "Wednesday, June 17", "sub": "", "color": "#aeaeb2", "rows": [{"k": "Status", "v": "No tasks completed this day", "hl": ""}], "note": ""}, "spark-2": {"t": "Thursday, June 18", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Draft the README rewrite", "hl": ""}], "note": ""}, "spark-3": {"t": "Friday, June 19", "sub": "", "color": "#aeaeb2", "rows": [{"k": "Status", "v": "No tasks completed this day", "hl": ""}], "note": ""}, "spark-4": {"t": "Saturday, June 20", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Close five stale issues", "hl": ""}], "note": ""}, "spark-5": {"t": "Sunday, June 21", "sub": "", "color": "#aeaeb2", "rows": [{"k": "Status", "v": "No tasks completed this day", "hl": ""}], "note": ""}, "spark-6": {"t": "Monday, June 22", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Refactor the config loader", "hl": ""}], "note": ""}, "spark-7": {"t": "Tuesday, June 23", "sub": "", "color": "#aeaeb2", "rows": [{"k": "Status", "v": "No tasks completed this day", "hl": ""}], "note": ""}, "spark-8": {"t": "Wednesday, June 24", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Book the dentist", "hl": ""}], "note": ""}, "spark-9": {"t": "Thursday, June 25", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Set up CI caching", "hl": ""}], "note": ""}, "spark-10": {"t": "Friday, June 26", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Publish the v2.0 blog post", "hl": ""}], "note": ""}, "spark-11": {"t": "Saturday, June 27", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Pack the kitchen", "hl": ""}], "note": ""}, "spark-12": {"t": "Sunday, June 28", "sub": "1 task done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "1", "hl": "green"}, {"k": "#1", "v": "Email the references list", "hl": ""}], "note": ""}, "spark-13": {"t": "Monday, June 29", "sub": "2 tasks done", "color": "#34c759", "rows": [{"k": "Tasks completed", "v": "2", "hl": "green"}, {"k": "#1", "v": "Fix the off-by-one in the date parser", "hl": ""}, {"k": "#2", "v": "Review the onboarding PR", "hl": ""}], "note": ""}, "donut-0": {"t": "Open Source Library", "sub": "5 tasks across 2 areas", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"dr-sub-item\" data-key=\"sub-0-0\"\u003e\u003cdiv class=\"dr-sub-left\"\u003e\u003cspan class=\"dr-sub-nm\"\u003eTriage\u003c/span\u003e\u003cdiv class=\"dr-sub-meta\"\u003e\u003cspan\u003e3 tasks\u003c/span\u003e\u003cspan\u003e·\u003c/span\u003e\u003cspan class=\"due-tag due-red\" style=\"font-size:10px\"\u003eToday\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"dr-sub-item\" data-key=\"sub-0-1\"\u003e\u003cdiv class=\"dr-sub-left\"\u003e\u003cspan class=\"dr-sub-nm\"\u003eRoadmap\u003c/span\u003e\u003cdiv class=\"dr-sub-meta\"\u003e\u003cspan\u003e2 tasks\u003c/span\u003e\u003cspan\u003e·\u003c/span\u003e\u003cspan class=\"due-tag due-blue\" style=\"font-size:10px\"\u003eFriday\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}]}, "donut-1": {"t": "Job Search", "sub": "4 tasks in progress", "color": "#34c759", "rows": [{"k": "Open tasks", "v": "4", "hl": "blue"}, {"k": "  1.", "v": "Finish the take-home assignment", "hl": ""}, {"k": "  2.", "v": "Send a follow-up to the recruiter at Northwind", "hl": ""}, {"k": "  3.", "v": "Prep system-design talking points", "hl": ""}, {"k": "  4.", "v": "Update the portfolio site copy", "hl": ""}], "note": ""}, "donut-2": {"t": "Apartment Move", "sub": "4 tasks in progress", "color": "#ff9500", "rows": [{"k": "Open tasks", "v": "4", "hl": "blue"}, {"k": "  1.", "v": "Cancel the old internet plan", "hl": ""}, {"k": "  2.", "v": "Confirm the moving-company quote", "hl": ""}, {"k": "  3.", "v": "Buy packing boxes", "hl": ""}, {"k": "  4.", "v": "Schedule the elevator booking", "hl": ""}], "note": ""}, "donut-3": {"t": "Side Project", "sub": "3 tasks in progress", "color": "#af52de", "rows": [{"k": "Open tasks", "v": "3", "hl": "blue"}, {"k": "  1.", "v": "Wire up the auth flow", "hl": ""}, {"k": "  2.", "v": "Write the landing-page hero copy", "hl": ""}, {"k": "  3.", "v": "Set up the analytics events", "hl": ""}], "note": ""}, "donut-4": {"t": "Reading List", "sub": "2 tasks in progress", "color": "#ff3b30", "rows": [{"k": "Open tasks", "v": "2", "hl": "blue"}, {"k": "  1.", "v": "Finish chapter 7 of the systems book", "hl": ""}, {"k": "  2.", "v": "Write notes on the consensus paper", "hl": ""}], "note": ""}, "cal-2026-06-30": {"t": "Tuesday, June 30", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#ff3b30\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eTake-home assignment due\u003c/div\u003e\u003cdiv class=\"ae-meta\"\u003e\u003cspan class=\"ae-proj\"\u003eJob Search\u003c/span\u003e\u003cspan class=\"ae-time\"\u003e23:59\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-07-01": {"t": "Wednesday, July 1", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#ff9500\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eLease signing\u003c/div\u003e\u003cdiv class=\"ae-meta\"\u003e\u003cspan class=\"ae-proj\"\u003eApartment Move\u003c/span\u003e\u003cspan class=\"ae-time\"\u003e10:00\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-07-02": {"t": "Thursday, July 2", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#ff9500\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003ev2.1 release cutoff\u003c/div\u003e\u003cdiv class=\"ae-meta\"\u003e\u003cspan class=\"ae-proj\"\u003eOpen Source Library\u003c/span\u003e\u003cspan class=\"ae-time\"\u003e17:00\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-07-10": {"t": "Friday, July 10", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#0071e3\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eConference talk submission\u003c/div\u003e\u003cdiv class=\"ae-meta\"\u003e\u003cspan class=\"ae-proj\"\u003eSide Project\u003c/span\u003e\u003cspan class=\"ae-time\"\u003e12:00\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-07-15": {"t": "Wednesday, July 15", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#0071e3\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eOpen enrollment ends\u003c/div\u003e\u003cdiv class=\"ae-meta\"\u003e\u003cspan class=\"ae-proj\"\u003eJob Search\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-29": {"t": "Monday, June 29", "sub": "2 events", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eFix the off-by-one in the date parser\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eReview the onboarding PR\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-28": {"t": "Sunday, June 28", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eEmail the references list\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-27": {"t": "Saturday, June 27", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003ePack the kitchen\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-26": {"t": "Friday, June 26", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003ePublish the v2.0 blog post\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-25": {"t": "Thursday, June 25", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eSet up CI caching\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-24": {"t": "Wednesday, June 24", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eBook the dentist\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-22": {"t": "Monday, June 22", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eRefactor the config loader\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-20": {"t": "Saturday, June 20", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eClose five stale issues\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-18": {"t": "Thursday, June 18", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eDraft the README rewrite\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "cal-2026-06-16": {"t": "Tuesday, June 16", "sub": "1 event", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"ae-row ae-done\"\u003e\u003cspan class=\"ae-dot\" style=\"background:#34c759\"\u003e\u003c/span\u003e\u003cdiv class=\"ae-body\"\u003e\u003cdiv class=\"ae-task\"\u003eMigrate the tests to pytest\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e"}], "note": ""}, "deadline-0": {"t": "v2.1 release cutoff", "sub": "Upcoming deadline", "color": "#ff9500", "rows": [{"k": "When", "v": "Thursday 17:00", "hl": "orange"}, {"k": "Date", "v": "2026-07-02 at 17:00", "hl": ""}, {"k": "In", "v": "3 days", "hl": "orange"}], "note": ""}, "deadline-1": {"t": "Take-home assignment due", "sub": "Upcoming deadline", "color": "#ff3b30", "rows": [{"k": "When", "v": "Tomorrow 23:59", "hl": "red"}, {"k": "Date", "v": "2026-06-30 at 23:59", "hl": ""}, {"k": "In", "v": "1 day", "hl": "red"}], "note": ""}, "deadline-2": {"t": "Lease signing", "sub": "Upcoming deadline", "color": "#ff9500", "rows": [{"k": "When", "v": "Wednesday 10:00", "hl": "orange"}, {"k": "Date", "v": "2026-07-01 at 10:00", "hl": ""}, {"k": "In", "v": "2 days", "hl": "orange"}], "note": ""}, "deadline-3": {"t": "Conference talk submission", "sub": "Upcoming deadline", "color": "#0071e3", "rows": [{"k": "When", "v": "Jul 10 12:00", "hl": "blue"}, {"k": "Date", "v": "2026-07-10 at 12:00", "hl": ""}, {"k": "In", "v": "11 days", "hl": "blue"}], "note": ""}, "deadline-4": {"t": "Open enrollment ends", "sub": "Upcoming deadline", "color": "#0071e3", "rows": [{"k": "When", "v": "Jul 15", "hl": "blue"}, {"k": "Date", "v": "2026-07-15", "hl": ""}, {"k": "In", "v": "16 days", "hl": "blue"}], "note": ""}, "email-0": {"t": "Northwind Recruiting", "sub": "Email", "color": "#0071e3", "rows": [{"k": "Subject", "v": "Next steps for your application", "hl": ""}, {"k": "Preview", "v": "Thanks for the great conversation last week. We would love to set up a final round.", "hl": ""}, {"k": "Received", "v": "7:50 AM", "hl": ""}, {"k": "Status", "v": "Unread", "hl": "blue"}], "note": ""}, "email-1": {"t": "Alex (maintainer)", "sub": "Email", "color": "#0071e3", "rows": [{"k": "Subject", "v": "Re: dependency-bump PR", "hl": ""}, {"k": "Preview", "v": "Looks good overall, left a couple of comments on the lockfile changes.", "hl": ""}, {"k": "Received", "v": "6:30 AM", "hl": ""}, {"k": "Status", "v": "Unread", "hl": "blue"}], "note": ""}, "email-2": {"t": "Moving Co", "sub": "Email", "color": "#0071e3", "rows": [{"k": "Subject", "v": "Your quote #4821", "hl": ""}, {"k": "Preview", "v": "Please find attached the quote for your move on July 5th.", "hl": ""}, {"k": "Received", "v": "Yesterday", "hl": ""}, {"k": "Status", "v": "Read", "hl": ""}], "note": ""}, "email-3": {"t": "GitHub", "sub": "Email", "color": "#0071e3", "rows": [{"k": "Subject", "v": "[library] New issue: high memory usage", "hl": ""}, {"k": "Preview", "v": "A user reported the parser allocates more than expected on large files.", "hl": ""}, {"k": "Received", "v": "Saturday", "hl": ""}, {"k": "Status", "v": "Read", "hl": ""}], "note": ""}, "blocked-0": {"t": "Merge the dependency-bump PR", "sub": "Blocked task", "color": "#ff3b30", "rows": [{"k": "Waiting on", "v": "Alex (maintainer)", "hl": ""}, {"k": "Blocked since", "v": "Friday, Jun 12", "hl": ""}, {"k": "Duration", "v": "17 days", "hl": "red"}, {"k": "Action needed", "v": "Escalate or re-scope", "hl": ""}], "note": ""}, "blocked-1": {"t": "Get sign-off on the new logo", "sub": "Blocked task", "color": "#ff9500", "rows": [{"k": "Waiting on", "v": "a teammate", "hl": ""}, {"k": "Blocked since", "v": "Wednesday, Jun 24", "hl": ""}, {"k": "Duration", "v": "5 days", "hl": "orange"}, {"k": "Action needed", "v": "Follow up soon", "hl": ""}], "note": ""}, "blocked-2": {"t": "Get access to the staging server", "sub": "Blocked task", "color": "#ff9500", "rows": [{"k": "Waiting on", "v": "IT support", "hl": ""}, {"k": "Blocked since", "v": "Saturday, Jun 27", "hl": ""}, {"k": "Duration", "v": "2 days", "hl": ""}, {"k": "Action needed", "v": "Monitor", "hl": ""}], "note": ""}, "active-0-0": {"t": "Reproduce the flaky CI test on Windows", "sub": "Active · Open Source Library", "color": "#0071e3", "rows": [{"k": "Project", "v": "Open Source Library", "hl": ""}, {"k": "Due", "v": "Today", "hl": "red"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-0-1": {"t": "Reply to the open issue about high memory usage", "sub": "Active · Open Source Library", "color": "#0071e3", "rows": [{"k": "Project", "v": "Open Source Library", "hl": ""}, {"k": "Due", "v": "Tomorrow", "hl": "red"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-0-2": {"t": "Cut the v2.1 release notes", "sub": "Active · Open Source Library", "color": "#0071e3", "rows": [{"k": "Project", "v": "Open Source Library", "hl": ""}, {"k": "Due", "v": "Thursday", "hl": "orange"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-0-3": {"t": "Draft the plugin API proposal", "sub": "Active · Open Source Library", "color": "#0071e3", "rows": [{"k": "Project", "v": "Open Source Library", "hl": ""}, {"k": "Due", "v": "Jul 8", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-0-4": {"t": "Benchmark the new parser against the old one", "sub": "Active · Open Source Library", "color": "#0071e3", "rows": [{"k": "Project", "v": "Open Source Library", "hl": ""}, {"k": "Due", "v": "Friday", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-1-0": {"t": "Finish the take-home assignment", "sub": "Active · Job Search", "color": "#0071e3", "rows": [{"k": "Project", "v": "Job Search", "hl": ""}, {"k": "Due", "v": "2d ago", "hl": "red"}, {"k": "Status", "v": "Overdue", "hl": "red"}], "note": ""}, "active-1-1": {"t": "Send a follow-up to the recruiter at Northwind", "sub": "Active · Job Search", "color": "#0071e3", "rows": [{"k": "Project", "v": "Job Search", "hl": ""}, {"k": "Due", "v": "Today", "hl": "red"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-1-2": {"t": "Prep system-design talking points", "sub": "Active · Job Search", "color": "#0071e3", "rows": [{"k": "Project", "v": "Job Search", "hl": ""}, {"k": "Due", "v": "Wednesday", "hl": "orange"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-1-3": {"t": "Update the portfolio site copy", "sub": "Active · Job Search", "color": "#0071e3", "rows": [{"k": "Project", "v": "Job Search", "hl": ""}, {"k": "Due", "v": "Jul 15", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-2-0": {"t": "Cancel the old internet plan", "sub": "Active · Apartment Move", "color": "#0071e3", "rows": [{"k": "Project", "v": "Apartment Move", "hl": ""}, {"k": "Due", "v": "3d ago", "hl": "red"}, {"k": "Status", "v": "Overdue", "hl": "red"}], "note": ""}, "active-2-1": {"t": "Confirm the moving-company quote", "sub": "Active · Apartment Move", "color": "#0071e3", "rows": [{"k": "Project", "v": "Apartment Move", "hl": ""}, {"k": "Due", "v": "Today", "hl": "red"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-2-2": {"t": "Buy packing boxes", "sub": "Active · Apartment Move", "color": "#0071e3", "rows": [{"k": "Project", "v": "Apartment Move", "hl": ""}, {"k": "Due", "v": "Tomorrow", "hl": "red"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-2-3": {"t": "Schedule the elevator booking", "sub": "Active · Apartment Move", "color": "#0071e3", "rows": [{"k": "Project", "v": "Apartment Move", "hl": ""}, {"k": "Due", "v": "Wednesday", "hl": "orange"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-3-0": {"t": "Wire up the auth flow", "sub": "Active · Side Project", "color": "#0071e3", "rows": [{"k": "Project", "v": "Side Project", "hl": ""}, {"k": "Due", "v": "Thursday", "hl": "orange"}, {"k": "Status", "v": "Due soon", "hl": "orange"}], "note": ""}, "active-3-1": {"t": "Write the landing-page hero copy", "sub": "Active · Side Project", "color": "#0071e3", "rows": [{"k": "Project", "v": "Side Project", "hl": ""}, {"k": "Due", "v": "Saturday", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-3-2": {"t": "Set up the analytics events", "sub": "Active · Side Project", "color": "#0071e3", "rows": [{"k": "Project", "v": "Side Project", "hl": ""}, {"k": "Due", "v": "Jul 9", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-4-0": {"t": "Finish chapter 7 of the systems book", "sub": "Active · Reading List", "color": "#0071e3", "rows": [{"k": "Project", "v": "Reading List", "hl": ""}, {"k": "Due", "v": "Sunday", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "active-4-1": {"t": "Write notes on the consensus paper", "sub": "Active · Reading List", "color": "#0071e3", "rows": [{"k": "Project", "v": "Reading List", "hl": ""}, {"k": "Due", "v": "Jul 10", "hl": "blue"}, {"k": "Status", "v": "On track", "hl": "green"}], "note": ""}, "project-0": {"t": "Open Source Library", "sub": "5 tasks across 2 areas", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"dr-sub-item\" data-key=\"sub-0-0\"\u003e\u003cdiv class=\"dr-sub-left\"\u003e\u003cspan class=\"dr-sub-nm\"\u003eTriage\u003c/span\u003e\u003cdiv class=\"dr-sub-meta\"\u003e\u003cspan\u003e3 tasks\u003c/span\u003e\u003cspan\u003e·\u003c/span\u003e\u003cspan class=\"due-tag due-red\" style=\"font-size:10px\"\u003eToday\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"dr-sub-item\" data-key=\"sub-0-1\"\u003e\u003cdiv class=\"dr-sub-left\"\u003e\u003cspan class=\"dr-sub-nm\"\u003eRoadmap\u003c/span\u003e\u003cdiv class=\"dr-sub-meta\"\u003e\u003cspan\u003e2 tasks\u003c/span\u003e\u003cspan\u003e·\u003c/span\u003e\u003cspan class=\"due-tag due-blue\" style=\"font-size:10px\"\u003eFriday\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}]}, "sub-0-0": {"t": "Triage", "sub": "Open Source Library", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"dr-task-row\" data-key=\"active-0-0\"\u003e\u003cspan class=\"dot dot-blue dot-sm\"\u003e\u003c/span\u003e\u003cspan class=\"dr-task-text\"\u003eReproduce the flaky CI test on Windows\u003c/span\u003e\u003cspan class=\"due-tag due-red\"\u003eToday\u003c/span\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"dr-task-row\" data-key=\"active-0-1\"\u003e\u003cspan class=\"dot dot-blue dot-sm\"\u003e\u003c/span\u003e\u003cspan class=\"dr-task-text\"\u003eReply to the open issue about high memory usage\u003c/span\u003e\u003cspan class=\"due-tag due-red\"\u003eTomorrow\u003c/span\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"dr-task-row\" data-key=\"active-0-2\"\u003e\u003cspan class=\"dot dot-blue dot-sm\"\u003e\u003c/span\u003e\u003cspan class=\"dr-task-text\"\u003eCut the v2.1 release notes\u003c/span\u003e\u003cspan class=\"due-tag due-orange\"\u003eThursday\u003c/span\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}]}, "sub-0-1": {"t": "Roadmap", "sub": "Open Source Library", "color": "#0071e3", "rows": [{"html": "\u003cdiv class=\"dr-task-row\" data-key=\"active-0-4\"\u003e\u003cspan class=\"dot dot-blue dot-sm\"\u003e\u003c/span\u003e\u003cspan class=\"dr-task-text\"\u003eBenchmark the new parser against the old one\u003c/span\u003e\u003cspan class=\"due-tag due-blue\"\u003eFriday\u003c/span\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}, {"html": "\u003cdiv class=\"dr-task-row\" data-key=\"active-0-3\"\u003e\u003cspan class=\"dot dot-blue dot-sm\"\u003e\u003c/span\u003e\u003cspan class=\"dr-task-text\"\u003eDraft the plugin API proposal\u003c/span\u003e\u003cspan class=\"due-tag due-blue\"\u003eJul 8\u003c/span\u003e\u003cspan class=\"chevron\"\u003e›\u003c/span\u003e\u003c/div\u003e"}]}, "done-0": {"t": "Migrate the tests to pytest", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Tuesday, June 16", "hl": "green"}, {"k": "Days ago", "v": "13", "hl": ""}], "note": ""}, "done-1": {"t": "Draft the README rewrite", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Thursday, June 18", "hl": "green"}, {"k": "Days ago", "v": "11", "hl": ""}], "note": ""}, "done-2": {"t": "Close five stale issues", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Saturday, June 20", "hl": "green"}, {"k": "Days ago", "v": "9", "hl": ""}], "note": ""}, "done-3": {"t": "Refactor the config loader", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Monday, June 22", "hl": "green"}, {"k": "Days ago", "v": "7", "hl": ""}], "note": ""}, "done-4": {"t": "Book the dentist", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Wednesday, June 24", "hl": "green"}, {"k": "Days ago", "v": "5", "hl": ""}], "note": ""}, "done-5": {"t": "Set up CI caching", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Thursday, June 25", "hl": "green"}, {"k": "Days ago", "v": "4", "hl": ""}], "note": ""}, "done-6": {"t": "Publish the v2.0 blog post", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Friday, June 26", "hl": "green"}, {"k": "Days ago", "v": "3", "hl": ""}], "note": ""}, "done-7": {"t": "Pack the kitchen", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Saturday, June 27", "hl": "green"}, {"k": "Days ago", "v": "2", "hl": ""}], "note": ""}, "done-8": {"t": "Email the references list", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Sunday, June 28", "hl": "green"}, {"k": "Days ago", "v": "1", "hl": ""}], "note": ""}, "done-9": {"t": "Review the onboarding PR", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Monday, June 29", "hl": "green"}, {"k": "Days ago", "v": "0", "hl": ""}], "note": ""}, "done-10": {"t": "Fix the off-by-one in the date parser", "sub": "Completed task", "color": "#34c759", "rows": [{"k": "Completed", "v": "Monday, June 29", "hl": "green"}, {"k": "Days ago", "v": "0", "hl": ""}], "note": ""}, "pipeline-0": {"t": "Northwind", "sub": "Final round", "color": "#34c759", "rows": [{"k": "Stage", "v": "Final round"}, {"k": "Contact", "v": "recruiter"}, {"k": "Sent", "v": "2026-06-24 · 5d"}, {"k": "Status", "v": "Final onsite scheduling in progress."}]}, "pipeline-1": {"t": "Acme Corp", "sub": "Phone screen", "color": "#0071e3", "rows": [{"k": "Stage", "v": "Phone screen"}, {"k": "Contact", "v": "Sam"}, {"k": "Sent", "v": "2026-06-26 · 3d"}, {"k": "Status", "v": "Waiting to hear back after the recruiter call."}]}, "pipeline-2": {"t": "Initech", "sub": "Applied", "color": "#ff9500", "rows": [{"k": "Stage", "v": "Applied"}, null, {"k": "Sent", "v": "2026-06-20 · 9d"}, {"k": "Status", "v": "Application submitted, no response yet."}]}, "reply-0": {"t": "Reference letter", "sub": "Waiting on former manager", "color": "#ff9500", "rows": [{"k": "Item", "v": "Reference letter"}, {"k": "Waiting on", "v": "former manager"}, {"k": "Since", "v": "2026-06-22"}, {"k": "Days waiting", "v": "7 days", "hl": "red"}, {"k": "Context", "v": "Requested for the Northwind application."}]}, "reply-1": {"t": "Logo sign-off", "sub": "Waiting on a teammate", "color": "#ff9500", "rows": [{"k": "Item", "v": "Logo sign-off"}, {"k": "Waiting on", "v": "a teammate"}, {"k": "Since", "v": "2026-06-24"}, {"k": "Days waiting", "v": "5 days", "hl": "orange"}, {"k": "Context", "v": "Sent two options, waiting on a pick."}]}, "reply-2": {"t": "PR review", "sub": "Waiting on Alex", "color": "#ff9500", "rows": [{"k": "Item", "v": "PR review"}, {"k": "Waiting on", "v": "Alex"}, {"k": "Since", "v": "2026-06-27"}, {"k": "Days waiting", "v": "2 days", "hl": ""}, {"k": "Context", "v": "Dependency bump awaiting approval."}]}, "agenda-0": {"t": "Standup", "sub": "Today at 09:00", "color": "#0071e3", "rows": [{"k": "Time", "v": "09:00"}, {"k": "Date", "v": "2026-06-29"}]}, "agenda-1": {"t": "Reproduce the flaky CI test on Windows", "sub": "Today at 09:30", "color": "#34c759", "rows": [{"k": "Due", "v": "Today at 09:30", "hl": "red"}, {"k": "Project", "v": "Open Source Library"}]}, "agenda-2": {"t": "Confirm the moving-company quote", "sub": "Today at 11:00", "color": "#34c759", "rows": [{"k": "Due", "v": "Today at 11:00", "hl": "red"}, {"k": "Project", "v": "Apartment Move"}]}, "agenda-3": {"t": "Send a follow-up to the recruiter at Northwind", "sub": "Today at 14:00", "color": "#34c759", "rows": [{"k": "Due", "v": "Today at 14:00", "hl": "red"}, {"k": "Project", "v": "Job Search"}]}, "agenda-4": {"t": "Recruiter call", "sub": "Today at 14:00", "color": "#0071e3", "rows": [{"k": "Time", "v": "14:00"}, {"k": "Date", "v": "2026-06-29"}]}, "agenda-5": {"t": "Gym", "sub": "Today at 18:30", "color": "#0071e3", "rows": [{"k": "Time", "v": "18:30"}, {"k": "Date", "v": "2026-06-29"}]}, "today-progress": {"t": "Today's Progress", "sub": "40% complete · Jun 29", "color": "#0071e3", "rows": [{"k": "Done today", "v": "2 tasks", "hl": "green"}, {"k": "  1.", "v": "Fix the off-by-one in the date parser", "hl": ""}, {"k": "  2.", "v": "Review the onboarding PR", "hl": ""}, {"k": "Remaining", "v": "3 tasks", "hl": "orange"}, {"k": "  1.", "v": "Reproduce the flaky CI test on Windows", "hl": ""}, {"k": "  2.", "v": "Send a follow-up to the recruiter at Northwind", "hl": ""}, {"k": "  3.", "v": "Confirm the moving-company quote", "hl": ""}], "note": ""}};
+
+const overlay = document.getElementById('overlay');
+const drawer  = document.getElementById('drawer');
+const drTitle = document.getElementById('dr-title');
+const drSub   = document.getElementById('dr-sub');
+const drRows  = document.getElementById('dr-rows');
+const drNote  = document.getElementById('dr-note');
+const drAccent= document.getElementById('dr-accent');
+
+let _navStack = [];
+let _curKey   = null;
+const drBack  = document.getElementById('dr-back');
+
+function openDrawer(key, pushNav) {
+  const d = PD[key];
+  if (!d) return;
+  if (pushNav && _curKey) _navStack.push(_curKey);
+  _curKey = key;
+  drBack.hidden = _navStack.length === 0;
+  drTitle.textContent = d.t;
+  drSub.textContent   = d.sub || '';
+  drAccent.style.background = d.color || '#0071e3';
+  drRows.innerHTML = (d.rows || []).map(r => {
+    if (r.html) return r.html;
+    const hlCls = r.hl ? ` hl-${r.hl}` : '';
+    return `<div class="dr-row">
+      <span class="dr-key">${r.k}</span>
+      <span class="dr-val${hlCls}">${r.v}</span>
+    </div>`;
+  }).join('');
+  if (d.note) {
+    drNote.textContent = d.note;
+    drNote.style.display = 'block';
+  } else {
+    drNote.style.display = 'none';
+  }
+  overlay.classList.add('open');
+  drawer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  _navStack = [];
+  _curKey   = null;
+  overlay.classList.remove('open');
+  drawer.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('dr-close').addEventListener('click', closeDrawer);
+drBack.addEventListener('click', e => {
+  e.stopPropagation();
+  if (_navStack.length) openDrawer(_navStack.pop(), false);
+});
+overlay.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// Navigation inside the drawer (sub-items and task rows)
+drRows.addEventListener('click', e => {
+  const el = e.target.closest('[data-key]');
+  if (el && PD[el.dataset.key]) { e.stopPropagation(); openDrawer(el.dataset.key, true); }
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#drawer')) return;
+  const el = e.target.closest('[data-key]');
+  if (el && PD[el.dataset.key]) { e.stopPropagation(); openDrawer(el.dataset.key, false); }
+});
+
+let startY = 0;
+drawer.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
+drawer.addEventListener('touchend',   e => { if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }, {passive:true});
+
+// ── Status bar + progress bars ───────────────────────────────────────────────
+(function() {
+  function animateBar(id, delay) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const pct = parseInt(el.dataset.pct || '0', 10);
+    setTimeout(() => { el.style.width = pct + '%'; }, delay || 400);
+  }
+  animateBar('sb-fill',   200);
+  animateBar('tp-fill',   500);
+  animateBar('bar-week',  700);
+  animateBar('bar-last',  800);
+})();
+
+// ── Live clock ──────────────────────────────────────────────────────────────
+(function() {
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  function tick() {
+    const n = new Date();
+    const h = String(n.getHours()).padStart(2,'0');
+    const m = String(n.getMinutes()).padStart(2,'0');
+    const s = String(n.getSeconds()).padStart(2,'0');
+    el.textContent = `${h}:${m}:${s}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// ── KPI count-up ────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-countup]').forEach(el => {
+  const target = parseInt(el.dataset.countup, 10);
+  if (isNaN(target) || target === 0) return;
+  const duration = 700;
+  const start    = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3); // ease-out cubic
+  function frame(now) {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(ease(p) * target);
+    if (p < 1) requestAnimationFrame(frame);
+    else { el.textContent = target; el.classList.add('popped'); }
+  }
+  // Small delay so animation starts after card fade-in
+  setTimeout(() => requestAnimationFrame(frame), 350);
+});
+
+// ── Relative "last synced" time ─────────────────────────────────────────────
+(function() {
+  const el = document.getElementById('sync-ago');
+  if (!el) return;
+  const epoch = parseInt(el.dataset.ts, 10);
+  function update() {
+    const diff = Math.floor(Date.now() / 1000 - epoch);
+    if (diff < 60)       el.textContent = 'just now';
+    else if (diff < 3600) el.textContent = Math.floor(diff/60) + 'm ago';
+    else                  el.textContent = Math.floor(diff/3600) + 'h ' + Math.floor((diff%3600)/60) + 'm ago';
+  }
+  update();
+  setInterval(update, 30000);
+})();
+
+
+// ── Session arc: fetch live usage.json on load ──────────────────────────────
+(function() {
+  const arc = document.getElementById('session-arc-fill');
+  const txt = document.getElementById('session-pct-text');
+  const wrap= document.getElementById('session-arc-wrap');
+  if (!arc || !txt || !wrap) return;
+  const CIRC = 238.76;
+  function applyUsage(d) {
+    const pct   = Math.round(parseFloat(d.five_hour_pct) || 0);
+    const color = pct < 50 ? '#34c759' : (pct < 75 ? '#ff9500' : '#ff3b30');
+    arc.style.stroke = color;
+    arc.setAttribute('stroke-dasharray', (pct / 100 * CIRC).toFixed(1) + ' ' + CIRC.toFixed(1));
+    txt.textContent = pct + '%';
+    if (d.resets_at) wrap.dataset.resetsat = d.resets_at;
+  }
+  fetch('usage.json?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d) applyUsage(d); })
+    .catch(() => {});
+})();
+
+// ── Session arc: live reset countdown ───────────────────────────────────────
+(function() {
+  const wrap = document.getElementById('session-arc-wrap');
+  const lbl  = document.getElementById('session-status-lbl');
+  if (!wrap || !lbl) return;
+  const resetsAt = parseInt(wrap.dataset.resetsat || '0', 10);
+  function update() {
+    if (!resetsAt) { lbl.textContent = 'Open claude.ai to sync'; return; }
+    const secsLeft = resetsAt - Math.floor(Date.now() / 1000);
+    if (secsLeft <= 0) { lbl.textContent = 'Resetting now'; return; }
+    const h = Math.floor(secsLeft / 3600);
+    const m = Math.floor((secsLeft % 3600) / 60);
+    lbl.textContent = 'Resets in ' + (h > 0 ? h + 'h ' + m + 'm' : m + 'm');
+  }
+  update();
+  setInterval(update, 30000);
+})();
+
+// ── Day calendar: current-time line + auto-scroll ───────────────────────────
+(function() {
+  const nowEl = document.getElementById('dc-now');
+  const outer = document.getElementById('dc-outer');
+  if (!nowEl || !outer) return;
+  const START_H = 8, END_H = 22, SLOT_H = 44;
+  function placeLine() {
+    const n = new Date();
+    const top = (n.getHours() - START_H + n.getMinutes()/60) * SLOT_H;
+    if (top < 0 || top > (END_H - START_H) * SLOT_H) { nowEl.style.display = 'none'; return; }
+    nowEl.style.top = top.toFixed(1) + 'px';
+    nowEl.style.display = 'block';
+  }
+  placeLine();
+  setInterval(placeLine, 60000);
+  // Scroll so current time is near top of visible area
+  const n = new Date();
+  outer.scrollTop = Math.max(0, (n.getHours() - START_H - 0.5) * SLOT_H);
+})();
+
+// ── Date-aware label refresh (runs on every page load) ───────────────────────
+(function() {
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function relLbl(iso, time) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const t     = time ? ' ' + time : '';
+    if (delta < 0)   return Math.abs(delta) + 'd ago' + t;
+    if (delta === 0) return 'Today' + t;
+    if (delta === 1) return 'Tomorrow' + t;
+    if (delta <= 6)  return DAYS[due.getDay()] + t;
+    return MONTHS[due.getMonth()] + ' ' + due.getDate() + t;
+  }
+  function urgCls(delta) {
+    return delta <= 1 ? 'red' : (delta <= 3 ? 'orange' : 'blue');
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.querySelectorAll('.due-tag[data-due-iso]').forEach(el => {
+    const iso   = el.dataset.dueIso;
+    if (!iso) return;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso);
+    el.className   = 'due-tag due-' + urgCls(delta);
+  });
+
+  document.querySelectorAll('.dt-badge[data-due-iso]').forEach(el => {
+    const iso  = el.dataset.dueIso;
+    if (!iso) return;
+    const time = el.dataset.dueTime || '';
+    const due  = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso, time);
+    el.className   = 'dt-badge ' + (delta <= 1 ? 'dt-red' : (delta <= 3 ? 'dt-orange' : 'dt-blue'));
+  });
+
+  const pf = document.querySelector('.priority-flag[data-due-iso]');
+  if (pf && pf.dataset.dueIso) {
+    const iso   = pf.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    if      (delta < 0)   pf.textContent = 'Overdue';
+    else if (delta === 0) pf.textContent = 'Today';
+    else if (delta === 1) pf.textContent = 'Tomorrow';
+    else if (delta <= 6)  pf.textContent = DAYS[due.getDay()];
+  }
+
+  const dcLbl = document.getElementById('dc-today-lbl');
+  if (dcLbl) {
+    const n = new Date();
+    dcLbl.textContent = 'Today  ·  ' + MONTHS[n.getMonth()] + ' ' + n.getDate();
+  }
+
+  Object.keys(PD).forEach(key => {
+    if (!key.startsWith('deadline-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const dateRow = (d.rows || []).find(r => r && r.k === 'Date');
+    if (!dateRow) return;
+    const m  = dateRow.v.match(/(\d{4}-\d{2}-\d{2})/);
+    const tm = dateRow.v.match(/at (\d{1,2}:\d{2})/);
+    if (!m) return;
+    const due   = new Date(m[1] + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const time  = tm ? tm[1] : '';
+    const hl    = urgCls(delta);
+    const whenRow = (d.rows || []).find(r => r && r.k === 'When');
+    const inRow   = (d.rows || []).find(r => r && r.k === 'In');
+    if (whenRow) { whenRow.v = relLbl(m[1], time); whenRow.hl = hl; }
+    if (inRow)   { inRow.v  = delta >= 0 ? delta + ' day' + (delta !== 1 ? 's' : '') : 'Past due'; inRow.hl = hl; }
+  });
+
+  Object.keys(PD).forEach(key => {
+    if (!key.startsWith('active-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const el = document.querySelector(`[data-key="${key}"] .due-tag[data-due-iso]`);
+    if (!el || !el.dataset.dueIso) return;
+    const iso   = el.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const dueRow  = (d.rows || []).find(r => r && r.k === 'Due');
+    const statRow = (d.rows || []).find(r => r && r.k === 'Status');
+    if (dueRow) { dueRow.v = relLbl(iso); dueRow.hl = urgCls(delta); }
+    if (statRow) {
+      if (delta < 0)       { statRow.v = 'Overdue';  statRow.hl = 'red'; }
+      else if (delta <= 3) { statRow.v = 'Due soon'; statRow.hl = 'orange'; }
+      else                 { statRow.v = 'On track'; statRow.hl = 'green'; }
+    }
+  });
+})();
+</script>
+</body>
+</html>

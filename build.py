@@ -1,0 +1,2218 @@
+#!/usr/bin/env python3
+"""
+build.py -- reads Tasks.md + dashboard-data.json, generates public/index.html
+Run locally: python3 build.py  |  Netlify build command: python3 build.py
+"""
+import json, re, sys, calendar as cal_mod
+from pathlib import Path
+from html import escape, unescape
+from datetime import datetime, date, timedelta
+from collections import defaultdict
+
+TASKS_FILE  = Path(__file__).parent / "demo/Tasks.md"
+DATA_FILE   = Path(__file__).parent / "demo/dashboard-data.json"
+OUTPUT_DIR  = Path(__file__).parent / "docs"
+OUTPUT_FILE = OUTPUT_DIR / "index.html"
+
+# Anchor Monday used to compute "this week" labels dynamically.
+WEEK_ANCHOR = date(2026, 6, 1)
+
+def week_label(section: str) -> str:
+    """Replace 'Week N (this week)' in a section header with the computed label."""
+    if "(this week)" not in section:
+        return section
+    today = date.today()
+    week_n = max((today - WEEK_ANCHOR).days // 7 + 1, 1)
+    week_start = WEEK_ANCHOR + timedelta(weeks=week_n - 1)
+    week_end   = week_start + timedelta(days=6)
+    MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    span = f"{week_start.day}-{week_end.day} {MONTHS[week_end.month-1]}"
+    replacement = f"Week {week_n}  ·  {span}"
+    return re.sub(r"Week\s*\d*\s*\(this week\)", replacement, section).strip()
+
+
+_PROJECT_DISPLAY = {}
+
+def group_active_sections(active):
+    """Merge sections sharing the same project prefix (text before ' / ') into one card.
+    Returns [{section, tasks, subsections}] where subsections = [{label, tasks}].
+    Keeps total task count unchanged - just reduces card count from 8 to ~3.
+    """
+    groups: dict = {}
+    order: list  = []
+    SEP = " / "  # separator between project and subsection in Tasks.md headers
+    for sec in active:
+        if not sec["tasks"]:
+            continue
+        name = sec["section"]
+        if SEP in name:
+            proj      = name.split(SEP, 1)[0].strip()
+            sub_label = week_label(name.split(SEP, 1)[1].strip())
+        else:
+            proj      = name
+            sub_label = ""
+        if proj not in groups:
+            display = _PROJECT_DISPLAY.get(proj, proj)
+            groups[proj] = {"section": display, "tasks": [], "subsections": []}
+            order.append(proj)
+        groups[proj]["tasks"].extend(sec["tasks"])
+        if sub_label:
+            groups[proj]["subsections"].append({"label": sub_label, "tasks": list(sec["tasks"])})
+    return [groups[p] for p in order]
+
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+
+def strip_wikilink(t):
+    return re.sub(r"\[\[([^\]]+)\]\]",
+                  lambda m: m.group(1).split("|")[-1] if "|" in m.group(1) else m.group(1), t)
+
+def parse_date(s):
+    if not s: return None
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+        try: return datetime.strptime(s.strip(), fmt).date()
+        except ValueError: pass
+    return None
+
+def days_diff(d): return (date.today() - d).days if d else None
+
+def rel_label(d, time_str=""):
+    if not d: return ""
+    t = f" {time_str}" if time_str else ""
+    delta = (d - date.today()).days
+    if delta < 0:  return f"{abs(delta)}d ago{t}"
+    if delta == 0: return f"Today{t}"
+    if delta == 1: return f"Tomorrow{t}"
+    if delta <= 6: return f"{d.strftime('%A')}{t}"
+    return f"{d.strftime('%b %-d')}{t}"
+
+def epoch_str(epoch):
+    if not epoch: return ""
+    dt = datetime.fromtimestamp(epoch)
+    delta = (date.today() - dt.date()).days
+    if delta == 0: return dt.strftime("%-I:%M %p")
+    if delta == 1: return "Yesterday"
+    if delta <= 6: return dt.strftime("%A")
+    return dt.strftime("%b %-d")
+
+def clean_snippet(s):
+    return re.sub(r"\s+", " ", unescape(s or "")).strip()[:180]
+
+# ── Panel helpers ─────────────────────────────────────────────────────────────
+
+def panel(title, rows, subtitle="", color="#0071e3", note=""):
+    """Build a structured panel dict for the drawer."""
+    return {"t": title, "sub": subtitle, "color": color,
+            "rows": [r for r in rows if r], "note": note}
+
+def row(k, v, hl=""):
+    """Key-value row. hl = red/orange/green/blue for value highlight."""
+    if not v: return None
+    return {"k": k, "v": str(v), "hl": hl}
+
+def event_row(title, project, time_str, dot_color, done=False):
+    """Agenda row for calendar-day panels. Status dot left, task primary, project chip plus time secondary."""
+    title_safe = escape(str(title)[:90])
+    chip = escape(project.split(" / ", 1)[0].strip()) if project else ""
+    meta_parts = []
+    if chip:     meta_parts.append(f'<span class="ae-proj">{chip}</span>')
+    if time_str: meta_parts.append(f'<span class="ae-time">{escape(str(time_str))}</span>')
+    meta = f'<div class="ae-meta">{"".join(meta_parts)}</div>' if meta_parts else ""
+    done_cls = " ae-done" if done else ""
+    return {"html": (f'<div class="ae-row{done_cls}">'
+                     f'<span class="ae-dot" style="background:{dot_color}"></span>'
+                     f'<div class="ae-body"><div class="ae-task">{title_safe}</div>{meta}</div>'
+                     f'</div>')}
+
+# ── Parse Tasks.md ────────────────────────────────────────────────────────────
+
+def parse_tasks(content):
+    active, blocked, completed = [], [], []
+    sec = sub = None
+    tasks = []
+
+    def flush():
+        if sub and tasks:
+            active.append({"section": sub, "tasks": tasks[:]})
+
+    for line in content.splitlines():
+        s = line.strip()
+        if s == "## Active":         sec="active";   sub=None; tasks=[]; continue
+        if s == "## Awaiting Reply": flush(); sub=None; tasks=[]; sec="awaiting"; continue
+        if s == "## Blocked":        flush(); sub=None; tasks=[]; sec="blocked";  continue
+        if s == "## Completed":      flush(); sub=None; tasks=[]; sec="completed"; continue
+        if s.startswith("## "):      flush(); sub=None; tasks=[]; sec=None; continue
+        if s.startswith("<!--") or s == "---" or not s: continue
+        if sec == "active" and s.startswith("### "):
+            flush(); sub=week_label(strip_wikilink(s[4:].strip())); tasks=[]; continue
+        if sec == "active" and "- [ ]" in line:
+            raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
+            due = None; time_val = None; dur_min = None
+            m_due  = re.search(r"<!--\s*due:\s*(\d{4}-\d{2}-\d{2})\s*-->", raw)
+            m_time = re.search(r"<!--\s*time:\s*(\d{1,2}:\d{2})\s*-->", raw)
+            m_dur  = re.search(r"<!--\s*duration:\s*([^>]+?)\s*-->", raw)
+            if m_due:  due = parse_date(m_due.group(1))
+            if m_time: time_val = m_time.group(1)
+            if m_dur:
+                ds = m_dur.group(1).strip()
+                mh = re.match(r"(\d+)h(?:(\d+)m?)?", ds)
+                mo = re.match(r"(\d+)m", ds)
+                if mh:  dur_min = int(mh.group(1))*60 + int(mh.group(2) or 0)
+                elif mo: dur_min = int(mo.group(1))
+            if not m_due:
+                m_bt = re.search(r'`(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2})h(\d{2}))?`', raw)
+                if m_bt:
+                    due = parse_date(m_bt.group(1))
+                    if m_bt.group(2) and m_bt.group(3):
+                        time_val = f"{m_bt.group(2)}:{m_bt.group(3)}"
+            raw = re.sub(r"<!--[^>]+-->", "", raw).strip()
+            raw = re.sub(r"\s*`\d{4}-\d{2}-\d{2}[^`]*`", "", raw).strip()
+            if sub is None: sub="Other"; tasks=[]
+            tasks.append({"text": strip_wikilink(raw), "due": due,
+                          "time": time_val or "", "dur_min": dur_min}); continue
+        if sec == "blocked" and "- [ ]" in line:
+            raw = re.sub(r"^[\s-]+\[ \]\s*", "", line).strip()
+            waiting=since=""
+            m = re.match(r"^(.+?)\s+--\s+waiting:\s+(.+?)\s+--\s+since\s+(.+)$", raw)
+            if m: raw,waiting,since = m.group(1).strip(),m.group(2).strip(),m.group(3).strip()
+            else:
+                m2 = re.match(r"^(.+?)\s+--\s+waiting:\s+(.+)$", raw)
+                if m2: raw,waiting = m2.group(1).strip(),m2.group(2).strip()
+            sd = parse_date(since)
+            blocked.append({"task":strip_wikilink(raw),"waiting":waiting,
+                            "since_date":sd,"days":days_diff(sd)}); continue
+        if sec == "completed" and re.match(r"^[\s-]+\[[xX]\]", line):
+            raw = re.sub(r"^[\s-]+\[[xX]\]\s*", "", line).strip()
+            d = None
+            m = re.search(r"✅\s*(\d{4}-\d{2}-\d{2})", raw)
+            if m: d=parse_date(m.group(1)); raw=raw[:m.start()].strip()
+            completed.append({"task":strip_wikilink(raw),"date":d}); continue
+    flush()
+    return active, blocked, completed
+
+# ── Charts ────────────────────────────────────────────────────────────────────
+
+def sparkline(completed, days=14):
+    today = date.today()
+    day_tasks = defaultdict(list)
+    for c in completed:
+        if c["date"] and (today-c["date"]).days <= days:
+            day_tasks[c["date"]].append(c["task"])
+    data = [(today-timedelta(days=i), day_tasks[today-timedelta(days=i)])
+            for i in range(days-1,-1,-1)]
+    mx = max((len(t) for _,t in data), default=1) or 1
+    W,H,gap = 260,44,2
+    bw = (W - gap*(len(data)-1)) / len(data)
+    bars = ""
+    for i,(d,tasks) in enumerate(data):
+        v = len(tasks)
+        bh = max(3, int(v/mx*H))
+        fill = "#34c759" if v else "#e5e5ea"
+        bars += (f'<rect data-key="spark-{i}" class="spark-bar" '
+                 f'x="{i*(bw+gap):.1f}" y="{H-bh}" width="{bw:.1f}" height="{bh}" rx="2" '
+                 f'fill="{fill}" style="cursor:pointer;animation-delay:{i*28}ms"/>')
+    svg = (f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" '
+           f'preserveAspectRatio="none" '
+           f'style="width:100%;height:100%;display:block">{bars}</svg>')
+    return svg, sum(len(t) for _,t in data), data
+
+def donut_chart(active):
+    counts = [(s["section"], len(s["tasks"]), s["tasks"]) for s in active if s["tasks"]]
+    if not counts:
+        return ('<svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="26" fill="none" '
+                'stroke="#e5e5ea" stroke-width="10"/></svg>'), []
+    colors = ["#0071e3","#34c759","#ff9500","#af52de","#ff3b30"]
+    total  = sum(c for _,c,_ in counts)
+    circ   = 2*3.14159265*26
+    arcs,off,legend = "",0,[]
+    for i,(name,cnt,tasks) in enumerate(counts):
+        dash = (cnt/total)*circ
+        arcs += (f'<circle data-key="donut-{i}" cx="36" cy="36" r="26" fill="none" '
+                 f'stroke="{colors[i%len(colors)]}" stroke-width="10" '
+                 f'stroke-dasharray="{dash:.2f} {circ:.2f}" '
+                 f'stroke-dashoffset="{-off:.2f}" transform="rotate(-90 36 36)" '
+                 f'style="cursor:pointer"/>')
+        legend.append({"name":name,"cnt":cnt,"color":colors[i%len(colors)],
+                       "tasks":tasks,"idx":i})
+        off += dash
+    return f'<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">{arcs}</svg>', legend
+
+def mini_calendar(deadlines, completed_all, months=2):
+    today = date.today()
+    event_map = defaultdict(list)
+    for dl in deadlines:
+        d = parse_date(dl.get("date"))
+        if d: event_map[d].append(("deadline", dl["title"], week_label(dl.get("section", "")), dl.get("time", "")))
+    for c in completed_all:
+        if c["date"]: event_map[c["date"]].append(("done", c["task"], "", ""))
+
+    DAY_NAMES   = ["M","T","W","T","F","S","S"]
+    MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun",
+                   "Jul","Aug","Sep","Oct","Nov","Dec"]
+
+    html = '<div class="cal-grid">'
+    for mo in range(months):
+        d0  = today.replace(day=1) + timedelta(days=32*mo)
+        yr,mth = d0.year, d0.month
+        first  = date(yr,mth,1)
+        dim    = cal_mod.monthrange(yr,mth)[1]
+        html  += (f'<div class="cal-month">'
+                  f'<div class="cal-title">{MONTH_NAMES[mth-1]} {yr}</div>'
+                  f'<div class="cal-days-hd">'
+                  + "".join(f'<span>{d}</span>' for d in DAY_NAMES)
+                  + '</div><div class="cal-days">')
+        for _ in range(first.weekday()):
+            html += '<div class="cal-cell cal-empty"></div>'
+        for day in range(1, dim+1):
+            d = date(yr,mth,day)
+            events = event_map.get(d,[])
+            is_today = d==today; is_past = d<today
+            cls = ("cal-cell"
+                   + (" cal-today" if is_today else " cal-past" if is_past else "")
+                   + (" cal-has-ev" if events else ""))
+            if events:
+                delta = (d-today).days
+                dcol  = "#ff3b30" if delta<=1 else ("#ff9500" if delta<=3 else "#0071e3")
+                dot   = f'<span class="cal-dot" style="background:{dcol}"></span>'
+                html += (f'<div class="{cls}" data-key="cal-{d.isoformat()}">'
+                         f'<span class="cal-num">{day}</span>{dot}</div>')
+            else:
+                html += f'<div class="{cls}"><span class="cal-num">{day}</span></div>'
+        html += '</div></div>'
+    html += '</div>'
+    return html, event_map
+
+
+def hourly_calendar_html(agenda, deadlines, active, today):
+    """Hour-by-hour day view with tasks-due-today section above the grid."""
+    START_H, END_H, SLOT_H = 8, 22, 44
+    total_px = (END_H - START_H) * SLOT_H
+
+    # ── All-day tasks: overdue or due today (no time) ─
+    due_items = []
+    for sec in (active or []):
+        for t in sec.get("tasks", []):
+            due = t.get("due")
+            if not due: continue
+            if t.get("time") and due == today: continue  # timed → goes on grid
+            if due < today:
+                due_items.append({"text": t["text"], "label": "overdue", "color": "#ff3b30"})
+            elif due == today:
+                due_items.append({"text": t["text"], "label": "today", "color": "#0071e3"})
+
+    # ── Timed events: tasks first (richer metadata), then calendar/deadlines ────
+    events = []
+    seen_ev = set()
+    for sec in (active or []):
+        for t in sec.get("tasks", []):
+            due = t.get("due")
+            if due == today and t.get("time"):
+                mt = re.match(r"(\d{1,2}):(\d{2})", t["time"])
+                if mt:
+                    h, mn = int(mt.group(1)), int(mt.group(2))
+                    if START_H <= h < END_H:
+                        key = t["text"].strip().lower()
+                        if key not in seen_ev:
+                            seen_ev.add(key)
+                            events.append({"title": t["text"], "h": h, "mn": mn,
+                                          "color": "#34c759",
+                                          "bg": "var(--green-bg)",
+                                          "dur_min": t.get("dur_min")})
+    for dl in (deadlines or []):
+        if dl.get("time") and parse_date(dl.get("date", "")) == today:
+            mt = re.match(r"(\d{1,2}):(\d{2})", dl["time"])
+            if mt:
+                h, mn = int(mt.group(1)), int(mt.group(2))
+                if START_H <= h < END_H:
+                    key = dl["title"].strip().lower()
+                    if key not in seen_ev:
+                        seen_ev.add(key)
+                        events.append({"title": dl["title"], "h": h, "mn": mn,
+                                      "color": "#ff3b30", "bg": "var(--red-bg)"})
+    for ev in (agenda or []):
+        mt = re.match(r"(\d{1,2}):(\d{2})", ev.get("time", ""))
+        if mt:
+            h, mn = int(mt.group(1)), int(mt.group(2))
+            if START_H <= h < END_H:
+                key = ev["title"].strip().lower()
+                if key not in seen_ev:
+                    seen_ev.add(key)
+                    events.append({"title": ev["title"], "h": h, "mn": mn,
+                                   "color": "#0071e3", "bg": "var(--blue-bg)"})
+
+    # ── All-day section ───────────────────────────────────────────────────────
+    allday_html = ""
+    if due_items:
+        items_h = "".join(
+            f'<div class="dc-allday-item">'
+            f'<span class="dc-alldot" style="background:{it["color"]}"></span>'
+            f'<span class="dc-alltext">{escape(it["text"][:44])}</span>'
+            f'<span class="dc-alllbl" style="color:{it["color"]}">{it["label"]}</span>'
+            f'</div>'
+            for it in due_items[:6]
+        )
+        allday_html = (f'<div class="dc-allday">'
+                       f'<div class="dc-allday-hd">Tasks</div>'
+                       f'{items_h}</div>')
+
+    # ── Hour grid ─────────────────────────────────────────────────────────────
+    rows_h = ""
+    for h in range(START_H, END_H + 1):
+        top = (h - START_H) * SLOT_H
+        lbl = f"{h%12 or 12}{'am' if h<12 else 'pm'}"
+        rows_h += (f'<div class="dc-hrow" style="top:{top}px">'
+                   f'<span class="dc-hlbl">{lbl}</span>'
+                   f'<div class="dc-hline"></div></div>')
+    ev_h = ""
+    for ev in events:
+        top = (ev["h"] - START_H + ev["mn"]/60) * SLOT_H
+        dur = ev.get("dur_min")
+        height = max((dur / 60) * SLOT_H, 24) if dur else None
+        height_style = f"height:{height:.0f}px;align-items:flex-start;padding-top:5px;" if height else ""
+        tag_html = (f'<span class="dc-ev-tag" style="color:{ev["color"]}">{ev["tag"]}</span>'
+                    if ev.get("tag") else "")
+        dur_label = (f'<span class="dc-ev-dur">{dur//60}h{dur%60:02d}</span>'
+                     if dur else "")
+        ev_h += (f'<div class="dc-ev" style="top:{top:.1f}px;{height_style}'
+                 f'border-left-color:{ev["color"]};background:{ev["bg"]}">'
+                 f'<span class="dc-ev-t">{ev["h"]:02d}:{ev["mn"]:02d}</span>'
+                 f'<span class="dc-ev-n">{escape(ev["title"][:32])}</span>'
+                 f'{dur_label}{tag_html}</div>')
+    return (f'<div class="dc-outer" id="dc-outer">'
+            f'<div style="height:{total_px}px;position:relative;padding-left:44px">'
+            f'{rows_h}'
+            f'<div style="position:absolute;left:44px;right:0;top:0;bottom:0">'
+            f'<div class="dc-now" id="dc-now"></div>{ev_h}</div></div></div>')
+
+
+# ── Panel Data ────────────────────────────────────────────────────────────────
+
+def build_panels(active, blocked, completed, live_data, spark_data, legend, event_map):
+    today    = date.today()
+    pd       = {}
+    deadlines = live_data.get("deadlines", [])
+    emails    = live_data.get("emails", [])
+
+    # KPI - Active
+    proj_lines = [f"{s['section']}: {len(s['tasks'])} task{'s' if len(s['tasks'])!=1 else ''}"
+                  for s in active if s["tasks"]]
+    pd["kpi-active"] = panel(
+        "Active Tasks",
+        [row("Total open", f"{sum(len(s['tasks']) for s in active)} tasks"),
+         *[row(s["section"], f"{len(s['tasks'])} task{'s' if len(s['tasks'])!=1 else ''}") for s in active if s["tasks"]]],
+        subtitle="All open work across your projects",
+        color="#0071e3"
+    )
+
+    # KPI - Blocked
+    if blocked:
+        pd["kpi-blocked"] = panel(
+            "Blocked Tasks",
+            [row(b["task"][:40], f"{b['days']}d waiting" if b["days"] is not None else "waiting",
+                 "red" if (b["days"] or 0)>=14 else "orange") for b in blocked],
+            subtitle=f"{len(blocked)} tasks waiting on external dependencies",
+            color="#ff9500"
+        )
+    else:
+        pd["kpi-blocked"] = panel("Blocked Tasks",
+            [row("Status", "Nothing blocked right now", "green")],
+            subtitle="All clear", color="#34c759")
+
+    # KPI - Done this week
+    done_wk = [c for c in completed if c["date"] and (today-c["date"]).days<=7]
+    pd["kpi-week"] = panel(
+        "Done This Week",
+        [row("Total", f"{len(done_wk)} tasks completed"),
+         *[row(c["date"].strftime("%b %-d"), c["task"][:45]) for c in done_wk[:6]]],
+        subtitle=f"Last 7 days · {len(done_wk)} tasks",
+        color="#34c759"
+    )
+
+    # KPI - Due today
+    due_today_tasks = [{"text": t["text"], "section": sec["section"]}
+                       for sec in active for t in sec["tasks"] if t.get("due") == date.today()]
+    pd["kpi-due-today"] = panel(
+        "Due Today",
+        ([row("Total", f"{len(due_today_tasks)} task{'s' if len(due_today_tasks)!=1 else ''}", "red")]
+         + [row(f"  {i+1}.", t["text"][:50]) for i,t in enumerate(due_today_tasks[:6])]
+         if due_today_tasks else [row("Status", "Nothing due today", "green")]),
+        subtitle=f"{len(due_today_tasks)} task{'s' if len(due_today_tasks)!=1 else ''} due today",
+        color="#ff3b30" if due_today_tasks else "#34c759"
+    )
+
+    # Sparkline bars
+    for i,(d,tasks) in enumerate(spark_data):
+        if tasks:
+            pd[f"spark-{i}"] = panel(
+                d.strftime("%A, %B %-d"),
+                [row("Tasks completed", str(len(tasks)), "green"),
+                 *[row(f"#{j+1}", t[:55]) for j,t in enumerate(tasks[:6])]],
+                subtitle=f"{len(tasks)} task{'s' if len(tasks)!=1 else ''} done",
+                color="#34c759"
+            )
+        else:
+            pd[f"spark-{i}"] = panel(
+                d.strftime("%A, %B %-d"),
+                [row("Status","No tasks completed this day")],
+                color="#aeaeb2"
+            )
+
+    # Donut segments
+    for l in legend:
+        pd[f"donut-{l['idx']}"] = panel(
+            l["name"],
+            [row("Open tasks", str(l["cnt"]), "blue"),
+             *[row(f"  {j+1}.", t["text"][:55]) for j,t in enumerate(l["tasks"][:6])]],
+            subtitle=f"{l['cnt']} task{'s' if l['cnt']!=1 else ''} in progress",
+            color=l["color"]
+        )
+
+    # Calendar days
+    for d, events in event_map.items():
+        delta = (d - today).days
+        urg   = "#ff3b30" if delta <= 1 else ("#ff9500" if delta <= 3 else "#0071e3")
+        rows_cal = []
+        for kind, title, section, time in events:
+            if kind == "deadline":
+                rows_cal.append(event_row(title, section, time, urg, done=False))
+            else:
+                rows_cal.append(event_row(title, "", "", "#34c759", done=True))
+        pd[f"cal-{d.isoformat()}"] = panel(
+            d.strftime("%A, %B %-d"),
+            rows_cal,
+            subtitle=f"{len(events)} event{'s' if len(events)!=1 else ''}",
+            color="#0071e3"
+        )
+
+    # Deadlines
+    for i,dl in enumerate(deadlines):
+        d = parse_date(dl.get("date"))
+        lbl = rel_label(d, dl.get("time",""))
+        delta = (d-today).days if d else 99
+        hl = "red" if delta<=1 else ("orange" if delta<=3 else "blue")
+        pd[f"deadline-{i}"] = panel(
+            dl["title"][:60],
+            [row("When",  lbl, hl),
+             row("Date",  (dl.get("date","") + (f" at {dl['time']}" if dl.get("time") else "")) if dl.get("date") else ""),
+             row("In",    f"{delta} day{'s' if delta!=1 else ''}" if delta>=0 else "Past due", hl)],
+            subtitle="Upcoming deadline",
+            color="#ff3b30" if delta<=1 else ("#ff9500" if delta<=3 else "#0071e3")
+        )
+
+    # Emails
+    for i,em in enumerate(emails):
+        snippet = clean_snippet(em.get("snippet",""))
+        pd[f"email-{i}"] = panel(
+            em["from"][:40],
+            [row("Subject", em["subject"][:60]),
+             row("Preview", snippet[:120] if snippet else "(no preview)"),
+             row("Received", epoch_str(em.get("epoch",0))),
+             row("Status",  "Unread" if em.get("unread") else "Read",
+                 "blue" if em.get("unread") else "")],
+            subtitle="Email",
+            color="#0071e3"
+        )
+
+    # Blocked
+    for i,b in enumerate(blocked):
+        since_str = b["since_date"].strftime("%A, %b %-d") if b["since_date"] else "unknown"
+        days_str  = f"{b['days']} day{'s' if (b['days'] or 0)!=1 else ''}" if b["days"] is not None else "unknown"
+        hl = "red" if (b["days"] or 0)>=14 else ("orange" if (b["days"] or 0)>=3 else "")
+        pd[f"blocked-{i}"] = panel(
+            b["task"][:60],
+            [row("Waiting on", b["waiting"][:60] if b["waiting"] else "Not specified"),
+             row("Blocked since", since_str),
+             row("Duration", days_str, hl),
+             row("Action needed", "Escalate or re-scope" if (b["days"] or 0)>=7 else "Follow up soon" if (b["days"] or 0)>=3 else "Monitor")],
+            subtitle="Blocked task",
+            color="#ff3b30" if (b["days"] or 0)>=14 else "#ff9500"
+        )
+
+    # Active tasks
+    for si,sec in enumerate(active):
+        for ti,t in enumerate(sec["tasks"]):
+            due_str = rel_label(t["due"]) if t["due"] else "No deadline set"
+            delta   = (t["due"]-today).days if t["due"] else None
+            due_hl  = "red" if delta is not None and delta<=1 else ("orange" if delta is not None and delta<=3 else "blue" if t["due"] else "")
+            pd[f"active-{si}-{ti}"] = panel(
+                t["text"][:60],
+                [row("Project", sec["section"]),
+                 row("Due",     due_str, due_hl),
+                 row("Status",  "Overdue" if delta is not None and delta<0 else "Due soon" if delta is not None and delta<=3 else "On track",
+                     "red" if delta is not None and delta<0 else "orange" if delta is not None and delta<=3 else "green")],
+                subtitle=f"Active · {sec['section']}",
+                color="#0071e3"
+            )
+
+    # Project overview + subfolder panels (for grouped sections with subsections)
+    for si, sec in enumerate(active):
+        subs = sec.get("subsections", [])
+        if not subs:
+            continue
+        # Compute offset of each sub's tasks within sec["tasks"]
+        offset = 0
+        sub_offsets = []
+        for sub in subs:
+            sub_offsets.append(offset)
+            offset += len(sub["tasks"])
+        # Project overview panel - one row per subsection
+        overview_rows = []
+        for sj, sub in enumerate(subs):
+            n = len(sub["tasks"])
+            due_dates = sorted([t["due"] for t in sub["tasks"] if t.get("due")])
+            next_due  = due_dates[0] if due_dates else None
+            next_str  = rel_label(next_due) if next_due else "no deadline"
+            delta     = (next_due - today).days if next_due else None
+            due_cls   = ("due-red" if delta is not None and delta <= 1
+                         else "due-orange" if delta is not None and delta <= 3
+                         else "due-blue" if next_due else "")
+            due_pill  = (f'<span class="due-tag {due_cls}" style="font-size:10px">{next_str}</span>'
+                         if next_due else f'<span style="font-size:11px;color:var(--muted)">{next_str}</span>')
+            overview_rows.append({"html": (
+                f'<div class="dr-sub-item" data-key="sub-{si}-{sj}">'
+                f'<div class="dr-sub-left">'
+                f'<span class="dr-sub-nm">{escape(sub["label"])}</span>'
+                f'<div class="dr-sub-meta">'
+                f'<span>{n} task{"s" if n != 1 else ""}</span>'
+                f'<span>·</span>{due_pill}'
+                f'</div></div>'
+                f'<span class="chevron">›</span>'
+                f'</div>'
+            )})
+        pd[f"project-{si}"] = {
+            "t": sec["section"],
+            "sub": f"{len(sec['tasks'])} tasks across {len(subs)} areas",
+            "color": "#0071e3",
+            "rows": overview_rows
+        }
+        # Subfolder panels - tasks sorted chronologically
+        for sj, (sub, sub_offset) in enumerate(zip(subs, sub_offsets)):
+            sorted_local = sorted(
+                enumerate(sub["tasks"]),
+                key=lambda x: (x[1].get("due") or date.max, x[1].get("time") or "99:99")
+            )
+            task_rows = []
+            for local_idx, t in sorted_local:
+                ti      = sub_offset + local_idx
+                due_str = rel_label(t["due"]) if t.get("due") else ""
+                delta   = (t["due"] - today).days if t.get("due") else None
+                d_cls   = ("due-red" if delta is not None and delta <= 1
+                           else "due-orange" if delta is not None and delta <= 3
+                           else "due-blue" if t.get("due") else "")
+                due_tag = f'<span class="due-tag {d_cls}">{due_str}</span>' if due_str else ""
+                task_rows.append({"html": (
+                    f'<div class="dr-task-row" data-key="active-{si}-{ti}">'
+                    f'<span class="dot dot-blue dot-sm"></span>'
+                    f'<span class="dr-task-text">{escape(t["text"][:80])}</span>'
+                    f'{due_tag}'
+                    f'<span class="chevron">›</span>'
+                    f'</div>'
+                )})
+            pd[f"sub-{si}-{sj}"] = {
+                "t": sub["label"],
+                "sub": sec["section"],
+                "color": "#0071e3",
+                "rows": task_rows
+            }
+
+    # Completed
+    for i,c in enumerate(reversed(completed)):
+        date_str = c["date"].strftime("%A, %B %-d") if c["date"] else "Date not recorded"
+        pd[f"done-{i}"] = panel(
+            c["task"][:60],
+            [row("Completed", date_str, "green"),
+             row("Days ago",  str(days_diff(c["date"])) if c["date"] else "unknown")],
+            subtitle="Completed task",
+            color="#34c759"
+        )
+
+    # Donut legend taps → project overview panel (hierarchical nav instead of flat list)
+    for l in legend:
+        si = l["idx"]
+        if f"project-{si}" in pd:
+            pd[f"donut-{si}"] = pd[f"project-{si}"]
+
+    return pd
+
+# ── Build HTML ────────────────────────────────────────────────────────────────
+
+def build_html(active, blocked, completed, live_data):
+    active     = group_active_sections(active)
+    today      = date.today()
+    t_active   = sum(len(s["tasks"]) for s in active)
+    t_block    = len(blocked)
+    t_done     = len(completed)
+    done_wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days<=7)
+    due_today_count = sum(1 for sec in active for t in sec["tasks"] if t.get("due") == today)
+    spark_svg, spark_n, spark_data = sparkline(completed)
+    donut_svg, legend   = donut_chart(active)
+    deadlines  = sorted(live_data.get("deadlines", []), key=lambda d: (d.get("date",""), d.get("time","") or "99:99"))
+    emails     = live_data.get("emails", [])
+    pipeline   = live_data.get("pipeline", [])
+    replies    = live_data.get("replies", [])
+    agenda     = live_data.get("agenda", [])
+    cal_html, event_map = mini_calendar(deadlines, completed, months=2)
+    updated    = datetime.now().strftime("%b %-d at %H:%M")
+    build_epoch = int(datetime.now().timestamp())
+    hourly_cal  = hourly_calendar_html(agenda, deadlines, active, today)
+    # Velocity stats (done_today also used later by weekly progress bar)
+    done_today  = sum(1 for c in completed if c["date"] and (today-c["date"]).days == 0)
+    done_2wk    = sum(1 for c in completed if c["date"] and (today-c["date"]).days <= 14)
+    daily_avg   = round(done_2wk / 14, 1)
+    unread_count= sum(1 for e in emails if e.get("unread"))
+    # Pipeline pills
+    stage_seen  = {}
+    for a in pipeline:
+        s = a.get("stage","")
+        if s not in stage_seen:
+            stage_seen[s] = {"count": 0, "color": a["color"], "label": a["label"]}
+        stage_seen[s]["count"] += 1
+    pipeline_pills = "".join(
+        f'<span class="act-pill" style="background:{v["color"]}22;color:{v["color"]}">'
+        f'{v["count"]} {v["label"]}</span>'
+        for v in stage_seen.values()
+    ) if stage_seen else '<span style="font-size:12px;color:var(--muted)">No articles</span>'
+    # Velocity delta label
+    vel_color  = "vel-green" if done_today >= daily_avg else "vel-muted"
+    vel_delta  = done_today - daily_avg
+    vel_sign   = "+" if vel_delta >= 0 else ""
+    vel_trend  = f"{vel_sign}{vel_delta:.1f} vs avg"
+    # Weekly stats for progress bar
+    done_last_wk = sum(1 for c in completed if c["date"] and 7 < (today-c["date"]).days <= 14)
+    # Today's progress widget
+    tp_done_tasks = [c for c in completed if c.get("date") == today]
+    tp_due_tasks  = [{"text": t["text"], "section": sec["section"]}
+                     for sec in active for t in sec.get("tasks", []) if t.get("due") == today]
+    tp_done  = len(tp_done_tasks)
+    tp_rem   = len(tp_due_tasks)
+    tp_total = tp_done + tp_rem
+    tp_pct   = min(round(tp_done / tp_total * 100) if tp_total > 0 else 0, 100)
+    tp_color = "#34c759" if tp_pct == 100 else ("#ff9500" if tp_pct >= 50 else "#0071e3")
+    tp_rem_lbl = ("All done today" if tp_rem == 0 and tp_total > 0
+                  else "No tasks due today" if tp_total == 0
+                  else f"{tp_rem} task{'s' if tp_rem != 1 else ''} remaining")
+    # Session status bar
+    fetched_at = live_data.get("fetched_at", "")
+    try:
+        sync_dt     = datetime.strptime(fetched_at, "%Y-%m-%d %H:%M")
+        minutes_ago = max(int((datetime.now() - sync_dt).total_seconds() / 60), 0)
+    except Exception:
+        minutes_ago = 0
+    if minutes_ago < 15:
+        sb_label = "Session active"; sb_color = "#34c759"
+    elif minutes_ago < 45:
+        sb_label = f"Session cooling · {minutes_ago}m ago"; sb_color = "#ff9500"
+    else:
+        sb_label = f"Session idle · {minutes_ago // 60}h {minutes_ago % 60}m ago"; sb_color = "#aeaeb2"
+    sb_pct = max(100 - int(minutes_ago * 1.2), 4)  # battery-style: drains over ~80 min
+    # Circular session arc widget - uses real 5-hour rate limit data
+    _circ = 238.76  # 2*pi*38
+    claude_usage = live_data.get("claude_usage", {})
+    five_pct  = claude_usage.get("five_hour_pct")
+    resets_at = int(claude_usage.get("resets_at") or 0)
+    if five_pct is not None:
+        arc_pct   = int(float(five_pct))
+        arc_color = "#34c759" if arc_pct < 50 else ("#ff9500" if arc_pct < 75 else "#ff3b30")
+        arc_text  = f"{arc_pct}%"
+        arc_sub   = "used"
+    else:
+        arc_pct   = 0
+        arc_color = "#aeaeb2"
+        arc_text  = "--"
+        arc_sub   = "no data"
+    _fill = arc_pct / 100 * _circ
+    session_arc_html = (
+        f'<div class="sec">'
+        f'<div class="sec-lbl">Claude Session</div>'
+        f'<div class="card" id="session-arc-wrap" data-resetsat="{resets_at}" '
+        f'style="display:flex;flex-direction:column;align-items:center;padding:20px 14px 18px">'
+        f'<svg viewBox="0 0 100 100" width="108" height="108" style="display:block">'
+        f'<circle cx="50" cy="50" r="38" fill="none" stroke="#f2f2f7" stroke-width="9"/>'
+        f'<circle id="session-arc-fill" cx="50" cy="50" r="38" fill="none" stroke="{arc_color}" stroke-width="9" '
+        f'stroke-dasharray="{_fill:.1f} {_circ:.1f}" stroke-linecap="round" transform="rotate(-90 50 50)"/>'
+        f'<text id="session-pct-text" x="50" y="44" text-anchor="middle" dominant-baseline="middle" '
+        f'font-size="20" font-weight="700" fill="var(--text)" font-family="Inter,-apple-system,sans-serif">{arc_text}</text>'
+        f'<text x="50" y="60" text-anchor="middle" '
+        f'font-size="9" fill="var(--muted)" font-family="Inter,-apple-system,sans-serif">{arc_sub}</text>'
+        f'</svg>'
+        f'<div id="session-status-lbl" style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.5">...</div>'
+        f'</div></div>'
+    )
+    panels     = build_panels(active, blocked, completed, live_data,
+                              spark_data, legend, event_map)
+    panels_js  = json.dumps(panels, ensure_ascii=False)
+
+    # KPI
+    def kpi(val, lbl, cls, key, tip, countup=None):
+        cu = f' data-countup="{countup}"' if countup is not None else ""
+        return (f'<div class="kpi-card {cls} interactive" data-key="{key}" '
+                f'data-tip="{escape(tip)}">'
+                f'<div class="kpi-val"{cu}>{val}</div>'
+                f'<div class="kpi-lbl">{escape(lbl)}</div></div>')
+    kpi_html = (
+        kpi(t_active,        "Active",         "kpi-blue",                                "kpi-active",    "Tap for breakdown", t_active) +
+        kpi(t_block,         "Blocked",        "kpi-orange" if t_block else "",           "kpi-blocked",   "Tap for details",   t_block) +
+        kpi(done_wk,         "Done this week", "kpi-green",                               "kpi-week",      "Tap to see tasks",  done_wk) +
+        kpi(due_today_count, "Due today",      "kpi-red" if due_today_count > 0 else "",  "kpi-due-today", "Tap for details",   due_today_count)
+    )
+
+    # Deadlines
+    deadline_rows = ""
+    for i,dl in enumerate(deadlines):
+        d = parse_date(dl.get("date"))
+        if d and (d-today).days < 0: continue
+        lbl   = rel_label(d, dl.get("time",""))
+        delta = (d-today).days if d else 99
+        dt_cls = "dt-red" if delta<=1 else ("dt-orange" if delta<=3 else "dt-blue")
+        deadline_rows += (f'<div class="list-row interactive" data-key="deadline-{i}">'
+                          f'<span class="dt-badge {dt_cls}" data-due-iso="{d.isoformat() if d else ""}" data-due-time="{escape(dl.get("time",""))}">{escape(lbl)}</span>'
+                          f'<span class="list-text">{escape(dl["title"])}</span>'
+                          f'<span class="chevron">›</span></div>')
+    if not deadline_rows:
+        deadline_rows = '<p class="empty-p">No upcoming deadlines.</p>'
+
+    # This Week widget - casual two-sentence recap generated in the fetch (auto-evolves)
+    _recap = live_data.get("week_recap") or {}
+    recap_text = _recap.get("text") if isinstance(_recap, dict) else ""
+    if not recap_text:
+        recap_text = "Nothing on the radar this week yet."
+    this_week_html = f'<div class="week-recap">{escape(recap_text)}</div>'
+
+    # AI & Deal-flow news widgets - live RSS headlines (refreshed on full fetch)
+    def news_block(items, accent, empty_lbl):
+        if not items:
+            return f'<div class="news-empty">{empty_lbl}</div>'
+        rows = ""
+        for n in items:
+            if not isinstance(n, dict) or not n.get("title"):
+                continue
+            ago   = f'<span class="news-age">{escape(str(n["ago"]))}</span>' if n.get("ago") else ""
+            href  = escape(str(n.get("link", "") or "#"))
+            rows += (f'<a class="news-row" href="{href}" target="_blank" rel="noopener">'
+                     f'<span class="news-dot" style="background:{accent}"></span>'
+                     f'<span class="news-main">'
+                     f'<span class="news-ttl">{escape(str(n["title"])[:100])}</span>'
+                     f'<span class="news-meta"><b>{escape(str(n.get("source","")))}</b>{ago}</span>'
+                     f'</span></a>')
+        return rows or '<div class="news-empty">Nothing right now</div>'
+    ai_news_html = news_block(live_data.get("ai_news", []), "var(--green)", "No AI news right now")
+    pe_news_html = news_block(live_data.get("pe_news", []), "var(--blue)",  "No deal news right now")
+
+    # Markets snapshot widget - live index/FX/rate quotes (refreshed on full fetch)
+    def markets_block(items):
+        if not items:
+            return '<div class="news-empty">Markets unavailable</div>'
+        rows = ""
+        for m in items:
+            if not isinstance(m, dict) or not m.get("name"):
+                continue
+            cls = "mkt-up" if m.get("up") else "mkt-down"
+            arr = "&#9650;" if m.get("up") else "&#9660;"
+            rows += (f'<div class="mkt-row">'
+                     f'<span class="mkt-name">{escape(str(m["name"]))}</span>'
+                     f'<span class="mkt-val">{escape(str(m.get("value","")))}</span>'
+                     f'<span class="mkt-chg {cls}">{arr}&nbsp;{escape(str(m.get("pct","")))}</span>'
+                     f'</div>')
+        return rows or '<div class="news-empty">Markets unavailable</div>'
+    markets_html = markets_block(live_data.get("markets", []))
+
+    # Emails
+    email_rows = ""
+    for i,em in enumerate(emails):
+        dot = ('<span class="e-dot"></span>' if em.get("unread")
+               else '<span class="e-dot e-dot-read"></span>')
+        email_rows += (f'<div class="email-row interactive" data-key="email-{i}">{dot}'
+                       f'<div class="e-body">'
+                       f'<div class="e-from">{escape(em["from"][:28])}</div>'
+                       f'<div class="e-sub">{escape(em["subject"][:50])}</div>'
+                       f'</div>'
+                       f'<div class="e-time">{escape(epoch_str(em.get("epoch",0)))}</div>'
+                       f'<span class="chevron">›</span></div>')
+    if not email_rows:
+        email_rows = '<p class="empty-p">No recent emails.</p>'
+
+    # Blocked
+    blocked_rows = ""
+    for i,b in enumerate(sorted(blocked, key=lambda x: x["days"] or 0, reverse=True)):
+        d = b["days"]
+        if d is not None and d>=14:  pill_cls,plbl="pill-red",    f"{d}d"
+        elif d is not None and d>=3: pill_cls,plbl="pill-orange",  f"{d}d"
+        else:                        pill_cls,plbl="pill-gray",    f"{d or 0}d"
+        since = f"Since {b['since_date'].strftime('%b %-d')}" if b["since_date"] else ""
+        blocked_rows += (f'<div class="list-row interactive" data-key="blocked-{i}">'
+                         f'<span class="dot dot-orange"></span>'
+                         f'<div class="list-main">'
+                         f'<div class="list-text">{escape(b["task"])}</div>'
+                         f'<div class="list-meta">{escape(b["waiting"])}'
+                         f'{"  ·  " + since if since else ""}</div>'
+                         f'</div>'
+                         f'<span class="pill {pill_cls}">{plbl}</span>'
+                         f'<span class="chevron">›</span></div>')
+    if not blocked_rows:
+        blocked_rows = '<p class="empty-p">Nothing blocked.</p>'
+
+    # Active
+    active_cards = ""
+    for si,sec in enumerate(active):
+        if not sec["tasks"]: continue
+        rows = ""
+        ti   = 0
+        subsections = sec.get("subsections", [])
+        if subsections:
+            for sub in subsections:
+                if not sub["tasks"]: continue
+                rows += f'<li class="sub-label">{escape(sub["label"])}</li>'
+                for t in sub["tasks"]:
+                    due_html = ""
+                    if t["due"]:
+                        delta  = (t["due"]-today).days
+                        d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
+                        due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
+                    rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
+                             f'<span class="dot dot-blue dot-sm"></span>'
+                             f'<span class="task-text">{escape(t["text"])}</span>'
+                             f'{due_html}'
+                             f'<span class="chevron">›</span></li>')
+                    ti += 1
+        else:
+            for t in sec["tasks"]:
+                due_html = ""
+                if t["due"]:
+                    delta  = (t["due"]-today).days
+                    d_cls  = "due-red" if delta<=1 else ("due-orange" if delta<=3 else "due-blue")
+                    due_html = f'<span class="due-tag {d_cls}" data-due-iso="{t["due"].isoformat()}">{rel_label(t["due"])}</span>'
+                rows += (f'<li class="task-li interactive" data-key="active-{si}-{ti}">'
+                         f'<span class="dot dot-blue dot-sm"></span>'
+                         f'<span class="task-text">{escape(t["text"])}</span>'
+                         f'{due_html}'
+                         f'<span class="chevron">›</span></li>')
+                ti += 1
+        has_subs  = bool(sec.get("subsections"))
+        hd_extra  = f' data-key="project-{si}"' if has_subs else ""
+        hd_cls    = " interactive" if has_subs else ""
+        hd_arrow  = '<span class="chevron" style="font-size:10px">›</span>' if has_subs else ""
+        active_cards += (f'<div class="proj-card">'
+                         f'<div class="proj-hd{hd_cls}"{hd_extra}>'
+                         f'<span class="proj-nm">{escape(sec["section"])}</span>'
+                         f'<span class="pill pill-gray">{len(sec["tasks"])}</span>'
+                         f'{hd_arrow}'
+                         f'</div>'
+                         f'<ul class="task-ul">{rows}</ul></div>')
+    if not active_cards:
+        active_cards = '<p class="empty-p">No active tasks.</p>'
+
+    # Legend
+    legend_html = "".join(
+        f'<div class="leg-row interactive" data-key="donut-{l["idx"]}">'
+        f'<span class="leg-dot" style="background:{l["color"]}"></span>'
+        f'<span class="leg-name">{escape(l["name"])}</span>'
+        f'<span class="leg-n">{l["cnt"]}</span>'
+        f'<span class="chevron" style="font-size:10px;margin-left:2px">›</span>'
+        f'</div>'
+        for l in legend
+    ) or '<p class="empty-p" style="font-size:12px">No active projects</p>'
+
+    # Article pipeline widget
+    pipeline_html = ""
+    for i,a in enumerate(pipeline):
+        days_str = f" · {a['days_ago']}d" if a.get("days_ago") else ""
+        contact_str = f" · {a['contact']}" if a.get("contact") else ""
+        pd_key = f"pipeline-{i}"
+        panels[pd_key] = {
+            "t": a["name"], "sub": a["label"], "color": a["color"],
+            "rows": [
+                {"k": "Stage",   "v": a["label"]},
+                {"k": "Contact", "v": a["contact"]} if a.get("contact") else None,
+                {"k": "Sent",    "v": a["sent_date"] + days_str} if a.get("sent_date") else None,
+                {"k": "Status",  "v": a["desc"][:80]}
+            ]
+        }
+        pipeline_html += (
+            f'<div class="pipe-card interactive" data-key="{pd_key}" '
+            f'style="border-top:3px solid {a["color"]}">'
+            f'<div class="pipe-name">{escape(a["name"])}</div>'
+            f'<div class="pipe-badge" style="color:{a["color"]}">{escape(a["label"])}{escape(contact_str)}{escape(days_str)}</div>'
+            f'</div>'
+        )
+    if not pipeline_html:
+        pipeline_html = '<p class="empty-p">No articles tracked.</p>'
+
+    # Recently completed (top 3)
+    rec_html = ""
+    for c in completed[:3]:
+        d = c.get("date")
+        if d:
+            delta = (today - d).days
+            when  = "Today" if delta == 0 else ("Yesterday" if delta == 1 else f"{delta}d ago")
+        else:
+            when = ""
+        dh = f'<span class="done-dt">{escape(when)}</span>' if when else ""
+        rec_html += (f'<li class="done-li">'
+                     f'<span class="done-ck">✓</span>'
+                     f'<span class="done-txt">{escape(c["task"])}</span>'
+                     f'{dh}</li>')
+    if not rec_html:
+        rec_html = ('<li class="done-li"><span class="done-ck">✓</span>'
+                    '<span class="done-txt" style="font-style:italic">No completed tasks yet</span></li>')
+
+    # Pending replies widget
+    replies_html = ""
+    for i,r in enumerate(replies):
+        days = int(r["days"]) if r.get("days") else 0
+        hl   = "red" if days >= 7 else ("orange" if days >= 3 else "")
+        pill_cls = "pill-red" if days>=7 else ("pill-orange" if days>=3 else "pill-gray")
+        pd_key = f"reply-{i}"
+        panels[pd_key] = {
+            "t": r["item"], "sub": f"Waiting on {r['waiting_on']}",
+            "color": "#ff9500",
+            "rows": [
+                {"k": "Item",        "v": r["item"]},
+                {"k": "Waiting on",  "v": r["waiting_on"]},
+                {"k": "Since",       "v": r["since"]} if r.get("since") else None,
+                {"k": "Days waiting","v": f"{days} days", "hl": hl} if days else None,
+                {"k": "Context",     "v": r.get("desc","")[:80]}
+            ]
+        }
+        replies_html += (
+            f'<div class="list-row interactive" data-key="{pd_key}">'
+            f'<span class="dot dot-orange"></span>'
+            f'<div class="list-main">'
+            f'<div class="list-text">{escape(r["item"])}</div>'
+            f'<div class="list-meta">Waiting on {escape(r["waiting_on"])}</div>'
+            f'</div>'
+            f'<span class="pill {pill_cls}">{r.get("label","")}</span>'
+            f'<span class="chevron">›</span></div>'
+        )
+    if not replies_html:
+        replies_html = '<p class="empty-p">No pending replies.</p>'
+
+    # Today's agenda widget - tasks due today + calendar events, deduped by title
+    agenda_items = []
+    seen_titles = set()
+    # Tasks first so their richer metadata wins when a title appears in both sources
+    for sec in active:
+        for t_item in sec.get("tasks", []):
+            if t_item.get("due") == today:
+                key = t_item["text"].strip().lower()
+                if key not in seen_titles:
+                    seen_titles.add(key)
+                    agenda_items.append({"title": t_item["text"], "time": t_item.get("time",""),
+                                         "kind": "task", "sec": sec["section"]})
+    for ev in agenda:
+        key = ev["title"].strip().lower()
+        if key not in seen_titles:
+            seen_titles.add(key)
+            agenda_items.append({"title": ev["title"], "time": ev.get("time",""), "kind": "cal"})
+    agenda_items.sort(key=lambda x: (not x.get("time"), x.get("time") or ""))
+
+    agenda_html = ""
+    for i, item in enumerate(agenda_items):
+        t = item.get("time", "")
+        if item["kind"] == "task":
+            time_html = (f'<span class="ag-time">{escape(t)}</span>' if t
+                         else '<span class="ag-time ag-allday">task</span>')
+            color = "#34c759"
+            rows  = [{"k": "Due",     "v": "Today" + (f" at {t}" if t else ""), "hl": "red"},
+                     {"k": "Project", "v": item.get("sec", "")}]
+        else:
+            time_html = (f'<span class="ag-time">{escape(t)}</span>' if t
+                         else '<span class="ag-time ag-allday">all day</span>')
+            color = "#0071e3"
+            rows  = [{"k": "Time", "v": t if t else "All day"}, {"k": "Date", "v": str(today)}]
+        pd_key = f"agenda-{i}"
+        panels[pd_key] = {"t": item["title"],
+                          "sub": f"Today{' at ' + t if t else ''}",
+                          "color": color, "rows": rows}
+        agenda_html += (
+            f'<div class="list-row interactive" data-key="{pd_key}">'
+            f'{time_html}'
+            f'<span class="list-text">{escape(item["title"][:44])}</span>'
+            f'<span class="chevron">›</span></div>'
+        )
+    if not agenda_html:
+        agenda_html = '<p class="empty-p">Nothing scheduled today.</p>'
+
+    # Weekly progress bar
+    wk_max   = max(done_wk, done_last_wk, 5)
+    wk_pct   = min(int(done_wk / wk_max * 100), 100)
+    lw_pct   = min(int(done_last_wk / wk_max * 100), 100)
+    wk_color = "#34c759" if done_wk >= done_last_wk else "#ff9500"
+
+    # Today's progress drawer data
+    tp_rows = ([{"k": "Done today", "v": f"{tp_done} task{'s' if tp_done!=1 else ''}", "hl": "green"}]
+               + [{"k": f"  {i+1}.", "v": c["task"][:50], "hl": ""} for i,c in enumerate(tp_done_tasks[:6])]
+               + ([{"k": "Remaining", "v": f"{tp_rem} task{'s' if tp_rem!=1 else ''}", "hl": "orange"}]
+                  + [{"k": f"  {i+1}.", "v": t["text"][:50], "hl": ""} for i,t in enumerate(tp_due_tasks[:6])]
+                  if tp_rem else []))
+    panels["today-progress"] = {"t": "Today's Progress",
+        "sub": f"{tp_pct}% complete · {today.strftime('%b %-d')}",
+        "color": tp_color, "rows": tp_rows,
+        "note": "All done today - great work." if tp_pct == 100 else ""}
+    # Rebuild panels_js with new entries.
+    # Escape sequences that could break out of the <script> tag (XSS hardening):
+    # </script>, <!-- and the U+2028/U+2029 line separators that are invalid in JS strings.
+    def _script_safe(s):
+        return (s.replace("<", "\\u003c").replace(">", "\\u003e")
+                 .replace("&", "\\u0026")
+                 .replace(" ", "\\u2028").replace(" ", "\\u2029"))
+    panels_js = _script_safe(json.dumps(panels, ensure_ascii=False))
+    graph_data_js = _script_safe(json.dumps(live_data.get("vault_graph", {"nodes": [], "links": []}), ensure_ascii=False))
+
+    # Priority card - highest urgency item
+    priority = None
+    for sec in active:
+        for t in sec["tasks"]:
+            if t.get("due") and t["due"] < today:
+                priority = {"text": t["text"], "label": "Overdue",
+                            "detail": f"Was due {rel_label(t['due'])}",
+                            "color": "var(--red)", "bg": "var(--red-bg)", "bdr": "#ff3b30"}; break
+        if priority: break
+    if not priority:
+        for dl in deadlines:
+            d = parse_date(dl.get("date"))
+            if d and 0 <= (d - today).days <= 2:
+                clean_title = re.sub(r'\s*\(\d{1,2}[h:]\d{2}(?:[-]\d{1,2}[h:]\d{2})?\)', '', dl["title"]).strip()
+                time_detail = dl.get("time", "") or "Deadline"
+                priority = {"text": clean_title, "label": rel_label(d),
+                            "detail": time_detail, "due_iso": d.isoformat(),
+                            "color": "#c93566", "bg": "#fce8f0", "bdr": "#c93566"}; break
+    if not priority:
+        for sec in active:
+            for t in sec["tasks"]:
+                if t.get("due") == today:
+                    priority = {"text": t["text"], "label": "Due today",
+                                "detail": sec["section"],
+                                "color": "var(--blue)", "bg": "var(--blue-bg)", "bdr": "#0071e3"}; break
+            if priority: break
+    if not priority and blocked:
+        ob = max(blocked, key=lambda b: b.get("days") or 0)
+        if (ob.get("days") or 0) >= 3:
+            priority = {"text": ob["task"], "label": f"{ob['days']}d blocked",
+                        "detail": f"Waiting on {ob['waiting']}",
+                        "color": "var(--orange)", "bg": "var(--orange-bg)", "bdr": "#ff9500"}
+    if priority:
+        priority_html = (
+            f'<div class="priority-card" style="border-left-color:{priority["bdr"]};background:{priority["bg"]}">'
+            f'<div class="priority-inner">'
+            f'<span class="priority-flag" style="color:{priority["color"]}" data-due-iso="{priority.get("due_iso","")}">{escape(priority["label"])}</span>'
+            f'<span class="priority-text">{escape(priority["text"][:70])}</span>'
+            f'</div>'
+            f'<span class="priority-detail">{escape(priority["detail"])}</span>'
+            f'</div>'
+        )
+    else:
+        priority_html = (
+            '<div class="priority-card priority-clear">'
+            '<div class="priority-inner">'
+            '<span class="priority-flag" style="color:var(--green)">All clear</span>'
+            '<span class="priority-text">No overdue tasks or imminent deadlines</span>'
+            '</div></div>'
+        )
+
+    # Completed
+    done_rows = ""
+    for i,c in enumerate(reversed(completed)):
+        dh = f'<span class="done-dt">{c["date"].strftime("%b %-d")}</span>' if c["date"] else ""
+        done_rows += (f'<li class="done-li interactive" data-key="done-{i}">'
+                      f'<span class="done-ck">✓</span>'
+                      f'<span class="done-txt">{escape(c["task"])}</span>'
+                      f'{dh}'
+                      f'<span class="chevron">›</span></li>')
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+    :root{{
+      --bg:#f5f5f7;--surface:#ffffff;
+      --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+      --text:#1d1d1f;--muted:#6e6e73;--subtle:#aeaeb2;
+      --blue:#0071e3;--blue-bg:#e8f0fd;--blue-bdr:rgba(0,113,227,0.20);
+      --green:#34c759;--green-bg:#e8f8ed;--green-bdr:rgba(52,199,89,0.20);
+      --orange:#ff9500;--orange-bg:#fff4e0;--orange-bdr:rgba(255,149,0,0.20);
+      --red:#ff3b30;--red-bg:#ffebe9;--red-bdr:rgba(255,59,48,0.20);
+      --shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 14px rgba(0,0,0,0.06);
+      --r:14px;--touch:44px
+    }}
+    html{{background:var(--bg)}}
+    body{{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+          background:
+            radial-gradient(ellipse 55% 28% at 15% 0%,rgba(0,113,227,0.07) 0%,transparent 65%),
+            radial-gradient(ellipse 45% 22% at 85% 0%,rgba(52,199,89,0.06) 0%,transparent 65%),
+            var(--bg);
+          color:var(--text);min-height:100vh;
+          padding:28px 20px 80px;-webkit-font-smoothing:antialiased}}
+    .wrap{{max-width:1140px;margin:0 auto}}
+
+    /* ─ Header ─ */
+    .header{{display:flex;justify-content:space-between;align-items:center;
+             margin-bottom:16px;gap:12px;flex-wrap:wrap}}
+    .hd-left{{display:flex;align-items:center;gap:12px}}
+    .hd-right{{display:flex;align-items:center;gap:10px}}
+    .avatar{{width:42px;height:42px;border-radius:13px;flex-shrink:0;
+             background:linear-gradient(135deg,#0071e3,#34aadc);
+             display:flex;align-items:center;justify-content:center;
+             font-size:16px;font-weight:700;color:#fff;
+             box-shadow:0 2px 10px rgba(0,113,227,0.30)}}
+    .hd-name{{font-size:17px;font-weight:700;letter-spacing:-.3px}}
+    .hd-sub{{font-size:12px;color:var(--muted);margin-top:1px}}
+    .hd-time{{font-size:12px;color:var(--muted)}}
+    .sync-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+    .sync-lbl{{font-size:11px;color:var(--muted)}}
+
+    /* ─ Priority card ─ */
+    .priority-card{{background:var(--surface);border:1px solid var(--border);
+                    border-left:4px solid;border-radius:var(--r);
+                    padding:13px 18px;box-shadow:var(--shadow);
+                    margin-bottom:16px;display:flex;
+                    align-items:center;justify-content:space-between;gap:14px}}
+    .priority-clear{{border-left-color:var(--green)!important;
+                     background:var(--green-bg)!important}}
+    .priority-inner{{display:flex;align-items:center;gap:12px;min-width:0}}
+    .priority-flag{{font-size:10px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:.6px;flex-shrink:0;white-space:nowrap}}
+    .priority-text{{font-size:14px;font-weight:600;letter-spacing:-.2px;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+    .priority-detail{{font-size:12px;color:var(--muted);flex-shrink:0}}
+
+    /* ─ KPI ─ */
+    .kpi-strip{{display:grid;grid-template-columns:repeat(4,1fr);
+               gap:10px;margin-bottom:16px}}
+    .kpi-card{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:16px 15px;box-shadow:var(--shadow);
+               min-height:var(--touch)}}
+    .kpi-blue  {{background:var(--blue-bg);  border-color:var(--blue-bdr)}}
+    .kpi-green {{background:var(--green-bg); border-color:var(--green-bdr)}}
+    .kpi-orange{{background:var(--orange-bg);border-color:var(--orange-bdr)}}
+    .kpi-red   {{background:var(--red-bg);   border-color:var(--red-bdr)}}
+    .kpi-yellow{{background:#fff8df;border-color:rgba(160,112,0,0.20)}}
+    .kpi-val{{font-size:30px;font-weight:700;letter-spacing:-1px;
+              line-height:1;margin-bottom:4px}}
+    .kpi-blue   .kpi-val{{color:var(--blue)}}
+    .kpi-green  .kpi-val{{color:var(--green)}}
+    .kpi-orange .kpi-val{{color:var(--orange)}}
+    .kpi-red    .kpi-val{{color:var(--red)}}
+    .kpi-yellow .kpi-val{{color:#a07000}}
+    .kpi-lbl{{font-size:11px;font-weight:500;color:var(--muted)}}
+
+    /* Tooltip */
+    [data-tip]{{position:relative}}
+    [data-tip]::after{{content:attr(data-tip);position:absolute;
+      bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+      background:#1d1d1f;color:#fff;font-size:11px;padding:5px 10px;
+      border-radius:7px;white-space:nowrap;pointer-events:none;
+      opacity:0;transition:opacity .15s;z-index:60;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2)}}
+    [data-tip]:hover::after{{opacity:1}}
+
+    /* Interactive */
+    .interactive{{cursor:pointer;-webkit-tap-highlight-color:transparent}}
+    .interactive:hover{{background:rgba(0,0,0,0.025)}}
+    .interactive:active{{background:rgba(0,0,0,0.06)}}
+    .chevron{{color:var(--subtle);font-size:16px;font-weight:400;
+              flex-shrink:0;margin-left:auto;padding-left:6px}}
+
+    /* ─ Top row ─ */
+    .top-row{{display:grid;grid-template-columns:1fr 1fr 1fr;
+              gap:12px;margin-bottom:16px}}
+    .panel{{background:var(--surface);border:1px solid var(--border);
+            border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}}
+    .p-lbl{{font-size:10px;font-weight:700;text-transform:uppercase;
+            letter-spacing:.9px;color:var(--muted);margin-bottom:12px}}
+    .spark-big{{font-size:30px;font-weight:700;color:var(--green);
+                letter-spacing:-1px;line-height:1}}
+    .spark-sub{{font-size:11px;color:var(--muted);margin:3px 0 10px}}
+    .spark-panel{{display:flex;flex-direction:column}}
+    .spark-grow{{flex:1;min-height:40px}}
+    .donut-wrap{{display:flex;align-items:center;gap:14px}}
+    .donut-svg{{width:100px;height:100px;flex-shrink:0}}
+    .leg{{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}}
+    .leg-row{{display:flex;align-items:center;gap:8px;
+              border-radius:7px;padding:5px 6px;margin:-5px -6px;
+              min-height:var(--touch)}}
+    .leg-dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0}}
+    .leg-name{{font-size:12px;color:var(--text);flex:1;overflow:hidden;
+               text-overflow:ellipsis;white-space:nowrap}}
+    .leg-n{{font-size:12px;font-weight:600;color:var(--muted)}}
+
+    /* ─ Calendar ─ */
+    .cal-grid{{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+    .cal-title{{font-size:12px;font-weight:700;margin-bottom:7px;
+                letter-spacing:-.2px}}
+    .cal-days-hd{{display:grid;grid-template-columns:repeat(7,1fr);
+                  margin-bottom:3px}}
+    .cal-days-hd span{{font-size:9px;font-weight:600;text-align:center;
+                       color:var(--subtle);padding:1px 0}}
+    .cal-days{{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}}
+    .cal-cell{{display:flex;flex-direction:column;align-items:center;
+               padding:2px 1px;border-radius:6px;min-height:26px}}
+    .cal-has-ev{{cursor:pointer}}
+    .cal-has-ev:hover{{background:rgba(0,113,227,0.08)}}
+    .cal-today .cal-num{{background:var(--blue);color:#fff;border-radius:50%;
+                         width:18px;height:18px;display:flex;align-items:center;
+                         justify-content:center}}
+    .cal-past .cal-num{{color:var(--subtle)}}
+    .cal-num{{font-size:10px;font-weight:500;line-height:1.8}}
+    .cal-dot{{width:4px;height:4px;border-radius:50%;margin-top:1px}}
+
+    /* ─ Main two-col ─ */
+    .main-row{{display:grid;grid-template-columns:1fr 1fr;
+               gap:12px;margin-bottom:16px}}
+    .card{{background:var(--surface);border:1px solid var(--border);
+           border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}}
+    .sec{{margin-bottom:22px}}
+    .sec-lbl{{font-size:10px;font-weight:700;text-transform:uppercase;
+              letter-spacing:.9px;color:var(--muted);margin-bottom:10px;
+              padding-left:2px}}
+
+    /* List rows */
+    .list-row{{display:flex;align-items:center;gap:10px;padding:12px 14px;
+               border-bottom:1px solid var(--border);min-height:var(--touch)}}
+    .list-row:last-child{{border-bottom:none}}
+    .list-main{{flex:1;min-width:0}}
+    .list-text{{font-size:13px;line-height:1.4;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap}}
+    .list-meta{{font-size:11px;color:var(--muted);margin-top:2px;
+                overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+
+    /* Deadline badges */
+    .dt-badge{{font-size:10px;font-weight:700;border-radius:6px;
+               padding:3px 8px;flex-shrink:0;white-space:nowrap}}
+    .dt-red   {{background:#fce8f0;color:#c93566}}
+    .dt-orange{{background:#fce8f0;color:#c93566}}
+    .dt-blue  {{background:#fce8f0;color:#c93566}}
+
+    /* Due tags */
+    .due-tag{{font-size:10px;font-weight:600;border-radius:5px;
+              padding:2px 6px;flex-shrink:0;white-space:nowrap}}
+    .due-red   {{background:var(--red-bg);color:var(--red)}}
+    .due-orange{{background:var(--orange-bg);color:var(--orange)}}
+    .due-blue  {{background:var(--blue-bg);color:var(--blue)}}
+
+    /* Emails */
+    .email-row{{display:flex;align-items:center;gap:10px;padding:12px 14px;
+                border-bottom:1px solid var(--border);min-height:var(--touch)}}
+    .email-row:last-child{{border-bottom:none}}
+    .e-dot{{width:8px;height:8px;border-radius:50%;
+            background:var(--blue);flex-shrink:0}}
+    .e-dot-read{{background:transparent;border:1.5px solid var(--border2)}}
+    .e-body{{flex:1;min-width:0}}
+    .e-from{{font-size:13px;font-weight:600;overflow:hidden;
+             text-overflow:ellipsis;white-space:nowrap}}
+    .e-sub{{font-size:12px;color:var(--muted);overflow:hidden;
+            text-overflow:ellipsis;white-space:nowrap;margin-top:2px}}
+    .e-time{{font-size:11px;color:var(--muted);flex-shrink:0;white-space:nowrap}}
+
+    /* Dots + pills */
+    .dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
+    .dot-sm{{width:5px;height:5px;margin-top:9px}}
+    .dot-orange{{background:var(--orange)}}.dot-blue{{background:var(--blue)}}
+    .pill{{font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;flex-shrink:0}}
+    .pill-gray  {{background:#f2f2f7;color:var(--muted)}}
+    .pill-orange{{background:var(--orange-bg);color:var(--orange)}}
+    .pill-red   {{background:var(--red-bg);color:var(--red)}}
+
+    /* Project cards */
+    .proj-card{{background:var(--surface);border:1px solid var(--border);
+                border-radius:var(--r);padding:14px 15px;margin-bottom:8px;
+                box-shadow:var(--shadow)}}
+    .proj-hd{{display:flex;align-items:center;justify-content:space-between;
+              margin-bottom:10px}}
+    .proj-nm{{font-size:11px;font-weight:700;text-transform:uppercase;
+              letter-spacing:.5px;color:var(--muted)}}
+    .task-ul{{list-style:none;display:flex;flex-direction:column;gap:2px}}
+    .task-li{{display:flex;align-items:flex-start;gap:9px;padding:8px 7px;
+              border-radius:8px;min-height:var(--touch)}}
+    .task-text{{font-size:13px;line-height:1.45;flex:1}}
+    .sub-label{{list-style:none;font-size:10px;font-weight:600;text-transform:uppercase;
+                letter-spacing:.5px;color:var(--muted);padding:8px 7px 2px;margin-top:4px;
+                border-top:1px solid var(--border)}}
+    .sub-label:first-child{{border-top:none;margin-top:0;padding-top:2px}}
+
+    /* Completed */
+    details{{}}
+    summary{{cursor:pointer;user-select:none;list-style:none;
+             display:flex;align-items:center;gap:7px;
+             font-size:10px;font-weight:700;text-transform:uppercase;
+             letter-spacing:.9px;color:var(--muted);
+             margin-bottom:8px;padding-left:2px}}
+    summary::-webkit-details-marker{{display:none}}
+    summary::after{{content:'';display:inline-block;width:0;height:0;
+                    border-left:4px solid transparent;
+                    border-right:4px solid transparent;
+                    border-top:4px solid var(--muted);
+                    transition:transform .15s}}
+    details[open] summary::after{{transform:rotate(180deg)}}
+    .done-list{{display:flex;flex-direction:column;gap:4px;list-style:none}}
+    .done-li{{display:flex;align-items:center;gap:8px;padding:9px 13px;
+              background:var(--surface);border:1px solid var(--border);
+              border-radius:9px;box-shadow:var(--shadow);
+              min-height:var(--touch)}}
+    .done-ck{{color:var(--green);font-size:12px;flex-shrink:0}}
+    .done-txt{{font-size:13px;color:var(--subtle);text-decoration:line-through;flex:1}}
+    .done-dt{{font-size:11px;color:var(--subtle);white-space:nowrap;flex-shrink:0}}
+
+    .empty-p{{font-size:13px;color:var(--muted);padding:14px 15px;font-style:italic}}
+
+    footer{{margin-top:32px;padding-top:14px;border-top:1px solid var(--border);
+            display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}}
+    .ft-name{{font-size:12px;font-weight:600;color:var(--subtle)}}
+    .ft-time{{font-size:11px;color:var(--subtle)}}
+
+    /* ─ Drawer / modal ─ */
+    .overlay{{position:fixed;inset:0;background:rgba(0,0,0,0);
+              pointer-events:none;z-index:200;transition:background .22s}}
+    .overlay.open{{background:rgba(0,0,0,0.30);pointer-events:all}}
+
+    .drawer{{
+      position:fixed;bottom:0;left:0;right:0;z-index:201;
+      background:var(--surface);border-radius:22px 22px 0 0;
+      box-shadow:0 -8px 40px rgba(0,0,0,0.14);
+      max-height:78vh;overflow-y:auto;
+      transform:translateY(100%);
+      transition:transform .30s cubic-bezier(.32,.72,0,1)
+    }}
+    .drawer.open{{transform:translateY(0)}}
+
+    .dr-handle{{width:36px;height:4px;background:var(--border2);
+                border-radius:2px;margin:12px auto 0}}
+    .dr-accent{{height:3px;margin:14px 0 0;border-radius:0}}
+    .dr-inner{{padding:16px 20px 32px}}
+    .dr-header{{display:flex;align-items:flex-start;
+                justify-content:space-between;gap:12px;margin-bottom:16px}}
+    .dr-titles{{flex:1;min-width:0}}
+    .dr-title{{font-size:17px;font-weight:700;letter-spacing:-.3px;
+               line-height:1.3;word-break:break-word}}
+    .dr-sub{{font-size:12px;color:var(--muted);margin-top:3px}}
+    .dr-close{{width:30px;height:30px;border-radius:50%;
+               background:#f2f2f7;border:none;cursor:pointer;
+               display:flex;align-items:center;justify-content:center;
+               font-size:14px;color:var(--muted);flex-shrink:0;
+               -webkit-tap-highlight-color:transparent}}
+    .dr-close:hover{{background:#e5e5ea}}
+    .dr-divider{{height:1px;background:var(--border);margin-bottom:14px}}
+    .dr-rows{{display:flex;flex-direction:column;gap:0}}
+    .dr-row{{display:flex;align-items:baseline;gap:12px;
+             padding:11px 0;border-bottom:1px solid var(--border)}}
+    .dr-row:last-child{{border-bottom:none}}
+    .dr-key{{font-size:12px;font-weight:600;color:var(--muted);
+             min-width:90px;flex-shrink:0}}
+    .dr-val{{font-size:13px;color:var(--text);flex:1;line-height:1.5}}
+    .dr-val.hl-red{{color:var(--red);font-weight:600}}
+    .dr-val.hl-orange{{color:var(--orange);font-weight:600}}
+    .dr-val.hl-green{{color:var(--green);font-weight:600}}
+    .dr-val.hl-blue{{color:var(--blue);font-weight:600}}
+    .ae-row{{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}}
+    .ae-row:last-child{{border-bottom:none}}
+    .ae-dot{{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}}
+    .ae-body{{flex:1;min-width:0}}
+    .ae-task{{font-size:13px;color:var(--text);font-weight:500;line-height:1.45;word-break:break-word}}
+    .ae-meta{{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px}}
+    .ae-proj{{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:1px 8px;border-radius:6px;white-space:nowrap}}
+    .ae-time{{font-size:11px;color:var(--subtle)}}
+    .ae-done .ae-task{{text-decoration:line-through;color:var(--muted);font-weight:400}}
+    .dr-note{{font-size:12px;color:var(--muted);margin-top:14px;
+              padding-top:12px;border-top:1px solid var(--border);
+              line-height:1.5}}
+    .dr-back{{width:30px;height:30px;border-radius:50%;
+              background:#f2f2f7;border:none;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;
+              font-size:16px;color:var(--text);flex-shrink:0;margin-right:4px;
+              -webkit-tap-highlight-color:transparent}}
+    .dr-back:hover{{background:#e5e5ea}}
+    .dr-sub-item{{display:flex;align-items:center;justify-content:space-between;
+                  padding:13px 12px;border-radius:10px;margin-bottom:6px;
+                  border:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}}
+    .dr-sub-item:hover,.dr-sub-item:active{{background:rgba(0,0,0,0.04)}}
+    .dr-sub-left{{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}}
+    .dr-sub-nm{{font-size:13px;font-weight:600;color:var(--text)}}
+    .dr-sub-meta{{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}}
+    .dr-task-row{{display:flex;align-items:flex-start;gap:9px;padding:11px 7px;
+                  border-radius:8px;border-bottom:1px solid var(--border);cursor:pointer;
+                  -webkit-tap-highlight-color:transparent}}
+    .dr-task-row:last-child{{border-bottom:none}}
+    .dr-task-row:hover,.dr-task-row:active{{background:rgba(0,0,0,0.03)}}
+    .dr-task-text{{font-size:13px;line-height:1.45;flex:1}}
+
+    /* Desktop: centered modal */
+    @media(min-width:640px){{
+      .drawer{{
+        bottom:auto;top:50%;left:50%;right:auto;
+        transform:translate(-50%,-44%);
+        width:440px;max-width:calc(100vw - 32px);
+        border-radius:20px;max-height:82vh;
+        opacity:0;transition:opacity .18s,transform .18s
+      }}
+      .drawer.open{{transform:translate(-50%,-50%);opacity:1}}
+      .dr-handle{{display:none}}
+    }}
+
+    /* ─ Responsive ─ */
+
+    /* iPad landscape + small laptop (900-1140px) */
+    @media(max-width:1140px){{
+      .wrap{{max-width:900px}}
+    }}
+
+    /* iPad portrait (600-900px) */
+    @media(max-width:900px){{
+      .wrap{{max-width:100%}}
+      .top-row{{grid-template-columns:1fr 1fr}}
+      .cal-grid{{grid-template-columns:1fr}}
+      .tri-row{{grid-template-columns:1fr 1fr}}
+      .pipeline-grid{{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
+    }}
+
+    /* Large phone / small iPad (480-640px) */
+    @media(max-width:640px){{
+      body{{padding:20px 14px 72px}}
+      .kpi-strip{{grid-template-columns:repeat(2,1fr);gap:8px}}
+      .kpi-val{{font-size:24px}}
+      .top-row{{grid-template-columns:1fr}}
+      .main-row{{grid-template-columns:1fr}}
+      .tri-row{{grid-template-columns:1fr}}
+      .cal-grid{{grid-template-columns:1fr 1fr}}
+      .sb-mid{{display:none}}
+    }}
+
+    /* iPhone (max 480px) */
+    @media(max-width:480px){{
+      body{{padding:16px 12px 64px}}
+      .kpi-strip{{grid-template-columns:repeat(2,1fr);gap:7px}}
+      .kpi-val{{font-size:22px}}
+      .kpi-card{{padding:13px 12px}}
+      .task-text,.list-text,.e-from{{font-size:13px}}
+      .cal-grid{{grid-template-columns:1fr}}
+      [data-tip]::after{{display:none}}
+    }}
+
+    /* ─ Status bar ─ */
+    .sb-wrap{{background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--r);padding:11px 16px;box-shadow:var(--shadow);
+              margin-bottom:16px}}
+    .sb-row{{display:flex;justify-content:space-between;align-items:center;
+             flex-wrap:wrap;gap:6px}}
+    .sb-left{{display:flex;align-items:center;gap:8px}}
+    .sb-dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0}}
+    .sb-label{{font-size:12px;font-weight:600;color:var(--text)}}
+    .sb-mid{{font-size:11px;color:var(--muted)}}
+    .sb-right{{font-size:11px;color:var(--muted)}}
+    .sb-track{{height:6px;background:#f2f2f7;border-radius:3px;
+               margin-top:10px;overflow:hidden}}
+    .sb-fill{{height:100%;border-radius:3px;
+              transition:width 1.2s cubic-bezier(.16,1,.3,1)}}
+
+    /* ─ Article pipeline ─ */
+    .pipeline-grid{{display:grid;
+                    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+                    gap:10px}}
+    .pipe-card{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);
+               display:flex;flex-direction:column;gap:6px}}
+    .pipe-name{{font-size:13px;font-weight:600;color:var(--text);
+               overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+    .pipe-badge{{font-size:10px;font-weight:700;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap}}
+
+    /* ─ Today's Progress ─ */
+    .tp-card{{background:var(--surface);border:1px solid var(--border);
+               border-radius:var(--r);padding:18px 18px 14px;box-shadow:var(--shadow)}}
+    .tp-header{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}}
+    .tp-big{{font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:var(--text)}}
+    .tp-of{{font-size:14px;font-weight:500;color:var(--muted);margin-left:5px}}
+    .tp-pct{{font-size:22px;font-weight:700;letter-spacing:-.5px}}
+    .tp-track{{height:12px;background:#f2f2f7;border-radius:6px;overflow:hidden;margin-bottom:12px}}
+    .tp-fill{{height:100%;border-radius:6px;width:0%;
+               transition:width 1.4s cubic-bezier(.16,1,.3,1)}}
+    .tp-footer{{display:flex;justify-content:space-between;align-items:center;
+                 font-size:11px;color:var(--muted)}}
+    .tp-done-lbl{{font-weight:600}}
+
+    /* ─ Three-column main row ─ */
+    .tri-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+              margin-bottom:0;align-items:start}}
+    .tri-row>div{{display:flex;flex-direction:column;height:460px;
+                 overflow-y:auto;overflow-x:hidden;scrollbar-width:none}}
+    .tri-row>div::-webkit-scrollbar{{display:none}}
+    .tri-row>*,.top-row>*{{min-width:0}}
+    #graph-canvas{{display:block;width:100%;height:100%}}
+
+    /* ─ Agenda ─ */
+    .ag-time{{font-size:11px;font-weight:700;color:var(--blue);min-width:44px;
+              flex-shrink:0;background:var(--blue-bg);border-radius:5px;
+              padding:2px 6px;text-align:center}}
+    .ag-allday{{color:var(--muted);background:#f2f2f7}}
+
+    /* ─ Progress bar ─ */
+    .progress-wrap{{background:var(--surface);border:1px solid var(--border);
+                   border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}}
+    .progress-header{{display:flex;justify-content:space-between;align-items:baseline;
+                      margin-bottom:12px}}
+    .progress-title{{font-size:10px;font-weight:700;text-transform:uppercase;
+                     letter-spacing:.9px;color:var(--muted)}}
+    .progress-stats{{font-size:12px;color:var(--muted)}}
+    .progress-bar-row{{display:flex;flex-direction:column;gap:6px}}
+    .bar-label{{font-size:11px;color:var(--muted);display:flex;
+               justify-content:space-between;margin-bottom:2px}}
+    .bar-track{{height:8px;background:#f2f2f7;border-radius:4px;overflow:hidden}}
+    .bar-fill{{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1)}}
+    .bar-fill-week{{background:var(--green)}}
+    .bar-fill-last{{background:#e5e5ea}}
+
+    /* ─ Animations ─ */
+    @keyframes fadeUp{{
+      from{{opacity:0;transform:translateY(10px)}}
+      to  {{opacity:1;transform:translateY(0)}}
+    }}
+    @keyframes fadeIn{{
+      from{{opacity:0}} to{{opacity:1}}
+    }}
+    @keyframes growBar{{
+      from{{transform:scaleY(0);opacity:0}}
+      to  {{transform:scaleY(1);opacity:1}}
+    }}
+    @keyframes countPulse{{
+      0%{{transform:scale(1)}} 40%{{transform:scale(1.08)}} 100%{{transform:scale(1)}}
+    }}
+
+    /* Header */
+    .header{{animation:fadeUp .45s cubic-bezier(.16,1,.3,1) both}}
+
+    /* KPI stagger */
+    .kpi-card{{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}}
+    .kpi-strip>:nth-child(1){{animation-delay:60ms}}
+    .kpi-strip>:nth-child(2){{animation-delay:120ms}}
+    .kpi-strip>:nth-child(3){{animation-delay:180ms}}
+    .kpi-strip>:nth-child(4){{animation-delay:240ms}}
+
+    /* Top row */
+    .top-row>:nth-child(1){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 300ms both}}
+    .top-row>:nth-child(2){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 360ms both}}
+    .top-row>:nth-child(3){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 420ms both}}
+
+    /* Main columns */
+    .main-row>:nth-child(1){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 480ms both}}
+    .main-row>:nth-child(2){{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) 540ms both}}
+
+    /* Completed section */
+    .sec:last-of-type{{animation:fadeIn .5s ease 600ms both}}
+
+    /* Sparkline bar grow */
+    .spark-bar{{transform-origin:center bottom;animation:growBar .5s cubic-bezier(.16,1,.3,1) backwards}}
+
+    /* Hover lift -- cards and panels */
+    .kpi-card,.panel,.proj-card{{
+      transition:transform .22s cubic-bezier(.16,1,.3,1),
+                 box-shadow .22s ease,
+                 border-color .15s ease
+    }}
+    .kpi-card:hover,.panel:hover,.proj-card:hover{{
+      transform:translateY(-2px);
+      box-shadow:0 6px 28px rgba(0,0,0,0.10)
+    }}
+    .card{{transition:box-shadow .22s ease}}
+    .card:hover{{box-shadow:0 4px 20px rgba(0,0,0,0.09)}}
+
+    /* Live clock pulse dot */
+    .live-dot{{display:inline-block;width:6px;height:6px;border-radius:50%;
+               background:var(--green);margin-right:5px;vertical-align:middle;
+               animation:pulse 2.4s ease-in-out infinite}}
+    @keyframes pulse{{
+      0%,100%{{opacity:1;transform:scale(1)}}
+      50%{{opacity:.5;transform:scale(.85)}}
+    }}
+
+    /* Count-up flash */
+    .kpi-val.popped{{animation:countPulse .4s ease}}
+
+    /* ─ Extra row (day cal, full width) ─ */
+    .extra-row{{margin-bottom:16px;margin-top:12px}}
+
+    /* ─ Day calendar ─ */
+    .dc-outer{{max-height:360px;overflow-y:auto;scrollbar-width:thin;
+               scrollbar-color:var(--border2) transparent}}
+    .dc-outer::-webkit-scrollbar{{width:4px}}
+    .dc-outer::-webkit-scrollbar-thumb{{background:var(--border2);border-radius:2px}}
+    .dc-hrow{{position:absolute;left:0;right:0;display:flex;align-items:flex-start}}
+    .dc-hlbl{{font-size:10px;color:var(--subtle);width:36px;text-align:right;
+              padding-right:7px;margin-top:-6px;flex-shrink:0}}
+    .dc-hline{{flex:1;height:1px;background:var(--border)}}
+    .dc-ev{{position:absolute;left:4px;right:4px;min-height:22px;
+            border-left:3px solid;padding:3px 7px;border-radius:0 5px 5px 0;
+            display:flex;align-items:center;gap:6px}}
+    .dc-ev-t{{font-size:10px;color:var(--muted);flex-shrink:0}}
+    .dc-ev-n{{font-size:12px;font-weight:500;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
+    .dc-ev-tag{{font-size:9px;font-weight:700;letter-spacing:.4px;
+                flex-shrink:0;opacity:.85}}
+    .dc-ev-dur{{font-size:10px;color:var(--muted);flex-shrink:0;margin-left:auto}}
+    .dc-now{{position:absolute;left:-2px;right:0;height:2px;background:var(--red);display:none;z-index:10}}
+    .dc-now::before{{content:'';position:absolute;left:-3px;top:-3px;
+                     width:8px;height:8px;border-radius:50%;background:var(--red)}}
+    .dc-allday{{padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:6px}}
+    .dc-allday-hd{{font-size:9px;font-weight:700;text-transform:uppercase;
+                   letter-spacing:.7px;color:var(--subtle);margin-bottom:5px}}
+    .dc-allday-item{{display:flex;align-items:center;gap:7px;
+                     padding:3px 0;min-height:24px}}
+    .dc-alldot{{width:6px;height:6px;border-radius:50%;flex-shrink:0}}
+    .dc-alltext{{font-size:12px;flex:1;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap;color:var(--text)}}
+    .dc-alllbl{{font-size:10px;font-weight:600;flex-shrink:0}}
+
+    /* ─ Velocity card ─ */
+    .vel-grid{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}}
+    .vel-stat{{background:#f9f9fb;border:1px solid var(--border);border-radius:10px;
+               padding:10px 11px;text-align:center}}
+    .vel-val{{font-size:22px;font-weight:700;letter-spacing:-1px;line-height:1;
+              display:block;margin-bottom:3px}}
+    .vel-lbl{{font-size:10px;color:var(--muted);font-weight:500;line-height:1.3;display:block}}
+    .vel-green{{color:var(--green)}}.vel-blue{{color:var(--blue)}}
+    .vel-orange{{color:var(--orange)}}.vel-red{{color:var(--red)}}.vel-muted{{color:var(--subtle)}}
+    .vel-delta{{display:flex;align-items:center;justify-content:space-between;
+                font-size:11px;color:var(--muted);padding:8px 0;
+                border-top:1px solid var(--border);margin-top:6px}}
+    .vel-trend{{font-weight:600}}
+    .act-pill{{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;
+               display:inline-block;margin:2px}}
+
+    @media(max-width:900px){{
+      .extra-row{{grid-template-columns:1fr}}
+    }}
+
+    /* ─ CC Primer ─ */
+    .cc-primer{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}}
+    .cc-block{{background:var(--surface);border:1px solid var(--border);
+               border-top:3px solid var(--border);
+               border-radius:var(--r);padding:14px 15px;box-shadow:var(--shadow)}}
+    .cc-block-lbl{{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+                   margin-bottom:8px}}
+    .cc-detail{{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:3px}}
+    .cc-detail strong{{font-weight:600}}
+    .week-recap{{font-size:12.5px;line-height:1.55;color:var(--text)}}
+    .news-row{{display:flex;gap:8px;align-items:flex-start;text-decoration:none;
+              padding:7px 4px;margin:0 -4px;border-radius:7px;
+              border-bottom:1px solid var(--border);transition:background .12s}}
+    .news-row:last-child{{border-bottom:none;padding-bottom:1px}}
+    .news-row:first-child{{padding-top:1px}}
+    .news-row:hover{{background:var(--surface)}}
+    .news-dot{{width:6px;height:6px;border-radius:50%;margin-top:5px;flex:0 0 auto}}
+    .news-main{{display:flex;flex-direction:column;gap:2px;min-width:0}}
+    .news-ttl{{font-size:12px;line-height:1.32;color:var(--text);font-weight:500;
+              display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
+    .news-row:hover .news-ttl{{text-decoration:underline}}
+    .news-meta{{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}}
+    .news-meta b{{font-weight:700;color:var(--text);letter-spacing:.2px}}
+    .news-age{{padding:1px 5px;border-radius:5px;background:var(--border);
+              color:var(--muted);font-weight:600}}
+    .news-empty{{font-size:12px;color:var(--muted);padding:4px 0}}
+    .mkt-row{{display:grid;grid-template-columns:1fr auto auto;align-items:baseline;
+             gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}}
+    .mkt-row:last-child{{border-bottom:none;padding-bottom:1px}}
+    .mkt-row:first-child{{padding-top:1px}}
+    .mkt-name{{font-size:12px;color:var(--text);font-weight:500}}
+    .mkt-val{{font-size:12px;color:var(--text);font-weight:600;
+             font-variant-numeric:tabular-nums}}
+    .mkt-chg{{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;
+             min-width:64px;text-align:right;white-space:nowrap}}
+    .mkt-up{{color:var(--green)}}
+    .mkt-down{{color:#ff3b30}}
+    .cc-green{{background:var(--green-bg);border-color:var(--green-bdr);border-top-color:var(--green)}}
+    .cc-green .cc-block-lbl{{color:var(--green)}}
+    .cc-blue{{background:var(--blue-bg);border-color:var(--blue-bdr);border-top-color:var(--blue)}}
+    .cc-blue .cc-block-lbl{{color:var(--blue)}}
+    .cc-orange{{background:var(--orange-bg);border-color:var(--orange-bdr);border-top-color:var(--orange)}}
+    .cc-orange .cc-block-lbl{{color:var(--orange)}}
+    .cc-purple{{background:#f5edff;border-color:rgba(191,90,242,0.20);border-top-color:#bf5af2}}
+    .cc-purple .cc-block-lbl{{color:#bf5af2}}
+    @media(max-width:900px){{.cc-primer{{grid-template-columns:repeat(2,1fr)}}}}
+    @media(max-width:640px){{.cc-primer{{grid-template-columns:1fr}}}}
+    }}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hd-left">
+      <div class="avatar">F</div>
+      <div>
+        <div class="hd-name">Felix Janssen</div>
+        <div class="hd-sub">Task Dashboard</div>
+      </div>
+    </div>
+    <div class="hd-right">
+      <span class="sync-dot" style="background:{sb_color}"></span>
+      <span class="sync-lbl" id="sync-ago" data-ts="{build_epoch}">{updated}</span>
+      <span class="hd-time"><span class="live-dot"></span><span id="live-clock"></span></span>
+    </div>
+  </div>
+
+  <div class="kpi-strip">{kpi_html}</div>
+  {priority_html}
+
+  <div class="top-row">
+    <div class="panel spark-panel">
+      <div class="p-lbl">Completed, last 14 days</div>
+      <div class="spark-big">{spark_n}</div>
+      <div class="spark-sub">tasks done</div>
+      <div class="spark-grow">{spark_svg}</div>
+    </div>
+    <div class="panel">
+      <div class="p-lbl">Active by project</div>
+      <div class="donut-wrap">
+        <div class="donut-svg">{donut_svg}</div>
+        <div class="leg">{legend_html}</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="p-lbl">Calendar</div>
+      {cal_html}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-lbl">Daily Brief</div>
+    <div class="cc-primer">
+      <div class="cc-block cc-green">
+        <div class="cc-block-lbl">AI News</div>
+        {ai_news_html}
+      </div>
+      <div class="cc-block cc-blue">
+        <div class="cc-block-lbl">Deal Flow</div>
+        {pe_news_html}
+      </div>
+      <div class="cc-block cc-orange">
+        <div class="cc-block-lbl">Markets</div>
+        {markets_html}
+      </div>
+      <div class="cc-block cc-purple">
+        <div class="cc-block-lbl">This Week</div>
+        {this_week_html}
+      </div>
+    </div>
+  </div>
+
+  <div class="tri-row">
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Active Tasks</div>
+        {active_cards}
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Blocked</div>
+        <div class="card">{blocked_rows}</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Today's Agenda</div>
+        <div class="card">{agenda_html}</div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Awaiting Feedback</div>
+        <div class="card">{replies_html}</div>
+      </div>
+      <div class="sec">
+        <div class="tp-card interactive" data-key="today-progress">
+          <div class="tp-header">
+            <div>
+              <span class="tp-big">{tp_done}</span>
+              <span class="tp-of">/ {tp_total}</span>
+            </div>
+            <span class="tp-pct" style="color:{tp_color}">{tp_pct}%</span>
+          </div>
+          <div class="tp-track">
+            <div class="tp-fill" id="tp-fill" data-pct="{tp_pct}" style="background:{tp_color}"></div>
+          </div>
+          <div class="tp-footer">
+            <span class="tp-done-lbl">{tp_rem_lbl}</span>
+            <span class="chevron">&#8250;</span>
+          </div>
+        </div>
+      </div>
+      {session_arc_html}
+    </div>
+    <div>
+      <div class="sec">
+        <div class="sec-lbl">Upcoming</div>
+        <div class="card">{deadline_rows}</div>
+      </div>
+      <div class="sec">
+        <div class="sec-lbl">Recent Emails</div>
+        <div class="card">{email_rows}</div>
+      </div>
+      <div class="sec">
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span class="progress-title">Weekly Progress</span>
+            <span class="progress-stats">{done_wk} this week &nbsp;·&nbsp; {done_last_wk} last week</span>
+          </div>
+          <div class="progress-bar-row">
+            <div>
+              <div class="bar-label"><span>This week</span><span>{done_wk} tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-week" id="bar-week" style="width:0%;background:{wk_color}" data-pct="{wk_pct}"></div></div>
+            </div>
+            <div>
+              <div class="bar-label"><span>Last week</span><span>{done_last_wk} tasks</span></div>
+              <div class="bar-track"><div class="bar-fill bar-fill-last" id="bar-last" data-pct="{lw_pct}"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="extra-row">
+    <div class="panel">
+      <div class="p-lbl" id="dc-today-lbl">Today &nbsp;·&nbsp; {today.strftime("%b %-d")}</div>
+      {hourly_cal}
+    </div>
+  </div>
+
+  <footer>
+    <span class="ft-name">felix janssen · task dashboard</span>
+    <span class="ft-time">Built {updated}</span>
+  </footer>
+
+</div>
+
+<!-- Drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="dr-handle"></div>
+  <div class="dr-accent" id="dr-accent"></div>
+  <div class="dr-inner">
+    <div class="dr-header">
+      <button class="dr-back" id="dr-back" hidden>&#8592;</button>
+      <div class="dr-titles">
+        <div class="dr-title" id="dr-title"></div>
+        <div class="dr-sub"   id="dr-sub"></div>
+      </div>
+      <button class="dr-close" id="dr-close">&#x2715;</button>
+    </div>
+    <div class="dr-divider"></div>
+    <div class="dr-rows" id="dr-rows"></div>
+    <div class="dr-note" id="dr-note" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const PD = {panels_js};
+
+const overlay = document.getElementById('overlay');
+const drawer  = document.getElementById('drawer');
+const drTitle = document.getElementById('dr-title');
+const drSub   = document.getElementById('dr-sub');
+const drRows  = document.getElementById('dr-rows');
+const drNote  = document.getElementById('dr-note');
+const drAccent= document.getElementById('dr-accent');
+
+let _navStack = [];
+let _curKey   = null;
+const drBack  = document.getElementById('dr-back');
+
+function openDrawer(key, pushNav) {{
+  const d = PD[key];
+  if (!d) return;
+  if (pushNav && _curKey) _navStack.push(_curKey);
+  _curKey = key;
+  drBack.hidden = _navStack.length === 0;
+  drTitle.textContent = d.t;
+  drSub.textContent   = d.sub || '';
+  drAccent.style.background = d.color || '#0071e3';
+  drRows.innerHTML = (d.rows || []).map(r => {{
+    if (r.html) return r.html;
+    const hlCls = r.hl ? ` hl-${{r.hl}}` : '';
+    return `<div class="dr-row">
+      <span class="dr-key">${{r.k}}</span>
+      <span class="dr-val${{hlCls}}">${{r.v}}</span>
+    </div>`;
+  }}).join('');
+  if (d.note) {{
+    drNote.textContent = d.note;
+    drNote.style.display = 'block';
+  }} else {{
+    drNote.style.display = 'none';
+  }}
+  overlay.classList.add('open');
+  drawer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}}
+
+function closeDrawer() {{
+  _navStack = [];
+  _curKey   = null;
+  overlay.classList.remove('open');
+  drawer.classList.remove('open');
+  document.body.style.overflow = '';
+}}
+
+document.getElementById('dr-close').addEventListener('click', closeDrawer);
+drBack.addEventListener('click', e => {{
+  e.stopPropagation();
+  if (_navStack.length) openDrawer(_navStack.pop(), false);
+}});
+overlay.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => {{ if (e.key === 'Escape') closeDrawer(); }});
+
+// Navigation inside the drawer (sub-items and task rows)
+drRows.addEventListener('click', e => {{
+  const el = e.target.closest('[data-key]');
+  if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key, true); }}
+}});
+
+document.addEventListener('click', e => {{
+  if (e.target.closest('#drawer')) return;
+  const el = e.target.closest('[data-key]');
+  if (el && PD[el.dataset.key]) {{ e.stopPropagation(); openDrawer(el.dataset.key, false); }}
+}});
+
+let startY = 0;
+drawer.addEventListener('touchstart', e => {{ startY = e.touches[0].clientY; }}, {{passive:true}});
+drawer.addEventListener('touchend',   e => {{ if (e.changedTouches[0].clientY - startY > 55) closeDrawer(); }}, {{passive:true}});
+
+// ── Status bar + progress bars ───────────────────────────────────────────────
+(function() {{
+  function animateBar(id, delay) {{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const pct = parseInt(el.dataset.pct || '0', 10);
+    setTimeout(() => {{ el.style.width = pct + '%'; }}, delay || 400);
+  }}
+  animateBar('sb-fill',   200);
+  animateBar('tp-fill',   500);
+  animateBar('bar-week',  700);
+  animateBar('bar-last',  800);
+}})();
+
+// ── Live clock ──────────────────────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  function tick() {{
+    const n = new Date();
+    const h = String(n.getHours()).padStart(2,'0');
+    const m = String(n.getMinutes()).padStart(2,'0');
+    const s = String(n.getSeconds()).padStart(2,'0');
+    el.textContent = `${{h}}:${{m}}:${{s}}`;
+  }}
+  tick();
+  setInterval(tick, 1000);
+}})();
+
+// ── KPI count-up ────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-countup]').forEach(el => {{
+  const target = parseInt(el.dataset.countup, 10);
+  if (isNaN(target) || target === 0) return;
+  const duration = 700;
+  const start    = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3); // ease-out cubic
+  function frame(now) {{
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(ease(p) * target);
+    if (p < 1) requestAnimationFrame(frame);
+    else {{ el.textContent = target; el.classList.add('popped'); }}
+  }}
+  // Small delay so animation starts after card fade-in
+  setTimeout(() => requestAnimationFrame(frame), 350);
+}});
+
+// ── Relative "last synced" time ─────────────────────────────────────────────
+(function() {{
+  const el = document.getElementById('sync-ago');
+  if (!el) return;
+  const epoch = parseInt(el.dataset.ts, 10);
+  function update() {{
+    const diff = Math.floor(Date.now() / 1000 - epoch);
+    if (diff < 60)       el.textContent = 'just now';
+    else if (diff < 3600) el.textContent = Math.floor(diff/60) + 'm ago';
+    else                  el.textContent = Math.floor(diff/3600) + 'h ' + Math.floor((diff%3600)/60) + 'm ago';
+  }}
+  update();
+  setInterval(update, 30000);
+}})();
+
+
+// ── Session arc: fetch live usage.json on load ──────────────────────────────
+(function() {{
+  const arc = document.getElementById('session-arc-fill');
+  const txt = document.getElementById('session-pct-text');
+  const wrap= document.getElementById('session-arc-wrap');
+  if (!arc || !txt || !wrap) return;
+  const CIRC = 238.76;
+  function applyUsage(d) {{
+    const pct   = Math.round(parseFloat(d.five_hour_pct) || 0);
+    const color = pct < 50 ? '#34c759' : (pct < 75 ? '#ff9500' : '#ff3b30');
+    arc.style.stroke = color;
+    arc.setAttribute('stroke-dasharray', (pct / 100 * CIRC).toFixed(1) + ' ' + CIRC.toFixed(1));
+    txt.textContent = pct + '%';
+    if (d.resets_at) wrap.dataset.resetsat = d.resets_at;
+  }}
+  fetch('usage.json?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {{ if (d) applyUsage(d); }})
+    .catch(() => {{}});
+}})();
+
+// ── Session arc: live reset countdown ───────────────────────────────────────
+(function() {{
+  const wrap = document.getElementById('session-arc-wrap');
+  const lbl  = document.getElementById('session-status-lbl');
+  if (!wrap || !lbl) return;
+  const resetsAt = parseInt(wrap.dataset.resetsat || '0', 10);
+  function update() {{
+    if (!resetsAt) {{ lbl.textContent = 'Open claude.ai to sync'; return; }}
+    const secsLeft = resetsAt - Math.floor(Date.now() / 1000);
+    if (secsLeft <= 0) {{ lbl.textContent = 'Resetting now'; return; }}
+    const h = Math.floor(secsLeft / 3600);
+    const m = Math.floor((secsLeft % 3600) / 60);
+    lbl.textContent = 'Resets in ' + (h > 0 ? h + 'h ' + m + 'm' : m + 'm');
+  }}
+  update();
+  setInterval(update, 30000);
+}})();
+
+// ── Day calendar: current-time line + auto-scroll ───────────────────────────
+(function() {{
+  const nowEl = document.getElementById('dc-now');
+  const outer = document.getElementById('dc-outer');
+  if (!nowEl || !outer) return;
+  const START_H = 8, END_H = 22, SLOT_H = 44;
+  function placeLine() {{
+    const n = new Date();
+    const top = (n.getHours() - START_H + n.getMinutes()/60) * SLOT_H;
+    if (top < 0 || top > (END_H - START_H) * SLOT_H) {{ nowEl.style.display = 'none'; return; }}
+    nowEl.style.top = top.toFixed(1) + 'px';
+    nowEl.style.display = 'block';
+  }}
+  placeLine();
+  setInterval(placeLine, 60000);
+  // Scroll so current time is near top of visible area
+  const n = new Date();
+  outer.scrollTop = Math.max(0, (n.getHours() - START_H - 0.5) * SLOT_H);
+}})();
+
+// ── Date-aware label refresh (runs on every page load) ───────────────────────
+(function() {{
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function relLbl(iso, time) {{
+    const today = new Date(); today.setHours(0,0,0,0);
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const t     = time ? ' ' + time : '';
+    if (delta < 0)   return Math.abs(delta) + 'd ago' + t;
+    if (delta === 0) return 'Today' + t;
+    if (delta === 1) return 'Tomorrow' + t;
+    if (delta <= 6)  return DAYS[due.getDay()] + t;
+    return MONTHS[due.getMonth()] + ' ' + due.getDate() + t;
+  }}
+  function urgCls(delta) {{
+    return delta <= 1 ? 'red' : (delta <= 3 ? 'orange' : 'blue');
+  }}
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.querySelectorAll('.due-tag[data-due-iso]').forEach(el => {{
+    const iso   = el.dataset.dueIso;
+    if (!iso) return;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso);
+    el.className   = 'due-tag due-' + urgCls(delta);
+  }});
+
+  document.querySelectorAll('.dt-badge[data-due-iso]').forEach(el => {{
+    const iso  = el.dataset.dueIso;
+    if (!iso) return;
+    const time = el.dataset.dueTime || '';
+    const due  = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    el.textContent = relLbl(iso, time);
+    el.className   = 'dt-badge ' + (delta <= 1 ? 'dt-red' : (delta <= 3 ? 'dt-orange' : 'dt-blue'));
+  }});
+
+  const pf = document.querySelector('.priority-flag[data-due-iso]');
+  if (pf && pf.dataset.dueIso) {{
+    const iso   = pf.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    if      (delta < 0)   pf.textContent = 'Overdue';
+    else if (delta === 0) pf.textContent = 'Today';
+    else if (delta === 1) pf.textContent = 'Tomorrow';
+    else if (delta <= 6)  pf.textContent = DAYS[due.getDay()];
+  }}
+
+  const dcLbl = document.getElementById('dc-today-lbl');
+  if (dcLbl) {{
+    const n = new Date();
+    dcLbl.textContent = 'Today  ·  ' + MONTHS[n.getMonth()] + ' ' + n.getDate();
+  }}
+
+  Object.keys(PD).forEach(key => {{
+    if (!key.startsWith('deadline-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const dateRow = (d.rows || []).find(r => r && r.k === 'Date');
+    if (!dateRow) return;
+    const m  = dateRow.v.match(/(\\d{{4}}-\\d{{2}}-\\d{{2}})/);
+    const tm = dateRow.v.match(/at (\\d{{1,2}}:\\d{{2}})/);
+    if (!m) return;
+    const due   = new Date(m[1] + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const time  = tm ? tm[1] : '';
+    const hl    = urgCls(delta);
+    const whenRow = (d.rows || []).find(r => r && r.k === 'When');
+    const inRow   = (d.rows || []).find(r => r && r.k === 'In');
+    if (whenRow) {{ whenRow.v = relLbl(m[1], time); whenRow.hl = hl; }}
+    if (inRow)   {{ inRow.v  = delta >= 0 ? delta + ' day' + (delta !== 1 ? 's' : '') : 'Past due'; inRow.hl = hl; }}
+  }});
+
+  Object.keys(PD).forEach(key => {{
+    if (!key.startsWith('active-')) return;
+    const d = PD[key];
+    if (!d || !d.rows) return;
+    const el = document.querySelector(`[data-key="${{key}}"] .due-tag[data-due-iso]`);
+    if (!el || !el.dataset.dueIso) return;
+    const iso   = el.dataset.dueIso;
+    const due   = new Date(iso + 'T00:00:00');
+    const delta = Math.round((due - today) / 86400000);
+    const dueRow  = (d.rows || []).find(r => r && r.k === 'Due');
+    const statRow = (d.rows || []).find(r => r && r.k === 'Status');
+    if (dueRow) {{ dueRow.v = relLbl(iso); dueRow.hl = urgCls(delta); }}
+    if (statRow) {{
+      if (delta < 0)       {{ statRow.v = 'Overdue';  statRow.hl = 'red'; }}
+      else if (delta <= 3) {{ statRow.v = 'Due soon'; statRow.hl = 'orange'; }}
+      else                 {{ statRow.v = 'On track'; statRow.hl = 'green'; }}
+    }}
+  }});
+}})();
+</script>
+</body>
+</html>"""
+
+
+def main():
+    tasks_path = Path(sys.argv[1]) if len(sys.argv) > 1 else TASKS_FILE
+    if not tasks_path.exists():
+        print(f"ERROR: Tasks.md not found at {tasks_path}", file=sys.stderr); sys.exit(1)
+    content = tasks_path.read_text(encoding="utf-8")
+    if len(content.strip()) < 50:
+        print("ERROR: Tasks.md is empty or too small, aborting to prevent corrupt deploy", file=sys.stderr); sys.exit(1)
+    live_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
+    active, blocked, completed = parse_tasks(content)
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_FILE.write_text(build_html(active, blocked, completed, live_data))
+    print(f"Built: {OUTPUT_FILE}")
+    print(f"  {sum(len(s['tasks']) for s in active)} active  |  {len(blocked)} blocked  |  {len(completed)} done")
+
+
+if __name__ == "__main__":
+    main()
