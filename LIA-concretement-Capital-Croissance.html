@@ -63,7 +63,8 @@
     border-color:color-mix(in srgb,var(--n8n) 45%,var(--line));
     background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--n8n) 7%,#fff)); }
   .tool.bridge .ic{ margin-inline:auto; }
-  /* la meme ligne rouge que la slide 3 : Mistral -> n8n -> Salesforce, dessinee dans cet ordre */
+  /* deux fils rouges symetriques : chacun descend sous sa carte, vire a 90 degres en douceur
+     et entre par le flanc du bloc n8n */
   .pipes{ display:block; position:relative; z-index:0; width:100%; max-width:880px; height:44px; margin:6px auto 0; overflow:visible; }
   .pipes path{ fill:none; stroke:color-mix(in srgb,var(--n8n) 55%,var(--line-strong)); stroke-width:2;
     stroke-dasharray:100; stroke-dashoffset:100; }
@@ -71,7 +72,7 @@
   .slide.active .pipes path{ animation:wire 1.2s linear .8s forwards; }
   .slide.active .pipes circle{ animation:pipe-in .35s var(--e) both; }
   .slide.active .pipes circle:nth-of-type(1){ animation-delay:.75s; }
-  .slide.active .pipes circle:nth-of-type(2){ animation-delay:1.95s; }
+  .slide.active .pipes circle:nth-of-type(2){ animation-delay:.75s; }
   @keyframes pipe-in{ to{ opacity:1; } }
   @media (max-width:880px){ .tools{ grid-template-columns:1fr; } }
   .tool{ background:var(--panel); border:1px solid var(--line-strong); border-radius:10px; padding:22px 20px; box-shadow:var(--sh-sm); }
@@ -192,12 +193,11 @@
   .diag.reveal .probs~.verdict .mais{ animation:mais-hit .55s var(--e) 1.3s both; }
   /* 3e temps du diagnostic : un trait de marqueur barre le probleme, la reponse s'affiche dessous */
   .strk{ position:relative; }
-  .strk::after{ content:""; position:absolute; left:-1.5%; right:-1.5%; top:44%; height:.32em;
-    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'><path d='M1,5.4 C14,3.2 27,6.9 41,5.2 55,3.6 63,6.7 77,5.9 91,5.1 102,3 119,4.6' fill='none' stroke='%2325262A' stroke-width='2.4' stroke-linecap='round'/></svg>") 0 0/100% 100% no-repeat;
+  .strksvg{ position:absolute; left:-1.5%; width:103%; top:44%; height:.32em;
     transform:scaleX(0) rotate(-1.6deg); transform-origin:left center; }
   .probs~.verdict .fix{ display:block; margin-top:.55em; font-size:clamp(24px,3vw,40px); font-weight:800;
     letter-spacing:-.02em; color:var(--accent); opacity:0; }
-  .diag.answer .strk::after{ animation:strike .45s var(--e) both; }
+  .diag.answer .strksvg{ animation:strike .45s var(--e) both; }
   .diag.answer .strk{ animation:strk-dim .45s var(--e) .1s both; }
   .diag.answer .fix{ animation:verdict-big .7s var(--e) .5s both; }
   @keyframes strike{ to{ transform:scaleX(1) rotate(-1.6deg); } }
@@ -677,9 +677,8 @@
   .case .lead{ font-style:italic; }
   /* clin d'oeil au carton titre de la serie Bref : slab serif blanc sur noir */
   .bref{ font-family:'Lubalin Graph','ITC Lubalin Graph Std',Rockwell,'American Typewriter',serif;
-    font-style:normal; color:#fff; padding:2px 10px 4px;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%2325262A' fill-opacity='.96'/></svg>");
-    background-repeat:no-repeat; background-size:100% 100%; }
+    font-style:normal; color:#fff; padding:2px 10px 4px; position:relative; z-index:0; }
+  .bref .marksvg{ position:absolute; inset:0; width:100%; height:100%; z-index:-1; }
   /* transitions posees uniquement HORS intro : poser .intro masque donc INSTANTANEMENT
      (sinon, en arrivant sur la slide, steps + telephone restent visibles le temps du fondu),
      et seule la revelation (retrait de .intro) est animee */
@@ -735,22 +734,18 @@
   @keyframes hl-swipe{ to{ transform:scaleX(1) skewX(-14deg) rotate(-1.3deg); } }
   /* surligneurs du lead cas 2 : uniquement les sources, une par une, chacune a la couleur exacte
      de sa pastille slide 9 (Salesforce jaune, CFnews vert, presse orange, registres rose, LinkedIn bleu) */
-  .hls{ background-repeat:no-repeat; background-size:0% 80%; background-position:0 60%;
+  .hls{ position:relative; z-index:0;
     -webkit-box-decoration-break:clone; box-decoration-break:clone; }
-  #s-bf.active .hls{ animation:hl-fill .85s cubic-bezier(.3,.1,.3,1) both; }
-  .hls-sf{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%23FFE135' fill-opacity='.62'/></svg>"); }
-  .hls-cf{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%237DD882' fill-opacity='.55'/></svg>"); }
-  .hls-pr{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%23FFB266' fill-opacity='.58'/></svg>"); }
-  .hls-rg{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%23FF8AAB' fill-opacity='.5'/></svg>"); }
-  .hls-li{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'><path d='M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z' fill='%2376C0FF' fill-opacity='.55'/></svg>"); }
-  #s-bf.active .hls-sf{ animation-delay:1.2s; }
-  #s-bf.active .hls-cf{ animation-delay:1.9s; }
-  #s-bf.active .hls-pr{ animation-delay:2.6s; }
-  #s-bf.active .hls-rg{ animation-delay:3.3s; animation-duration:.55s; }
+  .hls .marksvg{ position:absolute; left:0; top:12%; height:80%; width:0; z-index:-1; }
+  #s-bf.active .hls .marksvg{ animation:hl-fill .85s cubic-bezier(.3,.1,.3,1) both; }
+            #s-bf.active .hls-sf .marksvg{ animation-delay:1.2s; }
+  #s-bf.active .hls-cf .marksvg{ animation-delay:1.9s; }
+  #s-bf.active .hls-pr .marksvg{ animation-delay:2.6s; }
+  #s-bf.active .hls-rg .marksvg{ animation-delay:3.3s; animation-duration:.55s; }
   /* 2e coup de surligneur : "officiels" (ligne suivante) part quand "les registres" finit */
-  #s-bf.active .hls-rg2{ animation-delay:3.85s; animation-duration:.35s; }
-  #s-bf.active .hls-li{ animation-delay:4s; }
-  @keyframes hl-fill{ to{ background-size:100% 80%; } }
+  #s-bf.active .hls-rg2 .marksvg{ animation-delay:3.85s; animation-duration:.35s; }
+  #s-bf.active .hls-li .marksvg{ animation-delay:4s; }
+  @keyframes hl-fill{ to{ width:100%; } }
 
   /* vb */
   .vbgrid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(22px,3.6vw,50px); align-items:stretch; }
@@ -1043,9 +1038,10 @@
         </div>
       </div>
       <svg class="pipes" viewBox="0 0 880 44" preserveAspectRatio="none" aria-hidden="true">
-        <path pathLength="100" d="M216,2 L216,72 L664,72 L664,2"/>
-        <circle cx="216" cy="2" r="3"/>
-        <circle cx="664" cy="2" r="3"/>
+        <path pathLength="100" d="M96,2 L96,84 Q96,110 122,110 L160,110"/>
+        <path pathLength="100" d="M784,2 L784,84 Q784,110 758,110 L720,110"/>
+        <circle cx="96" cy="2" r="3"/>
+        <circle cx="784" cy="2" r="3"/>
       </svg>
       <div class="tool bridge">
         <div class="ic" style="color:var(--n8n)"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.4737 5.6842c-1.1772 0-2.1663.8051-2.4468 1.8947h-2.8955c-1.235 0-2.289.893-2.492 2.111l-.1038.623a1.263 1.263 0 0 1-1.246 1.0555H11.289c-.2805-1.0896-1.2696-1.8947-2.4468-1.8947s-2.1663.8051-2.4467 1.8947H4.973c-.2805-1.0896-1.2696-1.8947-2.4468-1.8947C1.1311 9.4737 0 10.6047 0 12s1.131 2.5263 2.5263 2.5263c1.1772 0 2.1663-.8051 2.4468-1.8947h1.4223c.2804 1.0896 1.2696 1.8947 2.4467 1.8947 1.1772 0 2.1663-.8051 2.4468-1.8947h1.0008a1.263 1.263 0 0 1 1.2459 1.0555l.1038.623c.203 1.218 1.257 2.111 2.492 2.111h.3692c.2804 1.0895 1.2696 1.8947 2.4468 1.8947 1.3952 0 2.5263-1.131 2.5263-2.5263s-1.131-2.5263-2.5263-2.5263c-1.1772 0-2.1664.805-2.4468 1.8947h-.3692a1.263 1.263 0 0 1-1.246-1.0555l-.1037-.623A2.52 2.52 0 0 0 13.9607 12a2.52 2.52 0 0 0 .821-1.4794l.1038-.623a1.263 1.263 0 0 1 1.2459-1.0555h2.8955c.2805 1.0896 1.2696 1.8947 2.4468 1.8947 1.3952 0 2.5263-1.131 2.5263-2.5263s-1.131-2.5263-2.5263-2.5263m0 1.2632a1.263 1.263 0 0 1 1.2631 1.2631 1.263 1.263 0 0 1-1.2631 1.2632 1.263 1.263 0 0 1-1.2632-1.2632 1.263 1.263 0 0 1 1.2632-1.2631M2.5263 10.7368A1.263 1.263 0 0 1 3.7895 12a1.263 1.263 0 0 1-1.2632 1.2632A1.263 1.263 0 0 1 1.2632 12a1.263 1.263 0 0 1 1.2631-1.2632m6.3158 0A1.263 1.263 0 0 1 10.1053 12a1.263 1.263 0 0 1-1.2632 1.2632A1.263 1.263 0 0 1 7.579 12a1.263 1.263 0 0 1 1.2632-1.2632m10.1053 3.7895a1.263 1.263 0 0 1 1.2631 1.2632 1.263 1.263 0 0 1-1.2631 1.2631 1.263 1.263 0 0 1-1.2632-1.2631 1.263 1.263 0 0 1 1.2632-1.2632"/></svg></div>
@@ -1130,7 +1126,7 @@
           <div class="who">Chris</div>
         </div>
       </div>
-      <p class="verdict"><span class="vk">Un seul sujet</span><span class="hl">L'information est là, <span class="mais">mais</span> <span class="strk">pas à portée de main.</span></span><span class="fix">Trois outils pour la mettre à portée de main.</span></p>
+      <p class="verdict"><span class="vk">Un seul sujet</span><span class="hl">L'information est là, <span class="mais">mais</span> <span class="strk">pas à portée de main.<svg class="strksvg" viewBox="0 0 120 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1,5.4 C14,3.2 27,6.9 41,5.2 55,3.6 63,6.7 77,5.9 91,5.1 102,3 119,4.6" fill="none" stroke="#25262A" stroke-width="2.4" stroke-linecap="round"/></svg></span></span><span class="fix">Trois outils pour qu'elle vienne à vous.</span></p>
     </div>
   </section>
 
@@ -1147,7 +1143,7 @@
       <div>
         <p class="eyebrow">Cas 1 · Après le rendez-vous</p>
         <h2>MIC</h2>
-        <p class="lead">Il est 11h02, vous sortez d'un rendez-vous.<br>Une minute de dictée dans Teams, le compte-rendu s'écrit&nbsp;: vous donnez votre feu vert. Demander un résumé à une IA, tout le monde sait déjà le faire. La différence est ailleurs&nbsp;: ici, il est rédigé directement<br><span style="white-space:nowrap">dans <b style="color:var(--sf)">Salesforce</b>, sur le bon compte, avec le bon contact,</span><br><span class="bref">bref.</span> au bon endroit.</p>
+        <p class="lead">Il est 11h02, vous sortez d'un rendez-vous.<br>Une minute de dictée dans Teams, le compte-rendu s'écrit&nbsp;: vous donnez votre feu vert. Demander un résumé à une IA, tout le monde sait déjà le faire. La différence est ailleurs&nbsp;: ici, il est rédigé directement<br><span style="white-space:nowrap">dans <b style="color:var(--sf)">Salesforce</b>, sur le bon compte, avec le bon contact,</span><br><span class="bref">bref.<svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#25262A" fill-opacity=".96"/></svg></span> au bon endroit.</p>
         <div class="steps">
           <div class="step"><span class="n">1</span><div class="t">Vous dictez</div></div>
           <div class="step"><span class="n">2</span><div class="t">Quatre cartes arrivent dans votre chat</div></div>
@@ -1530,7 +1526,7 @@
       <div>
         <p class="eyebrow">Cas 2 · Avant le rendez-vous</p>
         <h2>Brief Express</h2>
-        <p class="lead">Il est 9h21, vous voyez un LP dans 20 minutes. Une phrase dans Teams : il relit d'abord tout ce que notre <b class="hls hls-sf" style="color:var(--sf)">Salesforce</b> sait déjà de lui, puis enrichit avec ce qui se dit dehors : <span class="hls hls-cf">CFnews</span>, <span class="hls hls-pr">la presse</span>, <span class="hls hls-rg">les registres</span> <span class="hls hls-rg hls-rg2">officiels</span>. <span class="hls hls-li">LinkedIn</span> aussi, à prendre avec un peu de recul. Vous arrivez préparé, sans rien avoir ouvert.</p>
+        <p class="lead">Il est 9h21, vous voyez un LP dans 20 minutes. Une phrase dans Teams : il relit d'abord tout ce que notre <b class="hls hls-sf" style="color:var(--sf)"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#FFE135" fill-opacity=".62"/></svg>Salesforce</b> sait déjà de lui, puis enrichit avec ce qui se dit dehors : <span class="hls hls-cf"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#7DD882" fill-opacity=".55"/></svg>CFnews</span>, <span class="hls hls-pr"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#FFB266" fill-opacity=".58"/></svg>la presse</span>, <span class="hls hls-rg"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#FF8AAB" fill-opacity=".5"/></svg>les registres</span> <span class="hls hls-rg hls-rg2"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#FF8AAB" fill-opacity=".5"/></svg>officiels</span>. <span class="hls hls-li"><svg class="marksvg" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2.5,3.4 C20,1.7 44,2.9 64,2.1 80,1.5 94,2.3 98.5,3.7 L97.5,11.2 C79,12.9 56,11.5 36,12.5 20,13.2 6.5,12.3 1.5,10.4 Z" fill="#76C0FF" fill-opacity=".55"/></svg>LinkedIn</span> aussi, à prendre avec un peu de recul. Vous arrivez préparé, sans rien avoir ouvert.</p>
         <div class="steps">
           <div class="step"><span class="n">1</span><div class="t">Vous écrivez comme vous parlez</div></div>
           <div class="step"><span class="n">2</span><div class="t">Il lit notre Salesforce</div></div>
